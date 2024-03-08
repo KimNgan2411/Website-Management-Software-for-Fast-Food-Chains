@@ -1,0 +1,1363 @@
+﻿@model IEnumerable<FastFoodBranch.Models.BangTin>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Danh sách bảng tin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.qlcn0 = "active";
+    ViewBag.qlcn1 = "show";
+    ViewBag.qlcn3 = "active";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var macn = "";
+    var dscn = db.ChiNhanhs.ToList();
+    var user = (NhanVien)Session["userNV"];
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm tin tức thành công",
+                text: "Tin tức @TempData["tieude"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "success1")
+    {
+        <script>
+            swal({
+                title: "Chỉnh sửa tin tức thành công",
+                text: "Mã tin tức @TempData["matt"] đã được chỉnh sửa",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "success2")
+    {
+        <script>
+            swal({
+                title: "Cập nhật chi tiết công thức thành công",
+                text: "Chi tiết công thức @TempData["idCT"] đã được cập nhật mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm tiêu đề không thành công",
+                text: "Tiêu đề @TempData["tieude"] đã bị hủy. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error1")
+    {
+        <script>
+            swal({
+                title: "Chỉnh sửa chi tiết không thành công",
+                text: "Mã tin tức @TempData["matt"] không thể thêm chi tiết. Nội dung lỗi : @TempData["messER"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error2")
+    {
+        <script>
+            swal({
+                title: "Cập nhật chi tiết công thức không thành công",
+                text: "Công thức @TempData["idCT"] không thể thêm chi tiết. Nội dung lỗi : @TempData["messER"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0">
+                    <h4 class="btn btn-outline-warning">Danh sách công thức còn sử dụng</h4>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1">
+                    <h5 class="btn btn-outline-info">Danh sách công thức bị thu hồi</h5>
+                </a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách công thức đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group form-inline col-lg-12">
+                                <button class="btn btn-sm btn-success mr-2" data-target="#myModal" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+                                <a class="btn btn-sm btn-secondary mr-2" type="button" title="Sao chép" href="~/Admin/DSTT"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                <button class="btn btn-sm btn-primary mr-2" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>
+                                <button class="btn btn-sm btn-info mr-2" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tiêu đề</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Nội dung</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Chi nhánh</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">NV đăng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày đăng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tiêu đề</th>
+                                    <th>Nội dung</th>
+                                    <th>Chi nhánh</th>
+                                    <th>NV đăng</th>
+                                    <th>Ngày đăng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == true)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.TieuDe</td>
+                                                <td data-b-a-s="thin">@item.NoiDung</td>
+                                                <td data-b-a-s="thin">@item.LocationID</td>
+                                                <td data-b-a-s="thin">@item.MaNV</td>
+                                                <td data-b-a-s="thin">@item.NgayDang</td>
+                                                @{
+                                                    if (item.TrangThai == 2)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-danger">
+                                                                Từ chối
+                                                            </div>
+                                                        </td>
+
+                                                    }
+                                                    else if (item.TrangThai == 1)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-success">
+                                                                Đã duyệt
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else if (item.TrangThai == 0)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-warning">
+                                                                Đang xử lý
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    @{
+                                                        if (user.MaCV == "Admin" && item.TrangThai == 0)
+                                                        {
+                                                            <button class="btn btn-success btn-sm edit" id="duyetTTCN">
+                                                                <i class="fa fa-check" aria-hidden="true"></i>
+                                                            </button>
+                                                            <button class="btn btn-danger btn-sm edit" id="tuchoiTTCN">
+                                                                <i class="fa fa-times" aria-hidden="true"></i>
+                                                            </button>
+                                                        }
+                                                    }
+                                                    @{
+                                                        if (user.MaCV == "NV" && (item.TrangThai == 0 || item.TrangThai == 1))
+                                                        {
+                                                            <button class="btn btn-success btn-sm edit" id="ChinhSuaTT">
+                                                                <i class="fa fa-edit"></i>
+                                                            </button>
+                                                        }
+                                                        else if (user.MaCV == "Admin")
+                                                        {
+                                                            <button class="btn btn-success btn-sm edit" id="ChinhSuaTT">
+                                                                <i class="fa fa-edit"></i>
+                                                            </button>
+                                                        }
+                                                    }
+
+                                                    <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-danger btn-sm edit" id="thuhoiTT">
+                                                        <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @{
+            if (user.MaCV == "Admin")
+            {
+                <div id="menu1" class="tab-pane fade">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Danh sách công thức đang tạm ngừng triển khai trong hệ thống </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <div class="button-group">
+                                        <button class="btn btn-sm btn-info" id="button_excel1" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="table-responsive">
+                                <table data-cols-width="30,20,20,20,20,20,30" class="table table-hover table-bordered" id="dataTable1" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                            <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tiêu đề</th>
+                                            <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Nội dung</th>
+                                            <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Chi nhánh</th>
+                                            <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">NV đăng</th>
+                                            <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày đăng</th>
+                                            <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                            <th data-exclude="true">Chức năng</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr data-exclude="true">
+                                            <th>ID</th>
+                                            <th>Tiêu đề</th>
+                                            <th>Nội dung</th>
+                                            <th>Chi nhánh</th>
+                                            <th>NV đăng</th>
+                                            <th>Ngày đăng</th>
+                                            <th>Trạng thái</th>
+                                            <th>Chức năng</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        @{
+                                            foreach (var item in Model)
+                                            {
+                                                if (item.Lock == false)
+                                                {
+                                                    <tr>
+                                                        <td data-b-a-s="thin">@item.ID</td>
+                                                        <td data-b-a-s="thin">@item.TieuDe</td>
+                                                        <td data-b-a-s="thin">@item.NoiDung</td>
+                                                        <td data-b-a-s="thin">@item.LocationID</td>
+                                                        <td data-b-a-s="thin">@item.MaNV</td>
+                                                        <td data-b-a-s="thin">@item.NgayDang</td>
+                                                        @{
+                                                            if (item.TrangThai == 2)
+                                                            {
+                                                                <td data-b-a-s="thin">
+                                                                    <div class="btn btn-sm btn-danger">
+                                                                        Từ chối
+                                                                    </div>
+                                                                </td>
+
+                                                            }
+                                                            else if (item.TrangThai == 1)
+                                                            {
+                                                                <td data-b-a-s="thin">
+                                                                    <div class="btn btn-sm btn-success">
+                                                                        Đã duyệt
+                                                                    </div>
+                                                                </td>
+                                                            }
+                                                            else if (item.TrangThai == 0)
+                                                            {
+                                                                <td data-b-a-s="thin">
+                                                                    <div class="btn btn-sm btn-warning">
+                                                                        Đang xử lý
+                                                                    </div>
+                                                                </td>
+                                                            }
+                                                        }
+                                                        <td>
+                                                            <button class="btn btn-primary btn-sm edit" id="phuchoiTT">
+                                                                <i class="fa fa-redo" aria-hidden="true"></i>
+                                                            </button>
+
+                                                            <button class="btn btn-danger btn-sm edit" id="xoaTT">
+                                                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+</div>
+<!--Modal-->
+<!--Phần modal thêm mới tin tức-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới tin tức cho chi nhánh</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="~/Admin/ThemTT" enctype="multipart/form-data" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+
+                        @{
+                            if (user.MaCV == "Admin")
+                            {
+                                <div class="form-group form-inline col-lg-12">
+                                    <label class="control-label col-sm-5" for="TenTK">Chọn chi nhánh: </label>
+                                    <select class="form-control" name="LocationID" id="EDLocationID" required>
+                                        <option selected disabled>--Vui lòng chọn--</option>
+                                        @{ foreach (var item01 in dscn)
+                                            {
+                                                <option value="@item01.LocationID">@item01.TenCN</option>
+                                            }
+                                        }
+                                    </select>
+                                    <div class="form-group col-sm-5">
+                                    </div>
+                                    <div class=" form-group col-sm-5">
+                                        <p id="mess6"></p>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập tiêu đề: </label>
+                            <input class="form-control text-box single-line col-sm-5" id="TieuDe" name="TieuDe" type="text" required>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5">Chọn ảnh 1: </label>
+                            <div class="input-group col-sm-6">
+                                <input type="file" id="HinhAnh1" name="HinhAnh1" accept="image/*">
+                                <span class="input-group-addon" id="icon3">
+
+                                </span>
+                            </div>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess3"></p>
+                            </div>
+                        </div>
+
+                        <!-- Thêm thẻ img để hiển thị hình ảnh 1 -->
+                        <div class="form-group col-md-12">
+
+                            <label class="control-label col-sm-5" for="TenCT">Hình ảnh 1 đã chọn: </label>
+                            <img src="" alt="Hình ảnh đã chọn" id="selectedImage1" style="max-width: 100%; max-height: 200px;">
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-9" style="text-align:end">
+                                <button type="button" class="btn btn-danger btn-remove-image" id="btnRemoveImage1" style="display: none;">
+                                    <i class="fa fa-times"></i> Xóa ảnh
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5">Chọn ảnh 2: </label>
+                            <div class="input-group col-sm-6">
+                                <input type="file" id="HinhAnh2" name="HinhAnh2" accept="image/*">
+                                <span class="input-group-addon" id="icon4">
+
+                                </span>
+                            </div>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess4"></p>
+                            </div>
+                        </div>
+
+                        <!-- Thêm thẻ img để hiển thị hình ảnh 2 -->
+                        <div class="form-group col-md-12">
+
+                            <label class="control-label col-sm-5" for="TenCT">Hình ảnh 2 đã chọn: </label>
+                            <img src="" alt="Hình ảnh đã chọn" id="selectedImage2" style="max-width: 100%; max-height: 200px;">
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-9" style="text-align:end">
+                                <button type="button" class="btn btn-danger btn-remove-image" id="btnRemoveImage2" style="display: none;">
+                                    <i class="fa fa-times"></i> Xóa ảnh
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5">Chọn ảnh 3: </label>
+                            <div class="input-group col-sm-6">
+                                <input type="file" id="HinhAnh3" name="HinhAnh3" accept="image/*">
+                                <span class="input-group-addon" id="icon5">
+
+                                </span>
+                            </div>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess5"></p>
+                            </div>
+                        </div>
+
+                        <!-- Thêm thẻ img để hiển thị hình ảnh 3 -->
+                        <div class="form-group col-md-12">
+
+                            <label class="control-label col-sm-5" for="TenCT">Hình ảnh 3 đã chọn: </label>
+                            <img src="" alt="Hình ảnh đã chọn" id="selectedImage3" style="max-width: 100%; max-height: 200px;">
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-9" style="text-align:end">
+                                <button type="button" class="btn btn-danger btn-remove-image" id="btnRemoveImage3" style="display: none;">
+                                    <i class="fa fa-times"></i> Xóa ảnh
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập nội dung : </label>
+                            <textarea class="form-control" placeholder="Nhập nội dung...." name="NoiDung" id="NoiDung" style="height:100px" required></textarea>
+                            <span class="control-label input-group-addon" id="icon7"></span>
+                            <div class="col-sm-5">
+                                <p id="mess7"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnAdd" disabled>Thêm mới</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!--Phần model chỉnh sửa tin tức-->
+<div class="modal fade" id="myModalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="text-align:center" class="modal-title" id="myModalLabelE">Cập nhật thông tin thiết bị</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formEdit" action="~/Admin/ChinhSuaTT" enctype="multipart/form-data" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="IDMA">Mã tin tức: </label>
+                            <input class="form-control text-box single-line col-sm-5" id="ID" name="ID" type="text" hidden required>
+                            <input class="form-control text-box single-line col-sm-5" id="IDED1" disabled type="text">
+                            <span class="control-label input-group-addon" id="icon8"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess8"></p>
+                            </div>
+                        </div>
+
+                        @{
+                            if (user.MaCV == "Admin")
+                            {
+                                <div class="form-group form-inline col-lg-12">
+                                    <label class="control-label col-sm-5" for="TenTK">Chọn chi nhánh: </label>
+                                    <select class="form-control" name="LocationID" id="EDLocationID" required>
+                                        <option selected disabled>--Vui lòng chọn--</option>
+                                        @{ foreach (var item01 in dscn)
+                                            {
+                                                <option value="@item01.LocationID">@item01.TenCN</option>
+                                            }
+                                        }
+                                    </select>
+                                    <div class="form-group col-sm-5">
+                                    </div>
+                                    <div class=" form-group col-sm-5">
+                                        <p id="mess9"></p>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập tiêu đề: </label>
+                            <input class="form-control text-box single-line col-sm-5" id="EDTieuDe" name="TieuDe" type="text" required>
+                            <span class="control-label input-group-addon" id="icon10"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess10"></p>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5">Chọn ảnh 1: </label>
+                            <div class="input-group col-sm-6">
+                                <input type="file" id="EDHinhAnh1" name="HinhAnh1" accept="image/*">
+                                <span class="input-group-addon" id="icon11">
+
+                                </span>
+                            </div>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess11"></p>
+                            </div>
+                        </div>
+
+                        <!-- Thêm thẻ img để hiển thị hình ảnh 1 -->
+                        <div class="form-group col-md-12">
+
+                            <label class="control-label col-sm-5" for="TenCT">Hình ảnh 1 đã chọn: </label>
+                            <img src="" alt="Hình ảnh đã chọn" id="EDselectedImage1" style="max-width: 100%; max-height: 200px;">
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-9" style="text-align:end">
+                                <button type="button" class="btn btn-danger btn-remove-image" id="EDbtnRemoveImage1" style="display: none;">
+                                    <i class="fa fa-times"></i> Xóa ảnh
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5">Chọn ảnh 2: </label>
+                            <div class="input-group col-sm-6">
+                                <input type="file" id="EDHinhAnh2" name="HinhAnh2" accept="image/*">
+                                <span class="input-group-addon" id="">
+
+                                </span>
+                            </div>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id=""></p>
+                            </div>
+                        </div>
+
+                        <!-- Thêm thẻ img để hiển thị hình ảnh 2 -->
+                        <div class="form-group col-md-12">
+
+                            <label class="control-label col-sm-5" for="TenCT">Hình ảnh 2 đã chọn: </label>
+                            <img src="" alt="Hình ảnh đã chọn" id="EDselectedImage2" style="max-width: 100%; max-height: 200px;">
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-9" style="text-align:end">
+                                <button type="button" class="btn btn-danger btn-remove-image" id="EDbtnRemoveImage2" style="display: none;">
+                                    <i class="fa fa-times"></i> Xóa ảnh
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5">Chọn ảnh 3: </label>
+                            <div class="input-group col-sm-6">
+                                <input type="file" id="EDHinhAnh3" name="HinhAnh3" accept="image/*">
+                                <span class="input-group-addon" id="">
+
+                                </span>
+                            </div>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id=""></p>
+                            </div>
+                        </div>
+
+                        <!-- Thêm thẻ img để hiển thị hình ảnh 3 -->
+                        <div class="form-group col-md-12">
+
+                            <label class="control-label col-sm-5" for="TenCT">Hình ảnh 3 đã chọn: </label>
+                            <img src="" alt="Hình ảnh đã chọn" id="EDselectedImage3" style="max-width: 100%; max-height: 200px;">
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-9" style="text-align:end">
+                                <button type="button" class="btn btn-danger btn-remove-image" id="EDbtnRemoveImage3" style="display: none;">
+                                    <i class="fa fa-times"></i> Xóa ảnh
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập nội dung : </label>
+                            <textarea class="form-control" placeholder="Nhập nội dung...." name="NoiDung" id="EDNoiDung" style="height:100px" required></textarea>
+                            <span class="control-label input-group-addon" id="icon12"></span>
+                            <div class="col-sm-5">
+                                <p id="mess12"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnEdit">Cập nhật</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận thu hồi tin tức -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận thu hồi mã tin tức này này!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thu hồi tin tức này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Modal xác nhận phục hồi tin tức-->
+<div class="modal fade" id="RestoreModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RestoreModalLabel">Xác nhận phục hồi tin tức này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn phục hồi tin tức này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmRestore">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Modal xác nhận xóa tin tức-->
+<div class="modal fade" id="deleteModal1" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel1">Xác nhận xóa tin tức này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa tin tức này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete1">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Phần modal xét duyệt tin tức-->
+<div class="modal fade" id="confirmTT" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel1">Xác nhận xét duyệt tin tức này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xác nhận tin tức này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmTT">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Phần modal từ chối tin tức-->
+<div class="modal fade" id="rejectedTT" tabindex="-1" role="dialog" aria-labelledby="rejectedModalLabel1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectedModalLabel1">Xác nhận từ chối bài viết này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn từ chối tin tức này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="rejectedTT">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section script{
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+            $('#dataTable1').DataTable({
+                columnDefs: [
+                    { width: '150px', targets: 0 },// Độ rộng cột 5
+                    { width: '150px', targets: 2 }
+                ],
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+
+            //Set up cho selection 2
+            $('#LocationID').select2({
+                dropdownParent: $('#myModal'),
+                width: "190px"
+            });
+
+            //Hình ảnh 1
+            $('#HinhAnh1').change(function () {
+                if (this.files.length > 0) {
+                    var imageUrl = URL.createObjectURL(this.files[0]);
+                    $('#selectedImage1').attr('src', imageUrl);
+                    $('#btnRemoveImage1').show();
+                } else {
+                    $('#selectedImage1').attr('src', ''); // Xóa hình ảnh nếu không có tập tin nào được chọn
+                    $('#btnRemoveImage1').hide();
+                }
+            });
+
+            $('#btnRemoveImage1').click(function () {
+                $('#HinhAnh1').val(''); // Xóa tập tin đã chọn
+                $('#selectedImage1').attr('src', ''); // Xóa hình ảnh
+                $(this).hide();
+            });
+
+            //Hình ảnh 2
+            $('#HinhAnh2').change(function () {
+                if (this.files.length > 0) {
+                    var imageUrl = URL.createObjectURL(this.files[0]);
+                    $('#selectedImage2').attr('src', imageUrl);
+                    $('#btnRemoveImage2').show();
+                } else {
+                    $('#selectedImage2').attr('src', ''); // Xóa hình ảnh nếu không có tập tin nào được chọn
+                    $('#btnRemoveImage2').hide();
+                }
+            });
+
+            $('#btnRemoveImage2').click(function () {
+                $('#HinhAnh2').val(''); // Xóa tập tin đã chọn
+                $('#selectedImage2').attr('src', ''); // Xóa hình ảnh
+                $(this).hide();
+            });
+
+            //Hình ảnh 3
+            $('#HinhAnh3').change(function () {
+                if (this.files.length > 0) {
+                    var imageUrl = URL.createObjectURL(this.files[0]);
+                    $('#selectedImage3').attr('src', imageUrl);
+                    $('#btnRemoveImage3').show();
+                } else {
+                    $('#selectedImage3').attr('src', ''); // Xóa hình ảnh nếu không có tập tin nào được chọn
+                    $('#btnRemoveImage3').hide();
+                }
+            });
+
+            $('#btnRemoveImage3').click(function () {
+                $('#HinhAnh3').val(''); // Xóa tập tin đã chọn
+                $('#selectedImage3').attr('src', ''); // Xóa hình ảnh
+                $(this).hide();
+            });
+
+            var check1 = 0, check2 = 0, check3 = 0;
+            //Kiểm tra tên tiêu đề
+            $('#TieuDe').on('input', function () {
+                var input = $(this);
+                var icon1 = $('#icon1');
+                var ndmess1 = $('#mess1');
+                if (input.val().trim() == "") {
+                    icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                    check1 = 0;
+                    ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                    ndmess1.html('Vui lòng nhập nội dung .... !');
+                }
+                else {
+                    // Thực hiện kiểm tra bằng Ajax và nhận phản hồi từ máy chủ
+                    // Ví dụ: gửi yêu cầu kiểm tra tên công ty đến /kiem-tra-ten-ct
+                    $.ajax({
+                        url: '/Admin/KTTieuDe',
+                        data: { TenTD: input.val() },
+                        method: 'POST',
+                        beforeSend: function () {
+                            // Hiển thị biểu tượng kiểm tra đang kiểm tra
+                            icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Đang kiểm tra nội dung';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 0;
+                            ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                            ndmess1.html('Vui lòng đợi trong giây lát .... !');
+                        },
+                        success: function (response) {
+                            // Xử lý phản hồi từ máy chủ
+                            if (response.success == false) {
+                                // Hiển thị biểu tượng không được dùng
+                                icon1.html('<i class="fa fa-times-circle text-danger ml-3 "></i>');
+                                icon1.attr('data-target', 'notok');
+                                icon1.mouseover(function () {
+                                    var errorMessage = 'Tên tiêu đề đã bị trùng';
+                                    $(this).attr('title', errorMessage);
+                                });
+                                check1 = 0;
+                                ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                                ndmess1.html('Tên tiêu đề đã bị trùng !');
+                            } else {
+                                // Hiển thị biểu tượng dấu tích xanh
+                                icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                                icon1.attr('data-target', 'ok');
+                                icon1.mouseover(function () {
+                                    var errorMessage = 'Tên tiêu đề hợp lệ';
+                                    $(this).attr('title', errorMessage);
+                                });
+                                check1 = 1;
+                                ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                                ndmess1.html('Tên tiêu đề hợp lệ.');
+                            }
+                        },
+                        error: function () {
+                            // Xử lý lỗi (nếu có)
+                            // Hiển thị biểu tượng không được dùng hoặc thông báo lỗi khác
+                            icon1.html('<i class="fa fa-times-circle text-danger"></i> Không xác định được lỗi!');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Lỗi không xác định';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 0;
+                            ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                            ndmess1.html('Không xác định được lỗi!');
+                        }
+                    });
+                };
+                KTnd();
+            });
+            //Kiểm tra chi nhánh
+            $("#LocationID").change(function () {
+                var maapp = $(this).find(':selected').val();
+                var ndmess3 = $('#mess6');
+                ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess3.html('Vui lòng đợi trong giây lát .... !');
+                if (maapp !== null) {
+                    check2 = 1;
+                    ndmess3.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                    ndmess3.html('Chi nhánh hợp lệ.');
+                }
+                else {
+                    check2 = 0;
+                    ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                    ndmess3.html('Vui lòng chọn nội dung .... !');
+                }
+                KTnd();
+            });
+            //Kiểm tra nội dung
+            $('#NoiDung').on('input', function () {
+
+                var input = $(this);
+                var icon1 = $('#icon7');
+                var ndmess1 = $('#mess7');
+
+                // Hiển thị biểu tượng kiểm tra đang kiểm tra
+                icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+                icon1.attr('data-target', 'notok');
+                icon1.mouseover(function () {
+                    var errorMessage = 'Đang kiểm tra nội dung';
+                    $(this).attr('title', errorMessage);
+                });
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng đợi trong giây lát .... !');
+
+                if (input.val().trim() == "") {
+                    icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                    check3 = 0;
+                    ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                    ndmess1.html('Vui lòng nhập nội dung .... !');
+                } else {
+                    // Hiển thị biểu tượng dấu tích xanh
+                    icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i> Mô tả hợp lệ');
+                    icon1.attr('data-target', 'ok');
+                    icon1.mouseover(function () {
+                        var errorMessage = 'Nội dung hợp lệ';
+                        $(this).attr('title', errorMessage);
+                    });
+                    ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                    ndmess1.html('Nội dung hợp lệ.');
+                    check3 = 1;
+                }
+                KTnd();
+            });
+            //Hàm kiểm tra
+            function KTnd() {
+                setTimeout(function () {
+                    if (check1 === 1 && check3 === 1) {
+                        $('#btnAdd').prop('disabled', false); // Mở ô thêm mới
+                    }
+                    else {
+                        $('#btnAdd').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+                    };
+                }, 250)
+            };
+
+            //Chỉnh sửa nội dung tin tức
+            $('#dataTable').on('click', '#ChinhSuaTT', function () {
+                var id = $(this).closest("tr").find("td:nth-child(1)").text();
+                var tieude = $(this).closest("tr").find("td:nth-child(2)").text();
+                var noidung = $(this).closest("tr").find("td:nth-child(3)").text();
+                var chinhanh = $(this).closest("tr").find("td:nth-child(4)").text();
+                var hinhanh1, hinhanh2, hinhanh3;
+
+                //Lấy dữ liệu hình ảnh từ database
+
+                $.ajax({
+                    url: '/Admin/GetDataTT',
+                    type: 'POST',
+                    data: JSON.stringify({ MaTT: id }),
+                    contentType: 'application/json',
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success == true) {
+                            // Xử lý danh sách nhân viên ở đây
+                            var data = response.data
+
+                            console.log('' + data.HinhAnh1);
+                            //Set up edit hình ảnh 1
+                            $('#EDHinhAnh1').attr('src', data.HinhAnh1);
+                            $('#EDselectedImage1').attr('src', data.HinhAnh1);
+                            $('#EDbtnRemoveImage1').show();
+                            $('#EDHinhAnh1').change(function () {
+                                if (this.files.length > 0) {
+                                    var imageUrl = URL.createObjectURL(this.files[0]);
+                                    $('#EDselectedImage1').attr('src', imageUrl);
+                                    $('#EDbtnRemoveImage1').show();
+                                } else {
+                                    $('#EDselectedImage1').attr('src', ''); // Xóa hình ảnh nếu không có tập tin nào được chọn
+                                    $('#EDbtnRemoveImage1').hide();
+                                }
+                            });
+                            $('#EDbtnRemoveImage1').click(function () {
+                                $('#EDHinhAnh1').val(''); // Xóa tập tin đã chọn
+                                $('#EDselectedImage1').attr('src', ''); // Xóa hình ảnh
+                                $(this).hide();
+                            });
+                            //Set up edit hình ảnh 2
+                            $('#EDHinhAnh2').attr('src', data.HinhAnh2);
+                            $('#EDselectedImage2').attr('src', data.HinhAnh2);
+                            $('#EDbtnRemoveImage2').show();
+                            $('#EDHinhAnh2').change(function () {
+                                if (this.files.length > 0) {
+                                    var imageUrl = URL.createObjectURL(this.files[0]);
+                                    $('#EDselectedImage2').attr('src', imageUrl);
+                                    $('#EDbtnRemoveImage2').show();
+                                } else {
+                                    $('#EDselectedImage2').attr('src', ''); // Xóa hình ảnh nếu không có tập tin nào được chọn
+                                    $('#EDbtnRemoveImage2').hide();
+                                }
+                            });
+                            $('#EDbtnRemoveImage2').click(function () {
+                                $('#EDHinhAnh2').val(''); // Xóa tập tin đã chọn
+                                $('#EDselectedImage2').attr('src', ''); // Xóa hình ảnh
+                                $(this).hide();
+                            });
+                            //Set up edit hình ảnh 3
+                            $('#EDHinhAnh3').attr('src', data.HinhAnh3);
+                            $('#EDselectedImage3').attr('src', data.HinhAnh3);
+                            $('#EDbtnRemoveImage3').show();
+                            $('#EDHinhAnh3').change(function () {
+                                if (this.files.length > 0) {
+                                    var imageUrl = URL.createObjectURL(this.files[0]);
+                                    $('#EDselectedImage3').attr('src', imageUrl);
+                                    $('#EDbtnRemoveImage3').show();
+                                } else {
+                                    $('#EDselectedImage3').attr('src', ''); // Xóa hình ảnh nếu không có tập tin nào được chọn
+                                    $('#EDbtnRemoveImage3').hide();
+                                }
+                            });
+                            $('#EDbtnRemoveImage3').click(function () {
+                                $('#EDHinhAnh3').val(''); // Xóa tập tin đã chọn
+                                $('#EDselectedImage3').attr('src', ''); // Xóa hình ảnh
+                                $(this).hide();
+                            });
+
+
+                        } else {
+                            console.log('Lấy data không thành công ');
+                            console.log('Ma lỗi: ' + response.error);
+                        }
+                        // Xử lý phản hồi và gắn giá trị vào select2
+                        //var selectValue = data.selectValue; // Thay 'selectValue' bằng tên thuộc tính bạn muốn lấy
+                        //$('#EditSelectBox').val(selectValue);
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra trong quá trình lấy dữ liệu.');
+                    }
+                });
+
+                // Đặt giá trị của các trường trong modal
+                $("#ID").val(id);
+                $("#IDED1").val(id);
+                $('#IDED1').attr('disabled', 'disabled');
+
+                $("#EDTieuDe").val(tieude);
+                console.log(chinhanh);
+                $('#EDLocationID').val(chinhanh);
+                $('#EDLocationID').select2({
+                    dropdownParent: $('#myModalEdit'),
+                    width: "190px",
+                    val: chinhanh
+                });
+                $('#EDNoiDung').val(noidung);
+                $('#myModalEdit').modal('show');
+
+            });
+
+            //Thu hồi tin tức
+            $('#dataTable').on('click', '#thuhoiTT', function () {
+                var matt = $(this).closest('tr').find('td:first-child').text();
+
+                $('#deleteModalLabel').html('Xác nhận thu hồi tin tức này ' + matt);
+                $('#deleteModal').modal('show');
+
+                $('#confirmDelete').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/ThuHoiTT',
+                        type: 'POST',
+                        data: JSON.stringify({ MaTT: matt }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "Json",
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                swal({
+                                    title: "Thu hồi tin tức thành công",
+                                    text: "Mã tin tức: " + response.matt + " đã được thu hồi",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#deleteModal').modal('hide');
+                                    location.reload(); //Reload lại dữ liệu
+                                    //$row.remove();
+                                });
+                            } else {
+                                swal({
+                                    title: "Thu hồi tin tức không thành công",
+                                    text: "Mã tin tức " + response.matt + " không thể thu hồi. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#deleteModal').modal('hide');
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                            });
+                        }
+                    });
+                });
+            });
+            //Phục hồi tin tức
+            $('#dataTable1').on('click', '#phuchoiTT', function () {
+                var matt = $(this).closest('tr').find('td:first-child').text().trim();
+
+                $('#RestoreModalLabel').html('Xác nhận phục hồi tin tức ' + matt);
+                $('#RestoreModal').modal('show');
+
+                $('#confirmRestore').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/PhucHoiTT',
+                        type: 'POST',
+                        data: JSON.stringify({ MaTT: matt }),
+                        contentType: 'application/json',
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                swal({
+                                    title: "Phục hồi tin tức thành công",
+                                    text: "Mã tin tức " + response.matt + " đã được phục hồi trạng thái .",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            } else {
+                                swal({
+                                    title: "Phục hồi tin tức " + response.matt + " không thành công",
+                                    text: "Mã tin tức " + response.matt + "không thể phục hồi trạng thái.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+                    });
+                });
+            });
+            //Xóa tin tức
+            $('#dataTable1').on('click', '#xoaTT', function () {
+                var matt = $(this).closest('tr').find('td:first-child').text().trim();
+                $('#deleteModalLabel1').html('Xác nhận xóa tin tức ' + matt);
+                $('#deleteModal1').modal('show');
+
+                $('#confirmDelete1').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/XoaTT',
+                        type: 'POST',
+                        data: JSON.stringify({ MaTT: matt }),
+                        contentType: 'application/json',
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                swal({
+                                    title: "Xóa tin tức thành công",
+                                    text: "Mã tin tức " + response.matt + " đã được xóa thành công .",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            } else {
+                                swal({
+                                    title: "Xóa tin tức " + response.matt + " không thành công",
+                                    text: "Mã tin tức " + response.matt + "không thể xóa.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        //Xác nhận xét duyệt món ăn chi nhánh
+        $('#dataTable').on('click', '#duyetTTCN', function () {
+            var matt = $(this).closest('tr').find('td:first-child').text();
+
+            $('#confirmModalLabel1').html('Xác nhận xét duyệt tin tức này ' + matt);
+            $('#confirmTT').modal('show');
+
+            $('#confirmTT').on('click', function () {
+                $.ajax({
+                    url: '/Admin/DuyetTTCN',
+                    type: 'POST',
+                    data: JSON.stringify({ MaTT: matt }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "Json",
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Xét duyệt tin tức thành công",
+                                text: "Mã tin tức: " + response.matt + " đã được xét duyệt",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#confirmTT').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                                //$row.remove();
+                            });
+                        } else {
+                            swal({
+                                title: "Xét duyệt món ăn không thành công",
+                                text: "Mã món ăn " + response.mama + " không thể thực hiện. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#confirmTT').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            $('#confirmTT').modal('hide');
+                        });
+                    }
+                });
+            });
+        });
+        //Xác nhận từ chối món ăn chi nhánh
+        $('#dataTable').on('click', '#tuchoiTTCN', function () {
+            var matt = $(this).closest('tr').find('td:first-child').text();
+
+            $('#rejectedModalLabel1').html('Xác nhận từ chối tin tức này ' + matt);
+            $('#rejectedTT').modal('show');
+
+            $('#rejectedTT').on('click', function () {
+                $.ajax({
+                    url: '/Admin/TuchoiTTCN',
+                    type: 'POST',
+                    data: JSON.stringify({ MaTT: matt }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "Json",
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Từ chối tin tức thành công",
+                                text: "Mã tiin tức: " + response.matt + " đã được từ chối",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#confirmTT').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                                //$row.remove();
+                            });
+                        } else {
+                            swal({
+                                title: "Từ chối tin tức không thành công",
+                                text: "Mã tin tức " + response.matt + " không thể thực hiện. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#confirmTT').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            $('#confirmTT').modal('hide');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

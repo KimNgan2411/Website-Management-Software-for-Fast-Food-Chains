@@ -1,0 +1,69 @@
+﻿
+@{
+    ViewBag.Title = "ThongBaoTT";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+}
+<link rel="stylesheet" type="text/css" href="~/Content/LayoutKH/ShoppingCartCSS/aos.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/LayoutKH/ShoppingCartCSS/styleCart.css" />
+
+
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <!--Thành công-->
+        <div class="site-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <span class="icon-check_circle display-2 text-success"><i class="fa fa-check-circle" aria-hidden="true"></i></span>
+                        <h2 class="display-3 text-black">Cảm ơn bạn!</h2>
+                        <p class="lead mb-5">Đơn hàng của bạn đã đặt thành công.</p>
+                        <p><a href="~/KhachHang/DSThucDon" class="btn btn-sm btn-primary">Quay trở lại xem thêm món ăn</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (checkmess == "error0")
+    {
+        <!--Thất bại-->
+        <div class="site-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <span class="icon-check_circle display-2 text-danger"><i class="fa fa-times-circle" aria-hidden="true"></i></span>
+                        <h2 class="display-3 text-black">Thanh toán thất bại!</h2>
+                        <p class="lead mb-5">Đơn hàng của bạn đã gặp sự cố trong quá trình thanh toán.</p>
+                        <p><a href="~/KhachHang/DSThucDon" class="btn btn-sm btn-primary">Quay trở lại xem thêm món ăn</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!--Không rõ nguyên nhân-->
+        <div class="site-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <span class="icon-check_circle display-4 text-warning">
+                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                        </span>
+                        <h2 class="display-3 text-black">Xảy ra sự cố trong qua trình thanh toán!</h2>
+                        <p class="lead mb-5">Chúng tôi đang thu thập thông tin lỗi và sẽ sớm phản hồi bạn sau.</p>
+                        <p><a href="~/KhachHang/DSThucDon" class="btn btn-sm btn-primary">Quay trở lại xem thêm món ăn</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+
+
+

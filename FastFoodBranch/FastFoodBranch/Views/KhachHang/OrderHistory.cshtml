@@ -1,0 +1,94 @@
+﻿@using FastFoodBranch.Models;
+@{
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var orders = ViewBag.order as List<HoaDon>;
+}
+<div class="table-responsive">
+    <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+        <thead>
+            <tr>
+                <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã đơn hàng</th>
+                <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Chi nhánh</th>
+                <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày Tạo</th>
+                <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tổng cộng</th>
+                <th data-exclude="true">Chức năng</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr data-exclude="true">
+                <th>Mã đơn hàng</th>
+                <th>Chi nhánh</th>
+                <th>Ngày tạo</th>
+                <th>Tổng cộng</th>
+                <td>Trạng thái</td>
+                <th>Chức năng</th>
+            </tr>
+        </tfoot>
+        <tbody>
+            @{
+                if (ViewBag.order != null)
+                {
+                    foreach (var item in orders)
+                    {
+                        var macn = (string)item.LocationID;
+                        var tencn = db.ChiNhanhs.FirstOrDefault(s => s.LocationID == macn);
+                        <tr>
+                            <td data-b-a-s="thin">@item.ID</td>
+                            <td data-b-a-s="thin">@tencn.TenCN</td>
+                            <td data-b-a-s="thin">@item.NgayTao</td>
+                            @{
+                                if (item.TrangThai == true)
+                                {
+                                    <td data-b-a-s="thin" style="background-color:green">
+                                        <p style="color:white; font:bold">Thành công</p>
+                                    </td>
+                                }
+                                else if (item.TrangThai == false)
+                                {
+                                    <td data-b-a-s="thin" style="background-color:red">
+                                        <p style="color:white; font:bold">Thất bại</p>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td data-b-a-s="thin" style="background-color:mediumaquamarine">
+                                        <p style="color:white; font:bold">Đang xử lý</p>
+                                    </td>
+                                }
+                            }
+
+                            <td data-b-a-s="thin">@string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", item.TongCong).Replace(",00", "")</td>
+                            <td>
+                                @{
+                                    var check = db.Feedbacks.Where(s => s.IDHoaDon ==item.ID).FirstOrDefault();
+                                    if (check == null && item.TrangThai == true)
+                                    {
+                                        <button class="btn btn-dark btn-sm edit" id="DanhGiaHD">
+                                            <i class="fa fa-paper-plane"></i>
+                                        </button>
+                                    }
+                                }
+                                <button class="btn btn-info btn-sm edit" id="XemHoaDon">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                @{
+                                    if (item.TrangThai == null)
+                                    {
+                                        <button class="btn btn-danger btn-sm edit" id="TuChoi">
+                                            <i class="fa fa-ban"></i>
+                                        </button>
+                                    }
+                                }
+
+                            </td>
+                        </tr>
+                    }
+                }
+
+            }
+        </tbody>
+    </table>
+</div>
+
+

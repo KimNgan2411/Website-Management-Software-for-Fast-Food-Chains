@@ -1,0 +1,251 @@
+﻿@model IEnumerable<FastFoodBranch.Models.HoaDon>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "DSBH";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.dshd = "active";
+    ViewBag.dshd1 = "show";
+    ViewBag.dshd3 = "active";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var dscn = db.ChiNhanhs.ToList();
+    var user = (NhanVien)Session["userNV"];
+
+}
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0"><h4 class="btn btn-outline-warning">Doanh thu của hệ thông</h4></a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách hoá đơn đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12" ">
+                            <div class="form-group form-inline col-lg-12">
+                                <a class="btn btn-sm btn-secondary mr-2" type="button" title="Sao chép" href="~/Admin/DSBH"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                @*<button class="btn btn-sm btn-primary mr-2" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>*@
+                                <button class="btn btn-sm btn-info mr-2" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+
+                                @{
+                                    if (user.MaCV == "NV")
+                                    {
+                                        <label class="control-label ml-2 mr-0" for="TenTK">Chi nhánh: </label>
+                                        <select class="form-control ml-3" id="DSChiNhanh" required disabled>
+                                            <option selected disabled>--Vui lòng chọn--</option>
+                                            @{ foreach (var item01 in dscn)
+                                                {
+                                                    <option value="@item01.LocationID">@item01.TenCN</option>
+                                                }
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <label class="control-label ml-2 mr-0" for="TenTK">Vui lòng chọn chi nhánh: </label>
+                                        <select class="form-control ml-3" id="DSChiNhanh" required>
+                                            <option selected disabled>--Vui lòng chọn--</option>
+                                            @{ foreach (var item01 in dscn)
+                                                {
+                                                    <option value="@item01.LocationID">@item01.TenCN</option>
+                                                }
+                                            }
+                                            <option value="all">Tất cả</option>
+                                        </select>
+                                    }
+                                }
+                                <label class="control-label ml-2 mr-0" for="TenTK">Chọn năm: </label>
+                                <select class="form-control ml-3" id="DSNam" required>
+                                    <option selected disabled>--Vui lòng chọn--</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2024">2024</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã HD</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày tạo</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Chi nhánh</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID Voucher</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã nhân viên lập</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã khách hàng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tổng cộng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    @*DataTales Example*@
+</div>
+
+@section script{
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script>
+
+        let button01 = document.querySelector("#button_excel");
+        button01.addEventListener("click", e => {
+            let table = document.querySelector("#dataTable");
+            TableToExcel.convert(document.getElementById("dataTable"), {
+                name: "Doanh số bán hàng.xlsx",
+                sheet: {
+                    name: "Sheet 1"
+                }
+            });
+        });
+        let button02 = document.querySelector('#button_excel1');
+        button02.addEventListener("click", e => {
+            let table = document.querySelector("#dataTable1");
+            TableToExcel.convert(document.getElementById("dataTable1"), {
+                name: "Doanh số bán hàng tạm ngưng.xlsx",
+                sheet: {
+                    name: "Sheet 1"
+                }
+            });
+        });
+    </script>
+    <script>
+        @{
+            if(user.MaCV == "NV")
+            {
+                var macn = db.ChiNhanhs.Where(s => s.NVQL == user.MaNV).FirstOrDefault();
+                <text>
+                    var selectedBranch1 = '@macn.LocationID';
+                    $('#DSChiNhanh').val(selectedBranch1);
+                </text>
+            }
+        }
+
+
+        $('#DSChiNhanh, #DSNam').change(function () {
+            @{
+                if(user.MaCV == "Admin")
+                {
+                    <text>
+                        var selectedBranch = $('#DSChiNhanh').val();
+                    </text>
+                }
+                else if(user.MaCV == "NV")
+                {
+                    var macn = db.ChiNhanhs.Where(s => s.NVQL == user.MaNV).FirstOrDefault();
+                    <text>
+                        var selectedBranch = '@macn.LocationID';
+                    </text>
+                }
+            }
+
+            var selectedYear = $('#DSNam').val();
+
+
+            if (selectedYear !== null && selectedBranch !== null) {
+                console.log('Bạn đã đủ đk');
+                console.log('Bạn chọn chi nhánh: ' + selectedBranch + ', với năm: ' + selectedYear);
+                $.ajax({
+                    url: '/Admin/getDoanhThu',
+                    type: 'POST',
+                    data: JSON.stringify({ year: selectedYear, branch: selectedBranch }),
+                    contentType: 'application/json',
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success == true) {
+                            console.log(response.data);
+                            renderTable(response.data); // Gọi hàm renderTable khi dữ liệu được nhận về
+                        }
+                        else {
+                            console.log('Lấy dữ liệu thất bại');
+                        }
+
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+            else {
+                console.log('Bạn chưa đủ đk');
+            }
+        });
+
+        function renderTable(data) {
+            var tableBody = $('#dataTable tbody');
+            tableBody.empty(); // Xóa dữ liệu cũ trong tbody
+
+            // Loop qua dữ liệu để render từng hàng và cột
+            data.forEach(function (item) {
+                var row = $('<tr></tr>');
+
+                $('<td></td>').text(item.ID).appendTo(row);
+                $('<td></td>').text(moment(item.NgayTao).format('DD/MM/YYYY')).appendTo(row);
+                $('<td></td>').text(item.LocationID).appendTo(row);
+                $('<td></td>').text(item.IDVoucher).appendTo(row);
+                $('<td></td>').text(item.MaNVLap).appendTo(row);
+                $('<td></td>').text(item.MaKH).appendTo(row);
+                $('<td></td>').text('Hoàn tất').appendTo(row);
+                $('<td></td>').text(formatCurrency(item.TongCong)).appendTo(row);
+                // Tiếp tục với các cột khác tương tự
+
+                tableBody.append(row); // Thêm hàng vào tbody
+            });
+
+            // Tính tổng cộng
+            var total = calculateTotal(data);
+            var count = countHD(data);
+            // Thêm hàng tổng cộng vào cuối bảng
+            var lastRow = $('<tr></tr>');
+            $('<th colspan="5" style="text-align:end;border:1px solid #ffffff">Tổng số đơn hàng:</th>').appendTo(lastRow);
+            $('<td style="border:1px solid #ffffff"></td>').text(count).appendTo(lastRow);
+            $('<th colspan="0" style="text-align:end;border:1px solid #ffffff">Tổng tiền:</th>').appendTo(lastRow);
+            $('<td style="border:1px solid #ffffff"></td>').text(formatCurrency(total)).appendTo(lastRow);
+            tableBody.append(lastRow); // Thêm hàng tổng cộng vào tbody
+        }
+
+        function calculateTotal(data) {
+            // Tính tổng cộng từ dữ liệu
+            var total = 0;
+            data.forEach(function (item) {
+                // Thay thế 'item.tongCong' bằng trường dữ liệu tương ứng trong đối tượng data
+                total += parseFloat(item.TongCong);
+            });
+            return total;
+        }
+        function countHD(data) {
+            var total = 0;
+            data.forEach(function (item) {
+                total++;
+            });
+            return total;
+        }
+        function formatCurrency(number) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+        }
+
+
+
+    </script>
+}

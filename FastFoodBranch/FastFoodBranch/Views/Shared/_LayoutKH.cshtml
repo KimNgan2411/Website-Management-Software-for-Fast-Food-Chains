@@ -1,0 +1,694 @@
+﻿@using FastFoodBranch.Models;
+@{
+
+    Layout = null;
+    var user = (KhachHang)Session["userKH"];
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var dscn = db.ChiNhanhs.ToList();
+    var checkCN = Session["locationCN"];
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+
+    <link rel="Shortcut Icon" href="~/Content/Logo/fast_food.png" type="image/x-icon" />
+
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="~/Content/LayoutKH/css/bootstrap.css" />
+
+    <!--owl slider stylesheet -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+    <!-- nice select  -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" integrity="sha512-CruCP+TD3yXzlvvijET8wV5WxxEh5H8P4cmz0RFbKK6FlZ2sYl3AEsKlLPHbniXKSrDdFewhbmBK5skbdsASbQ==" crossorigin="anonymous" />
+    <!-- font awesome style -->
+    <link href="~/Content/LayoutKH/css/font-awesome.min.css" rel="stylesheet" />
+
+    <!-- Custom styles for this template -->
+    <link href="~/Content/LayoutKH/css/style.css" rel="stylesheet" />
+    <!-- responsive style -->
+    <!--Style này dành riêng cho trang thông tin khách hàng-->
+    <link href="~/Content/LayoutKH/DetaileKH/style_ec.css" rel="stylesheet" />
+    <link href="~/Content/LayoutKH/DetaileKH/swiper.css" rel="stylesheet" />
+
+</head>
+<body class="@ViewBag.setUp1" data-spy="scroll" data-target=".navbar" data-offset="50">
+    <!--Phân vùng Header-->
+    <div class="hero_area">
+        <div class="bg-box">
+            <img src="~/Content/LayoutKH/images/wallpaperflare.com_wallpaper.jpg" alt="">
+        </div>
+        <!-- header section strats -->
+        <header class="header_section">
+            <div class="container">
+                <nav class="navbar navbar-expand-lg custom_nav-container ">
+                    <a class="navbar-brand" href="~/KhachHang/TrangChu">
+                        <span>
+                            FastFood
+                        </span>
+                    </a>
+
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class=""> </span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav  mx-auto ">
+                            <li class="nav-item @ViewBag.act1">
+                                <a class="nav-link" href="~/KhachHang/TrangChu">Trang chủ <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item @ViewBag.act2">
+                                <a class="nav-link" href="~/KhachHang/DSThucDon">Thực đơn</a>
+                            </li>
+                            <li class="nav-item @ViewBag.act2_1">
+                                <a class="nav-link" href="~/KhachHang/TinTuc">Tin tức</a>
+                            </li>
+                            <li class="nav-item @ViewBag.act3">
+                                <a class="nav-link" href="~/KhachHang/VeChungToi">Về chúng tôi</a>
+                            </li>
+                            <li class="nav-item @ViewBag.act4">
+                                <a class="nav-link" href="~/KhachHang/DatBan">Đặt bàn</a>
+                            </li>
+                            @*<li class="nav-item">
+            <a href="~/KhachHang/GioHang" class=" nav-link1 ">
+                <i class="fa fa-shopping-cart"></i>
+                <span class="count" id="cartItemCount">0</span>
+            </a>
+        </li>*@
+                            <!--<li class="nav-item dropdown no-arrow">
+    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="mr-2 d-none d-lg-inline text-gray-600 small"></span>
+        <img class="img-profile rounded-circle" src="~/Content/Avartar/avartar-1.jpg">
+    </a>-->
+                            <!-- Dropdown - User Information -->
+                            <!--<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+             aria-labelledby="userDropdown">
+            <a class="dropdown-item" href="~/Admin/MyInfo">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Thông tin tài khoản
+            </a>
+            <a class="dropdown-item" href="#">
+                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                Cài đặt
+            </a>
+            <a class="dropdown-item" href="~/Admin/LichSuHD">
+                <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                Lịch sử hoạt động
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </li>-->
+                        </ul>
+                        <div class="user_option">
+                            <a href="#" class="user_link" id="ChonCN">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 512">
+                                    <!--! Font Awesome Free 6.4.2 by @@fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                    <style>
+                                        svg {
+                                            fill: #ffffff
+                                        }
+                                    </style>
+                                    <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" />
+                                </svg>
+                            </a>
+                            @{
+                                if (user != null)
+                                {
+
+
+                                    <a href="~/KhachHang/ThongTinKH" class="user_link">
+                                        @{
+                                            if (user.HinhAnh != null)
+                                            {
+                                                <img class="img-profile rounded-circle" src="@user.HinhAnh">
+                                            }
+                                            else
+                                            {
+                                                <img class="img-profile rounded-circle" src="~/Content/Avartar/user_552909.png">
+                                            }
+                                        }
+
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="~/KhachHang/LRAccount" class="user_link">
+                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                    </a>
+                                }
+                            }
+
+
+                            <a href="~/KhachHang/GioHang" class="user_link1">
+                                <i class="fa fa-shopping-cart"></i>
+                                <span class="count" id="cartItemCount">0</span>
+                            </a>
+
+                            <style>
+                            </style>
+                            <a href="" class="order_online">
+                                Đặt hàng trực tuyến
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+        <!-- end header section -->
+        <!-- slider section -->
+        <section class="slider_section " @ViewBag.setUp2>
+            <div id="customCarousel1" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="container ">
+                            <div class="row">
+                                <div class="col-md-7 col-lg-6 ">
+                                    <div class="detail-box">
+                                        <h1>
+                                            Hệ thống Fast Food
+                                        </h1>
+                                        <p>
+                                            Chào mừng đến với FastFood - nơi mang đến trải nghiệm ẩm thực nhanh chóng và đầy đủ hương vị! Chúng tôi tự hào với sứ mệnh cung cấp những bữa ăn nhanh nhưng vẫn đảm bảo chất lượng và đa dạng.
+                                        </p>
+                                        <div class="btn-box">
+                                            <a href="" class="btn1">
+                                                Đặt món ngay
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item ">
+                        <div class="container ">
+                            <div class="row">
+                                <div class="col-md-7 col-lg-6 ">
+                                    <div class="detail-box">
+                                        <h1>
+                                            Hệ thống Fast Food
+                                        </h1>
+                                        <p>
+                                            FastFood không chỉ đơn thuần là một nhà hàng nhanh, mà còn là nơi quy tụ những đầu bếp tài năng, luôn tận tâm tạo ra những món ăn đậm chất cá nhân và chất lượng tuyệt vời. Chúng tôi chọn lựa nguyên liệu tươi ngon, tỉ mỉ trong từng bước chế biến để đảm bảo mỗi bữa ăn không chỉ ngon miệng mà còn an toàn và dinh dưỡng.
+                                        </p>
+                                        <div class="btn-box">
+                                            <a href="" class="btn1">
+                                                Đặt món ngay
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="container ">
+                            <div class="row">
+                                <div class="col-md-7 col-lg-6 ">
+                                    <div class="detail-box">
+                                        <h1>
+                                            Hệ thống Fast Food
+                                        </h1>
+                                        <p>
+                                            Chất lượng món ăn luôn là ưu tiên hàng đầu tại FastFood. Chúng tôi không chỉ cung cấp các món ăn phổ biến như hamburger, khoai tây chiên mà còn mang đến những sáng tạo mới mẻ, phong phú với hương vị đa dạng để khách hàng có thể lựa chọn.
+                                            <div class="btn-box">
+                                                <a href="" class="btn1">
+                                                    Đặt món ngay
+                                                </a>
+                                            </div>
+</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <ol class="carousel-indicators">
+                        <li data-target="#customCarousel1" data-slide-to="0" class="active"></li>
+                        <li data-target="#customCarousel1" data-slide-to="1"></li>
+                        <li data-target="#customCarousel1" data-slide-to="2"></li>
+                    </ol>
+                </div>
+            </div>
+
+        </section>
+        <!-- end slider section -->
+    </div>
+    <!--Phần modal hiển thị chọn chi nhánh-->
+
+    <div class="modal fade" id="myModalLocation" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="f-result location-saved">
+                        <div class="f-top">
+                            <h4 id="titleLocation">Chọn địa điểm</h4>
+                            <p class="link-type">
+                                <a href="" title="Chọn địa điểm giao hàng khác">Chọn địa điểm giao hàng khác</a>
+                            </p>
+                        </div>
+                        <div class="stores-list " id="chooseLocation">
+                            @{
+                                foreach (var item in dscn)
+                                {
+                                    if (checkCN != null && item.LocationID == (string)checkCN)
+                                    {
+                                        <div class="item active ">
+                                            <a href="" class="btn-edit"><i class="fa fa-flag"></i></a>
+                                            <div class="content" style="cursor: pointer;">
+                                                <input value="@item.LocationID" hidden />
+                                                <p class="store-name">CỬA HÀNG: @item.TenCN</p>
+                                                <p id="diachiCH" data-address="@item.DiaChi">Địa chỉ: @item.DiaChi</p>
+                                                <p id="khoangCach">Khoảng cách:  </p>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="item ">
+                                            <a href="" class="btn-edit"><i class="fa fa-flag"></i></a>
+                                            <div class="content" style="cursor: pointer;">
+                                                <input value="@item.LocationID" hidden />
+                                                <p class="store-name">CỬA HÀNG: @item.TenCN</p>
+                                                <p id="diachiCH" data-address="@item.DiaChi">Địa chỉ: @item.DiaChi</p>
+                                                <p id="khoangCach">Khoảng cách:</p>
+                                            </div>
+                                        </div>
+                                    }
+
+                                }
+                            }
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" title="Hủy bỏ" data-dismiss="modal">Hủy bỏ</button>
+                    <button type="button" class="btn btn-primary" title="Chọn địa điểm này" id="chonDD">Chọn địa điểm này</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    @RenderBody()
+
+
+    <!-- footer section -->
+    <footer class="footer_section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 footer-col">
+                    <div class="footer_contact">
+                        <h4>
+                            Thông tin liên hệ
+                        </h4>
+                        <div class="contact_link_box">
+                            <a href="https://maps.app.goo.gl/Uz96zuK8s5s3fRPZA">
+                                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                <span>
+                                    Vị trí
+                                </span>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-phone" aria-hidden="true"></i>
+                                <span>
+                                    Gọi ngay để đặt chỗ 0908455325
+                                </span>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-envelope" aria-hidden="true"></i>
+                                <span>
+                                    truongtannha2702@gmail.com
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 footer-col">
+                    <div class="footer_detail">
+                        <a href="" class="footer-logo">
+                            FastFood
+                        </a>
+                        <p>
+                            Necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with
+                        </p>
+                        <div class="footer_social">
+                            <a href="https://www.facebook.com/nha.truong.3110567/">
+                                <i class="fa fa-facebook" aria-hidden="true"></i>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-twitter" aria-hidden="true"></i>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-linkedin" aria-hidden="true"></i>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-instagram" aria-hidden="true"></i>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-pinterest" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 footer-col">
+                    <h4>
+                        Giờ mở cửa
+                    </h4>
+                    <p>
+                        Mỗi ngày
+                    </p>
+                    <p>
+                        9.00 AM - 10.00 PM
+                    </p>
+                </div>
+            </div>
+            <div class="footer-info">
+                <p>
+                    &copy; <span id="displayYear"></span> All Rights Reserved By
+                    <a href="">Nhóm 07 Thương Mại Điện Tử </a><br><br>
+                    &copy; <span id="displayYear"></span> Distributed By
+                    <a href="" target="_blank">Nhã Trương</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+    <!-- footer section -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <script src="~/Content/LayoutKH/js/jquery-3.4.1.min.js"></script>
+    <!-- popper js -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    </script>
+    <!-- bootstrap js -->
+    <script src="~/Content/LayoutKH/js/bootstrap01.js"></script>
+    <!-- owl slider -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js">
+    </script>
+    <!-- isotope js -->
+    <script src="https://unpkg.com/isotope-layout@3.0.4/dist/isotope.pkgd.min.js"></script>
+
+    <!-- nice select -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
+    <!-- custom js -->
+    <script src="~/Content/LayoutKH/js/custom.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!--Kiểm tra giỏ hàng khi tải trang-->
+    <script>
+        $(document).ready(function () {
+
+
+
+            function sendLocationToServer(userLatitude, userLongitude, storeAddress, element) {
+                // Gửi thông tin vị trí người dùng và địa chỉ cửa hàng lên server
+                $.ajax({
+                    type: "GET",
+                    url: "/Distance/CalculateDistance1", // Đường dẫn đến Controller xử lý thông tin vị trí
+                    data: {
+                        userLatitude: userLatitude,
+                        userLongitude: userLongitude,
+                        storeAddress: storeAddress
+                    },
+                    success: function (response) {
+                        if (response.success == true) {
+                            // Nhận kết quả từ server và cập nhật khoảng cách vào phần tử HTML tương ứng
+                            element.find("#khoangCach").text("Khoảng cách: " + response.Distance);
+                        }
+                        else {
+                            element.find("#khoangCach").text("Khoảng cách không xác định!");
+                        }
+
+                    },
+                    error: function () {
+                        console.error("Đã xảy ra lỗi khi gửi thông tin vị trí.");
+                    }
+                });
+            };
+            function sendLocationToServer1(storeAddress, element) {
+                // Gửi thông tin vị trí người dùng và địa chỉ cửa hàng lên server
+                console.log(storeAddress);
+                $.ajax({
+                    type: "GET",
+                    url: "/Distance/CalculateDistance", // Đường dẫn đến Controller xử lý thông tin vị trí
+                    data: {
+                        storeAddress: storeAddress
+                    },
+                    success: function (response) {
+                        // Nhận kết quả từ server và cập nhật khoảng cách vào phần tử HTML tương ứng
+                        if (response.success == true) {
+                            element.find("#khoangCach").text("Khoảng cách: " + response.Distance);
+                        }
+                        else {
+                            element.find("#khoangCach").text("Khoảng cách không xác định!");
+                        }
+
+                    },
+                    error: function () {
+                        console.error("Đã xảy ra lỗi khi gửi thông tin vị trí.");
+                    }
+                });
+            };
+            //Hàm kiểm tra chi nhánh có khoản cách nhỏ nhất
+            function searchMinBranch() {
+                var minDistance = Infinity; // Khởi tạo giá trị nhỏ nhất là vô cùng lớn
+                $("#chooseLocation .item").each(function () {
+                    var Distance = $(this).find('#khoangCach').text(); // Lấy mã chi nhánh từ input
+                    //console.log(Distance);
+                    var startIndex = 13; // Bắt đầu từ ký tự thứ 13 (đếm từ 0)
+                    var endIndex = Distance.indexOf(' ', startIndex); // Tìm vị trí của khoảng trắng từ vị trí bắt đầu
+
+                    if (endIndex === -1) {
+                        endIndex = Distance.length; // Nếu không tìm thấy khoảng trắng, lấy đến hết chuỗi
+                    }
+
+                    var result = parseFloat(Distance.substring(startIndex, endIndex));
+                    if (!isNaN(result) && result < minDistance) {
+                        minDistance = result; // Cập nhật giá trị nhỏ nhất nếu tìm được kết quả nhỏ hơn
+                    }
+                });
+                console.log("Kết quả là: " + minDistance);
+                if (minDistance != Infinity) {
+                    $("#chooseLocation .item").each(function () {
+                        var Distance = $(this).find('#khoangCach').text(); // Lấy mã chi nhánh từ input
+                        //console.log(Distance);
+                        var startIndex = 13; // Bắt đầu từ ký tự thứ 13 (đếm từ 0)
+                        var endIndex = Distance.indexOf(' ', startIndex); // Tìm vị trí của khoảng trắng từ vị trí bắt đầu
+
+                        if (endIndex === -1) {
+                            endIndex = Distance.length; // Nếu không tìm thấy khoảng trắng, lấy đến hết chuỗi
+                        }
+
+                        var result = parseFloat(Distance.substring(startIndex, endIndex))
+
+                        //console.log(Distance);
+                        if (result == minDistance) {
+                            $(this).find('#khoangCach').text(Distance + ' Gần nhất').css('font-weight', 'bold');
+                        }
+                    });
+                }
+            }
+
+            @{
+                if(user != null)
+                {
+                    <text>
+                        //Thực hiện gọi kiểm tra shopping cart dưới CSDL có dữ liệu không
+                        $.ajax({
+                            url: '/KhachHang/getDataCartDB',
+                            method: 'POST',
+                            success: function (response) {
+                                if (response.success == true && response.KQ == 1) {
+                                    var macn = response.maCN;
+                                    activeCN(macn);
+                                } else if (response.success == true && response.KQ == 0) {
+                                    /*$('#cartItemCount').text(response.SL);*/
+                                    console.log("Không có thông tin người dùng");
+                                }
+
+                            },
+                            error: function (error) {
+                                console.log('Lỗi lấy thông tin người dùng ' + error.message);
+                            }
+                        });
+                    </text>
+                }
+            }
+            $.ajax({
+                url: '/KhachHang/LaySLCart',
+                method: 'POST',
+                success: function (data) {
+                    $('#cartItemCount').text(data.sl);
+                },
+                error: function (error) {
+                    console.log('Lỗi khi truy cập dữ liệu số lượng giỏ hàng');
+                }
+            });
+            //Hàm active cho chi nhánh
+            function activeCN(macn) {
+                //Chạy foreach kiểm tra để gán active vào chi nhánh đang chọn
+                $('.item').removeClass('active');
+                $("#chooseLocation .item").each(function () {
+                    var itemMaCN = $(this).find('input').val(); // Lấy mã chi nhánh từ input
+                    console.log(itemMaCN);
+                    // So sánh mã chi nhánh từ phản hồi với mã chi nhánh của từng phần tử
+                    if (itemMaCN == macn) {
+                        $(this).addClass('active'); // Nếu trùng khớp, thêm lớp 'active'
+                    }
+                });
+            }
+            $('#ChonCN').on('click', function () {
+                //Thực hiện lấy vị trí hiện tại và gửi về phía server để tính khoảng cách
+                LayDinhVi();
+
+                $('#myModalLocation').modal('show');
+
+            });
+
+            function LayDinhVi() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        // Lấy vị trí người dùng thành công
+                        var userLatitude = position.coords.latitude;
+                        var userLongitude = position.coords.longitude;
+
+                         // Lặp qua từng cửa hàng và gửi thông tin vị trí và địa chỉ cửa hàng lên server
+                             $(".stores-list .item").each(function () {
+                                 var storeAddress = $(this).find("#diachiCH").data("address"); // Lấy địa chỉ cửa hàng
+                                 // Gửi thông tin vị trí người dùng và địa chỉ cửa hàng lên server
+                                 @{
+                                     if(user == null)
+                                     {
+                                         <text>
+                                         sendLocationToServer(userLatitude, userLongitude, storeAddress, $(this));
+                                         </text>
+                                     }
+                                     else
+                                     {
+                                         <text>
+                                         sendLocationToServer1(storeAddress, $(this));
+                                         </text>
+                                     }
+                                 }
+                             });
+                        // Đợi 1 giây rồi thực hiện hành động
+                        setTimeout(function () {
+                            // Hành động của bạn sau khi đợi 1 giây
+                            searchMinBranch();
+                        }, 2000); // Thời gian là 1000 mili giây tương đương 1 giây
+
+
+                        },
+                        function (error) {
+                            switch (error.code) {
+                                case error.PERMISSION_DENIED:
+                                    console.error("Người dùng từ chối cấp quyền truy cập vị trí.");
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    console.error("Thông tin vị trí không khả dụng.");
+                                    break;
+                                case error.TIMEOUT:
+                                    console.error("Yêu cầu vượt quá thời gian cho phép để lấy vị trí.");
+                                    break;
+                                case error.UNKNOWN_ERROR:
+                                    console.error("Đã xảy ra lỗi không xác định.");
+                                    break;
+                            }
+                        });
+
+                } else {
+                    alert("Trình duyệt của bạn không hỗ trợ Geolocation.");
+                };
+            }
+
+            $('.item').click(function () {
+                // Loại bỏ lớp "active" từ tất cả các mục
+                $('.item').removeClass('active');
+
+                // Thêm lớp "active" vào mục được nhấn
+                $(this).addClass('active');
+            });
+            $('#chonDD').click(function () {
+                // Tìm mục (item) có lớp "active"
+                var activeItem = $('.item.active');
+
+                // Kiểm tra xem có mục (item) active không
+                if (activeItem.length > 0) {
+                    // Trích xuất thông tin từ mục (item) active
+                    var storeName = activeItem.find('.store-name').text();
+                    var diaChi = activeItem.find('p:contains("Địa chỉ:")').text();
+                    var id = activeItem.find('input').val();
+                    // In thông tin ra console hoặc thực hiện các thao tác khác theo nhu cầu của bạn
+                    console.log("Tên cửa hàng: " + storeName);
+                    console.log("Địa chỉ: " + diaChi);
+                    console.log("ID: " + id);
+
+                    //Gọi đến Ajax để lưu thông tin location ID hiện tại
+                    $.ajax({
+                        url: '/KhachHang/chonChiNhanh',
+                        type: 'POST',
+                        data: JSON.stringify({ id: id }),
+                        contentType: 'application/json',
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.success == true) {
+                                // Xử lý danh sách nhân viên ở đây
+                                console.log("Đã gửi dữ liệu thành công");
+                                $('#myModalLocation').modal('hide');
+                                location.reload();
+                            } else {
+                                console.log('Lấy data không thành công ');
+                                console.log('Ma lỗi: ' + response.nd);
+                            }
+                            // Xử lý phản hồi và gắn giá trị vào select2
+                            //var selectValue = data.selectValue; // Thay 'selectValue' bằng tên thuộc tính bạn muốn lấy
+                            //$('#EditSelectBox').val(selectValue);
+                        },
+                        error: function () {
+                            alert('Có lỗi xảy ra trong quá trình lấy dữ liệu.');
+                        }
+                    });
+                } else {
+                    // Nếu không có mục active, thông báo cho người dùng
+                    alert("Vui lòng chọn một cửa hàng trước khi nhấn Chọn địa điểm này.");
+                }
+            });
+            //Thông tin sản phẩm
+            @{
+                if(checkCN == null)
+                {
+                    <text>
+                    $('.filters-content').click(function () {
+                        LayDinhVi();
+                        $('#titleLocation').html("Vui lòng chọn địa điểm trước khi chọn món ăn!");
+                        $('#myModalLocation').modal('show');
+                    });
+                    </text>
+                }
+            }
+        });
+    </script>
+    <!-- Start of LiveChat (www.livechat.com) code -->
+    <script>
+        window.__lc = window.__lc || {};
+        window.__lc.license = 16797084;
+        ; (function (n, t, c) { function i(n) { return e._h ? e._h.apply(null, n) : e._q.push(n) } var e = { _q: [], _h: null, _v: "2.0", on: function () { i(["on", c.call(arguments)]) }, once: function () { i(["once", c.call(arguments)]) }, off: function () { i(["off", c.call(arguments)]) }, get: function () { if (!e._h) throw new Error("[LiveChatWidget] You can't use getters before load."); return i(["get", c.call(arguments)]) }, call: function () { i(["call", c.call(arguments)]) }, init: function () { var n = t.createElement("script"); n.async = !0, n.type = "text/javascript", n.src = "https://cdn.livechatinc.com/tracking.js", t.head.appendChild(n) } }; !n.__lc.asyncInit && e.init(), n.LiveChatWidget = n.LiveChatWidget || e }(window, document, [].slice))
+    </script>
+    <noscript><a href="https://www.livechat.com/chat-with/16797084/" rel="nofollow">Chat with us</a>, powered by <a href="https://www.livechat.com/?welcome" rel="noopener nofollow" target="_blank">LiveChat</a></noscript>
+    <!-- End of LiveChat code -->
+
+    @RenderSection("script", false)
+</body>
+</html>

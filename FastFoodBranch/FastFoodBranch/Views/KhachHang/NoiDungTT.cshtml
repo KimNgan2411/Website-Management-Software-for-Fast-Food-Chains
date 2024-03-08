@@ -1,0 +1,80 @@
+﻿@model FastFoodBranch.Models.BangTin
+
+@{
+    ViewBag.Title = "" + Model.TieuDe;
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    ViewBag.act2_1 = "active";
+}
+<!-- food section -->
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0">
+                <a href="/KhachHang/TrangChu">Trang chủ</a>
+                <span class="mx-2 mb-0">/</span>
+                <strong class="text-black">Tin tức (@Model.ID)</strong>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<section class="food_section layout_padding">
+    <div class="container">
+        
+        <div class="wrapper">
+            <main class="main">
+                <div class="container" id="anchor">
+                    <div class="promotion-detail">
+                        <div class="promotion-slide">
+                            <div class="swiper swiper-initialized swiper-horizontal swiper-pointer-events overflow-hidden swiper-backface-hidden">
+                                <div class="swiper-wrapper" style="transform: translate3d(0px, 0px, 0px);">
+                                    <div class="swiper-slide swiper-slide-active">
+                                        <div class="item">
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <img src="@Model.HinhAnh1" loading="eager">
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <img src="@Model.HinhAnh2" loading="eager">
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <img src="@Model.HinhAnh3" loading="eager">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-pagination swiper-pagination-clickable swiper-pagination-bullets swiper-pagination-horizontal swiper-pagination-lock">
+                                    <span class="swiper-pagination-bullet swiper-pagination-bullet-active"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <h2 class="f-title">@Model.TieuDe</h2>
+                        <div class="f-content-detail">
+                            <div>
+                                <span class="field-date">Ngày đăng tải: @Model.NgayDang</span>
+                                <p>
+                                    <span style="font-family: 'trebuchet ms', geneva;">
+                                        <strong><em>@Html.Raw(Model.NoiDung.Replace(".", ".<wbr>"))</em></strong>
+                                    </span>
+                                </p>
+                                
+                                @*<style>
+                                    p {
+                                        white-space: pre-wrap;
+                                        word-wrap: break-word;
+                                    }
+                                </style>*@
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+
+                </div>
+            </main>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,804 @@
+﻿@model IEnumerable<FastFoodBranch.Models.PhieuNhapXuat>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "DSPX";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.dspx = "active";
+    ViewBag.qlk1 = "show";
+    ViewBag.qlk0 = "active";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var dsk = db.Khoes.ToList();
+    var dsnl = db.NguyenLieux.ToList();
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm phiếu xuất thành công",
+                text: "Phiếu xuất @TempData["mapx"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm phiếu xuất không thành công",
+                text: "Phiếu xuất @TempData["mapx"] đã bị hủy. Nội dung lỗi : @TempData["mess5"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0"><h4 class="btn btn-outline-warning">Danh sách phiếu xuất</h4></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1"><h5 class="btn btn-outline-info">Danh sách phiếu xuất bị thu hồi</h5></a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách phiếu xuất đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="button-group">
+                                <a class="btn btn-sm btn-secondary" type="button" title="Sao chép" href="~/Admin/DSPX"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                <button class="btn btn-sm btn-primary" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>
+                                <button class="btn btn-sm btn-info" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã kho</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã nhân viên lập</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày lập</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Mã kho</th>
+                                    <th>Mã nhân viên lập</th>
+                                    <th>Ngày lập</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == true && item.LoaiPhieu == false)
+                                        {
+                                                                <tr>
+                                                                    <td data-b-a-s="thin">@item.ID</td>
+                                                                    @{
+                                                                        if (item.IDKho == "KH0")
+                                                                        {
+                                                                            <td data-b-a-s="thin">Kho tổng</td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td data-b-a-s="thin">@item.IDKho</td>
+                                                                        }
+                                                                    }
+                                                                    <td data-b-a-s="thin">@item.IDNV</td>
+                                                                    <td data-b-a-s="thin">@item.NgayLap</td>
+                                                                    @{
+                                                                        if (item.TrangThai == 2)
+                                                                        {
+                                                                            <td data-b-a-s="thin">
+                                                                                <div class="btn btn-sm btn-danger">
+                                                                                    Từ chối
+                                                                                </div>
+                                                                            </td>
+
+                                                                        }
+                                                                        else if (item.TrangThai == 1)
+                                                                        {
+                                                                            <td data-b-a-s="thin">
+                                                                                <div class="btn btn-sm btn-success">
+                                                                                    Đã duyệt
+                                                                                </div>
+                                                                            </td>
+                                                                        }
+                                                                        else if (item.TrangThai == 0)
+                                                                        {
+                                                                            <td data-b-a-s="thin">
+                                                                                <div class="btn btn-sm btn-warning">
+                                                                                    Đang xử lý
+                                                                                </div>
+                                                                            </td>
+                                                                        }
+                                                                    }
+                                                                    <td>
+                                                                        <button class="btn btn-info btn-sm edit " id="ChiTietPX1" style="color:white">
+                                                                            <i class="fa fa-info"></i>
+                                                                        </button>
+                                                                        <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                                        <button class="btn btn-danger btn-sm edit" id="thuhoiPN">
+                                                                            <i class="fa fa-times" aria-hidden="true"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách phiếu xuất đang tạm ngừng triển khai trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-info" id="button_excel1" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,30" class="table table-hover table-bordered" id="dataTable1" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã kho</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã nhân viên lập</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày lập</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Mã kho</th>
+                                    <th>Mã nhân viên lập</th>
+                                    <th>Ngày lập</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == false && item.LoaiPhieu == true)
+                                        {
+                                                                <tr>
+                                                                    <td data-b-a-s="thin">@item.ID</td>
+                                                                    @{
+                                                                        if (item.IDKho == "KH0")
+                                                                        {
+                                                                            <td data-b-a-s="thin">Kho tổng</td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td data-b-a-s="thin">@item.IDKho</td>
+                                                                        }
+                                                                    }
+                                                                    <td data-b-a-s="thin">@item.IDNV</td>
+                                                                    <td data-b-a-s="thin">@item.NgayLap</td>
+                                                                    @{
+                                                                        if (item.TrangThai == 2)
+                                                                        {
+                                                                            <td data-b-a-s="thin">
+                                                                                <div class="btn btn-sm btn-danger">
+                                                                                    Từ chối
+                                                                                </div>
+                                                                            </td>
+
+                                                                        }
+                                                                        else if (item.TrangThai == 1)
+                                                                        {
+                                                                            <td data-b-a-s="thin">
+                                                                                <div class="btn btn-sm btn-success">
+                                                                                    Đã duyệt
+                                                                                </div>
+                                                                            </td>
+                                                                        }
+                                                                        else if (item.TrangThai == 0)
+                                                                        {
+                                                                            <td data-b-a-s="thin">
+                                                                                <div class="btn btn-sm btn-warning">
+                                                                                    Đang xử lý
+                                                                                </div>
+                                                                            </td>
+                                                                        }
+                                                                    }
+                                                                    <td>
+                                                                        <button class="btn btn-info btn-sm edit " id="ChiTietCT1" style="color:white">
+                                                                            <i class="fa fa-info"></i>
+                                                                        </button>
+                                                                        <button class="btn btn-primary btn-sm edit" id="phuchoiPN">
+                                                                            <i class="fa fa-redo" aria-hidden="true"></i>
+                                                                        </button>
+
+                                                                        <button class="btn btn-danger btn-sm edit" id="xoaPN">
+                                                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*DataTales Example*@
+</div>
+
+
+<!--Modal-->
+<!--Phần modal thêm mới phiếu xuất-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới phiếu xuất</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="~/Admin/ThemPX" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="TenCT">Chọn Kho cần xuất: </label>
+                            <select class="form-control" id="IDKho" name="IDKho">
+                                <option selected disabled>Vui lòng chọn</option>
+                                @foreach (var item in dsk)
+                                {
+                                    <option value="@item.ID">@item.ID</option>
+                                }
+
+                            </select>
+                            <span class="control-label input-group-addon" id="icon0"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess0"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="TenCT">Chọn nguyên liệu: </label>
+                            <select class="form-control" id="IDNguyenLieu" name="IDNguyenLieu">
+                                <option selected disabled>Vui lòng chọn</option>
+                                @foreach (var item in dsnl)
+                                {
+                                    var khoql = db.Khoes.Where(s => s.LocationID == null).FirstOrDefault();
+                                    var slton = db.ChiTietKhoes.Where(s => s.IDNguyenLieu == item.ID && s.IDKho == khoql.ID).FirstOrDefault();
+                                    if (slton != null)
+                                    {
+                                        <option value="@item.ID">@item.TenNL SL: @slton.SoLuong</option>
+                                    }
+                                }
+                            </select>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập số lượng cần nhập : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="SoLuong" name="SoLuong" type="number" min="0" required>
+                            <span class="control-label input-group-addon" id="icon2"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnAdd" disabled>Thêm mới</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận thu hồi phiếu nhập -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận thu hồi phiếu nhập này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thu hồi phiếu nhập này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận phục hồi trạng thái phiếu nhập -->
+<div class="modal fade" id="RestoreModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RestoreModalLabel">Xác nhận phục hồi phiếu xuất này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn phục hồi phiếu xuất này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmRestore">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model xác nhận xóa nguyên liệu -->
+<div class="modal fade" id="deleteModal1" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel1">Xác nhận xóa phiếu xuất này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa phiếu xuất này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete1">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal hiển thị chi tiết phiếu nhập-->
+<div class="modal fade" id="chitietPXModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabelPX">Chi tiết phiếu xuất cho</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="#" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="ndCTPX">
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section script{
+
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    @*<script src="~/Content/js/demo/datatables-demo.js"></script>*@
+<script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+            $('#dataTable1').DataTable({
+                columnDefs: [
+                    { width: '150px', targets: 0 },// Độ rộng cột 5
+                ],
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+            //Set up cho selection 2
+            $('#IDKho').select2({
+                dropdownParent: $('#myModal'),
+                width: "190px"
+            });
+            $('#IDNguyenLieu').select2({
+                dropdownParent: $('#myModal'),
+                width: "190px"
+            });
+        });
+
+        //Thêm mới nguyên liệu
+        var check1 = 0;
+        var check2 = 0, check3 = 0;
+        //Check kho
+        $('#IDKho').on('change', function () {
+            var selectValue = $(this).val();
+            var icon2 = $('#icon0');
+            var ndmess2 = $('#mess0');
+            if (selectValue === null) {
+                icon2.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check1 = 0;
+                ndmess2.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess2.html('Vui lòng chọn kho .... !');
+            } else {
+                icon2.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon2.attr('data-target', 'ok');
+                icon2.mouseover(function () {
+                    var errorMessage = 'Kho xuât hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                check1 = 1;
+                ndmess2.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess2.html('Kho xuất hợp lệ.');
+            }
+            KTnd();
+        });
+        //Check nguyên liệu
+        $('#IDNguyenLieu').on('change', function () {
+            var selectValue = $(this).val();
+            var icon2 = $('#icon1');
+            var ndmess2 = $('#mess1');
+            if (selectValue === null) {
+                icon2.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check2 = 0;
+                ndmess2.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess2.html('Vui lòng chọn nguyên liệu xuất .... !');
+            } else {
+                icon2.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon2.attr('data-target', 'ok');
+                icon2.mouseover(function () {
+                    var errorMessage = 'Nguyên liệu xuất hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                check2 = 1;
+                ndmess2.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess2.html('Nguyên liệu xuất hợp lệ.');
+            }
+            KTnd();
+        });
+        //Check số lượng
+        $('#SoLuong').on('input', function () {
+            var input = $(this);
+            var icon1 = $('#icon2');
+            var ndmess1 = $('#mess2');
+
+            icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+            icon1.attr('data-target', 'notok');
+            icon1.mouseover(function () {
+                var errorMessage = 'Đang kiểm tra nội dung';
+                $(this).attr('title', errorMessage);
+            });
+            ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+            ndmess1.html('Vui lòng đợi trong giây lát .... !');
+
+            if (input.val() == 0) {
+                icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check3 = 0;
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng nhập số lượng .... !');
+            } else {
+                // Hiển thị biểu tượng dấu tích xanh
+                icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon1.attr('data-target', 'ok');
+                icon1.mouseover(function () {
+                    var errorMessage = 'Số lượng xuất hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess1.html('Số lượng xuất hợp lệ.');
+                check3 = 1;
+            }
+            KTnd();
+        });
+        //Hàm kiểm tra
+        function KTnd() {
+            setTimeout(function () {
+                if (check1 === 1 && check2 === 1 && check3 === 1) {
+                    $('#btnAdd').prop('disabled', false); // Mở ô thêm mới
+                }
+                else {
+                    $('#btnAdd').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+                };
+            }, 250)
+        };
+
+        //Thu hồi phiếu xuất
+        $('#dataTable').on('click', '#thuhoiPX', function () {
+            var value = $(this).closest('tr').find('td:first-child').text();
+            var $row = $(this).closest('tr');
+
+            $('#deleteModalLabel').html('Xác nhận thu hồi phiếu nhập này ' + value);
+            $('#deleteModal').modal('show');
+
+            $('#confirmDelete').on('click', function () {
+                $.ajax({
+                    url: '/Admin/ThuHoiPX',
+                    type: 'POST',
+                    data: JSON.stringify({ ID: value }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "Json",
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Thu hồi phiếu xuất thành công",
+                                text: "Mã phiếu xuất: " + response.id + " đã được thu hồi",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                                //$row.remove();
+                            });
+                        } else {
+                            swal({
+                                title: "Thu hồi phiếu xuất không thành công",
+                                text: "Mã phiếu xuất" + response.id + " không thể thu hồi. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            $('#deleteModal').modal('hide');
+                        });
+                    }
+                });
+            });
+        });
+        //Phục hồi phiếu nhập
+        $('#dataTable1').on('click', '#phuchoiPX', function () {
+            var value = $(this).closest('tr').find('td:first-child').text().trim();
+
+            $('#RestoreModalLabel').html('Xác nhận phục hồi phiếu phiếu ' + value);
+            $('#RestoreModal').modal('show');
+
+            $('#confirmRestore').on('click', function () {
+                $.ajax({
+                    url: '/Admin/PhucHoiPX',
+                    type: 'POST',
+                    data: JSON.stringify({ ID: value }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Phục hồi phiếu xuất thành công",
+                                text: "Mã phiếu xuất " + response.id + " đã được phục hồi trạng thái .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Phục hồi phiếu xuất " + response.id + " không thành công",
+                                text: "Mã phiếu xuất " + response.id + "không thể phục hồi trạng thái.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+
+        //Xóa phiếu xuất
+        $('#dataTable1').on('click', '#xoaPX', function () {
+            var value = $(this).closest('tr').find('td:first-child').text().trim();
+            $('#deleteModalLabel1').html('Xác nhận xóa phiếu xuất ' + value);
+            $('#deleteModal1').modal('show');
+
+            $('#confirmDelete1').on('click', function () {
+                $.ajax({
+                    url: '/Admin/XoaPX',
+                    type: 'POST',
+                    data: JSON.stringify({ ID: value }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Xóa phiếu xuất thành công",
+                                text: "Phiếu xuất " + response.id + " đã được xóa thành công .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Xóa phiếu xuất " + response.id + " không thành công",
+                                text: "Mã phiếu xuất " + response.id + "không thể xóa.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+
+         //Hiển thị chi tiết phiếu xuất
+        $('#dataTable').on('click', '#ChiTietPX1', function () {
+            var id = $(this).closest("tr").find("td:nth-child(1)").text();
+
+            $('#myModalLabelPX').html('Chi tiết phiếu xuất của ' + id);
+
+
+            setInterval(function () {
+                getDataCNPX(id);
+            }, 100000);
+            getDataCNPX(id);
+
+            $('#chitietPXModal').modal('show');
+
+        });
+    function getDataCNPX(id) {
+        $("[id^='ndNL']").remove();
+
+        $.ajax({
+            url: '/Admin/GetListCTPX',
+            type: 'POST',
+            data: JSON.stringify({ MaPX: id }),
+            contentType: 'application/json',
+            dataType: "json",
+            success: function (response) {
+                if (response.success == true) {
+                    // Xử lý danh sách nhân viên ở đây
+
+                    var data = response.data
+                    console.log(data);
+                    for (var i = 0; i < data.length; i++) {
+                        var id = data[i];
+
+                        var row =
+                            '<div class="form-group form-inline col-lg-12" id="ndNL' + i + '">' +
+                                '<label class="control-label mr-2">Nguyên liệu:  </label>' +
+                                ' <select class="form-control" id="ChonNL'+i+'" name="MaNL' + i +'" required disabled>' +
+                                    '<option value="1" selected disabled>--Vui lòng chọn--</option>' +
+                                '@{ foreach (var item in dsnl)
+                                        {
+                                            var khoql = db.Khoes.Where(s => s.LocationID == null).FirstOrDefault();
+                                                var slton = db.ChiTietKhoes.Where(s => s.IDNguyenLieu == item.ID && s.IDKho == khoql.ID).FirstOrDefault();
+
+                                                if (slton != null)
+                                                {<option value="@item.ID">@item.TenNL SL: @slton.SoLuong</option>}else{<option value="@item.ID">@item.TenNL SL: 0</option>}} }' +
+                                    '</select>' +
+                                 '<label class="control-label col-sm-2">SL:</label>' +
+                                 '<input class="form-control text-box single-line col-sm-2" type="number" disabled min=0 name="SoLuong' + i + '" id="SoLuong' + i + '" required />' +
+                             '</div>';
+
+                            $("#ndCTPX").append(row);
+                            $("#ChonNL" + i).val(id.IDNguyenLieu);
+                            $("#SoLuong" + i).val(id.SoLuong);
+
+                            $('#ChonNL' + i).select2({
+                                dropdownParent: $('#chitietPNModal'),
+                                width: "190px",
+                                val: id.IDNguyenLieu
+                            });
+
+
+                        }
+                    } else {
+                        console.log('Lấy data không thành công ');
+                        console.log('Ma lỗi: ' + response.error);
+                    }
+                    // Xử lý phản hồi và gắn giá trị vào select2
+                    //var selectValue = data.selectValue; // Thay 'selectValue' bằng tên thuộc tính bạn muốn lấy
+                    //$('#EditSelectBox').val(selectValue);
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra trong quá trình lấy dữ liệu.');
+                }
+            });
+        };
+
+</script>
+}
+

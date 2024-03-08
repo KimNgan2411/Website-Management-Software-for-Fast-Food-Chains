@@ -1,0 +1,614 @@
+﻿@model IEnumerable<FastFoodBranch.Models.LoaiKH>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "DSLKH";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.dslkh = "active";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+
+}
+
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm loại khách hàng thành công",
+                text: "Loại khách hàng @TempData["tenkh"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm loại khách hàng không thành công",
+                text: "Loại khách hàng @TempData["tenkh"] đã bị hủy. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0"><h4 class="btn btn-outline-warning">Danh sách loại khách hàng còn sử dụng</h4></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1"><h5 class="btn btn-outline-info">Danh sách loại khách hàng bị thu hồi</h5></a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách loại khách hàng đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-success" data-target="#myModal" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+                                <a class="btn btn-sm btn-secondary" type="button" title="Sao chép" href="~/Admin/DSLKH"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                <button class="btn btn-sm btn-primary" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>
+                                <button class="btn btn-sm btn-info" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Loại khách hàng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Chiết khấu</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Loại khách hàng</th>
+                                    <th>Chiết khấu</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == true)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.LoaiKH1</td>
+                                                <td data-b-a-s="thin">@item.ChietKhau</td>
+                                                @{
+                                                    if (item.Lock == true)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-warning" style="width:100px">
+                                                                Bình thường
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-info">
+                                                                Tạm ngừng
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    <button class="btn btn-success btn-sm edit" id="ChinhSuaLKH">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-danger btn-sm edit" id="thuhoiLKH">
+                                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách loại khách hàng đang tạm ngừng triển khai trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-info" id="button_excel1" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,30" class="table table-hover table-bordered" id="dataTable1" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Loại khách hàng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Chiết khấu</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Loại khách hàng</th>
+                                    <th>Chiết khấu</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == false)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.LoaiKH1</td>
+                                                <td data-b-a-s="thin">@item.ChietKhau</td>
+                                                @{
+                                                    if (item.Lock == true)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-warning" style="width:100px">
+                                                                Bình thường
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-info">
+                                                                Tạm ngừng
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    <button class="btn btn-primary btn-sm edit" id="phuchoiLKH">
+                                                        <i class="fa fa-redo" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    <button class="btn btn-danger btn-sm edit" id="xoaLKH">
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*DataTales Example*@
+</div>
+
+
+<!--Modal-->
+<!--Phần modal thêm mới loại khách hàng-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới loại khách hàng</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="~/Admin/ThemLKH" enctype="multipart/form-data" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenLKH">Nhập loại khách hàng : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="LoaiKH1" name="LoaiKH1" type="text" required>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenLKH">Nhập Chiết khấu : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="ChietKhau" name="ChietKhau" type="number" min=0 required>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnAdd">Thêm mới</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal xác nhận thu hồi loại khách hàng -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận thu hồi loại khách hàng này!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thu hồi loại khách hàng này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận phục hồi trạng loại khách hàng -->
+<div class="modal fade" id="RestoreModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RestoreModalLabel">Xác nhận phục hồi loại khách hàng này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn phục hồi loại khách hàng này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmRestore">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Model xác nhận xóa loại khách hàng -->
+<div class="modal fade" id="deleteModal1" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel1">Xác nhận xóa loại khách hàng này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa loại khách hàng này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete1">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section script{
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+            $('#dataTable1').DataTable({
+                columnDefs: [
+                    { width: '150px', targets: 0 },// Độ rộng cột 5
+                ],
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+        });
+
+
+        //Hàm chỉnh sửa loại khách hàng
+        $('#dataTable').on('click', '#ChinhSuaLKH', function () {
+            var row = $(this).closest('tr');
+
+            // Danh sách chỉ mục cột cho phép chỉnh sửa
+            var editableColumns = [1, 2];
+
+
+            // Chuyển sang chế độ chỉnh sửa
+            row.find('td').each(function (index) {
+
+                if (editableColumns.includes(index)) {
+                    var value = $(this).text().trim();
+                    $(this).html('<input class="form-control" type="text" value="' + value + '">');
+
+                }
+            });
+
+            //Hiển thị nút lưu và ẩn nút "Sửa"
+            row.find('#ChinhSuaLKH').hide();
+            row.find('#luutt').show();
+        });
+        //Hàm lưu lại thông tin sau khi cập nhật
+        $('#dataTable').on('click', '#luutt', function () {
+            var row = $(this).closest('tr');
+            var malkh = row.find('td:eq(0)').text().trim();
+            var tenlkh = row.find('td:eq(1) input').val().trim();
+            var chietkhau = row.find('td:eq(2) input').val().trim();
+            if (tenlkh === "") {
+                alert('Vui lòng nhập loại khách hàng trước khi cập nhật');
+            }
+            else {
+                // Lấy dữ liệu từ các ô input
+                var data = {
+                    ID: malkh,
+                    LoaiKH1: tenlkh,
+                    ChietKhau: chietkhau
+
+                };
+                console.log(data);
+
+                //Gửi dữ liệu lên máy chủ
+                $.ajax({
+                    url: '/Admin/ChinhSuaLKH',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success == true) {
+                            swal({
+                                title: "Cập nhật danh mục thành công ",
+                                text: "Mã danh mục " + response.maLKH + " đã được cập nhật",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else {
+                            swal({
+                                title: "Cập nhật danh mục không thành công",
+                                text: "Mã danh mục " + response.maLKH + " không được cập nhật." + "\n" + " Với nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi dữ liệu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            location.reload();
+                        });
+                    }
+                });
+            }
+
+        });
+    //Thu hồi loại khách hàng
+    $('#dataTable').on('click', '#thuhoiLKH', function () {
+        var mama = $(this).closest('tr').find('td:first-child').text();
+        var $row = $(this).closest('tr');
+
+        $('#deleteModalLabel').html('Xác nhận thu hồi loại khách hàng này ' + mama);
+        $('#deleteModal').modal('show');
+
+        $('#confirmDelete').on('click', function () {
+            $.ajax({
+                url: '/Admin/ThuHoiLKH',
+                type: 'POST',
+                data: JSON.stringify({ ID: mama }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "Json",
+                success: function (response) {
+                    // Hiển thị thông báo thành công (nếu cần thiết)
+                    if (response.success == true) {
+                        swal({
+                            title: "Thu hồi loại khách hàng thành công",
+                            text: "Mã loại khách hàng: " + response.malkh + " đã được thu hồi",
+                            icon: "success",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            $('#deleteModal').modal('hide');
+                            location.reload(); //Reload lại dữ liệu
+                            //$row.remove();
+                        });
+                    } else {
+                        swal({
+                            title: "Thu hồi loại khách hàng không thành công",
+                            text: "Mã loại khách hàng " + response.malkh + " không thể thu hồi. " + "\n" + "Nội dung lỗi: " + response.malkh,
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            $('#deleteModal').modal('hide');
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+
+                }, error: function (xhr, status, error) {
+                    swal({
+                        title: "Lỗi",
+                        text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                        icon: "error",
+                        button: "OK",
+                    }).then(function () {
+                        // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                        $('#deleteModal').modal('hide');
+                    });
+                }
+            });
+        });
+    });
+
+
+    //Phục hồi loại khách hàng
+    $('#dataTable1').on('click', '#phuchoiLKH', function () {
+        var mama = $(this).closest('tr').find('td:first-child').text().trim();
+
+        $('#RestoreModalLabel').html('Xác nhận phục hồi nguyên liệu ' + mama);
+        $('#RestoreModal').modal('show');
+
+        $('#confirmRestore').on('click', function () {
+            $.ajax({
+                url: '/Admin/PhucHoiLKH',
+                type: 'POST',
+                data: JSON.stringify({ ID: mama }),
+                contentType: 'application/json',
+                success: function (response) {
+                    // Hiển thị thông báo thành công (nếu cần thiết)
+                    if (response.success == true) {
+                        swal({
+                            title: "Phục hồi nguyên liệu thành công",
+                            text: "Nguyên liệu " + response.malkh + " đã được phục hồi trạng thái .",
+                            icon: "success",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    } else {
+                        swal({
+                            title: "Phục hồi loại khách hàng " + response.malkh + " không thành công",
+                            text: "Mã loại khách hàng " + response.malkh + "không thể phục hồi trạng thái.'+'\n'+' Nội dung lỗi: " + response.nd,
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+
+                }, error: function (xhr, status, error) {
+                    swal({
+                        title: "Lỗi",
+                        text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                        icon: "error",
+                        button: "OK",
+                    }).then(function () {
+                        // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                        location.reload(); //Reload lại dữ liệu
+                    });
+                }
+            });
+        });
+    });
+
+        //Xóa loại khách hàng
+        $('#dataTable1').on('click', '#xoaLKH', function () {
+            var mama = $(this).closest('tr').find('td:first-child').text().trim();
+            $('#deleteModalLabel1').html('Xác nhận xóa loại khách hàng ' + mama);
+            $('#deleteModal1').modal('show');
+
+            $('#confirmDelete1').on('click', function () {
+                $.ajax({
+                    url: '/Admin/XoaLKH',
+                    type: 'POST',
+                    data: JSON.stringify({ ID: mama }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Xóa loại khách hàng thành công",
+                                text: "Món ăn " + response.malkh + " đã được xóa thành công .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Xóa loại khách hàng " + response.malkh + " không thành công",
+                                text: "Mã loại khách hàng " + response.malkh + "không thể xóa.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+
+
+    </script>
+}

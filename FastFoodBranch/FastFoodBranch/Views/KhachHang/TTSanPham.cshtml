@@ -1,0 +1,853 @@
+﻿@model FastFoodBranch.Models.MonAn
+@using FastFoodBranch.Models
+@{
+    ViewBag.Title = "Thông tin sản phẩm";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var userKH = (KhachHang)Session["userKH"];
+    var chiNhanh = Session["locationCN"];
+    var dscn = db.ChiNhanhs.ToList();
+    var user = (KhachHang)Session["userKH"];
+}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<style>
+    .qty {
+        display: block;
+        zoom: 1;
+        margin-bottom: 20px;
+    }
+
+        .qty .lbl {
+            font-family: 'Dancing Script', cursive;
+            float: left;
+            display: block;
+            margin-right: 20px;
+            padding-top: 10px;
+        }
+
+        .qty button {
+            width: 44px;
+            height: 44px;
+            border: none;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+            text-align: center;
+            color: #fff;
+            background-color: #FF969A;
+            float: left;
+            font-weight: 500;
+            font-size: 18px;
+        }
+
+        .qty .number {
+            background-color: #FFEAE3;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+            width: 44px;
+            height: 44px;
+            text-align: center;
+            border: none;
+            float: left;
+            margin: 0 5px;
+            font-size: 16px;
+            padding: 10px 0 0;
+            display: block;
+        }
+
+    .txt-note {
+        float: left;
+        display: block;
+        margin-top: 10px;
+        margin-bottom: 30px;
+    }
+
+    .btnAddCart {
+        display: block;
+        float: left;
+        font-weight: 700;
+    }
+
+        .btnAddCart .btn-cart {
+            background-color: #ff5b6a;
+            padding: 10px 35px;
+            font-weight: 700;
+        }
+
+            .btnAddCart .btn-cart:hover {
+                background-color: #ff5b6a;
+                border-color: #ff5b6a;
+            }
+
+    .btnAddDSYT {
+        display: block;
+        float: left;
+        font-weight: 700;
+        margin-left: 5px;
+    }
+
+        .btnAddDSYT .btn-dsyt {
+            background-color: #ff5b6a;
+            padding: 10px 35px;
+            font-weight: 700;
+        }
+
+            .btnAddDSYT .btn-dsyt:hover {
+                background-color: #ff5b6a;
+                border-color: #ff5b6a;
+            }
+</style>
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0">
+                <a href="/KhachHang/TrangChu">Trang chủ</a>
+                <span class="mx-2 mb-0">/</span><a href="/KhachHang/DSThucDon">Danh sách món ăn</a><span class="mx-2 mb-0">/</span>
+                <strong class="text-black">
+                    @Model.TenMA (
+                    @{
+                        if (chiNhanh != null)
+                        {
+                            var cn = db.ChiNhanhs.Where(s => s.LocationID == (string)chiNhanh).FirstOrDefault();
+                            <text>
+                                @cn.TenCN
+                            </text>
+                        }
+                    }
+                    )
+                </strong>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="book_section layout_padding">
+    <div class="container">
+        <div class="heading_container heading_center">
+            <h2>
+                Thông tin món ăn
+            </h2>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form_container">
+                    <div class="img-box text-center">
+                        <img src="@Model.HinhAnh" width="450" height="400" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-box">
+                    <div class="heading_container">
+                        <h1>
+                            @Model.TenMA
+                        </h1>
+                        <h2>Giá tiền: @string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", Model.GiaGoc).Replace(",00", "")</h2>
+                    </div>
+                    <hr />
+                    <div class="text-body mb-5">
+                        <h1>Mô tả: </h1>
+                        <h2>@Model.MoTa</h2>
+                        <br />
+                        <h3>Số lượt xem: @TempData["slxem"]</h3>
+                    </div>
+                    <div class="qty">
+                        <span class="lbl">Quantity</span>
+                        <div class="q-inner ">
+                            <button class="btn-minute" type="button" disabled="">-</button>
+                            <span class="number">1</span>
+                            <button class="btn-plus" type="button">+</button>
+                        </div>
+
+                    </div>
+                    <div class="txt-note">
+                        Bạn tiết kiệm được
+                        <strong>62.000 ₫</strong> sau khi giảm giá.
+                    </div>
+                </div>
+                <div>
+                    <div class="btnAddCart">
+                        @{
+                            var query1 = from ct in db.CongThucs
+                                         join cct in db.ChiTietCTs on ct.ID equals cct.IDCongThuc
+                                         join ck in db.ChiTietKhoes on cct.IDNguyenLieu equals ck.IDNguyenLieu
+                                         join k in db.Khoes on ck.IDKho equals k.ID
+                                         where k.LocationID == (string)chiNhanh && ct.ID == Model.IDCongThuc
+                                         group new { cct, ck } by new { ct.ID, ct.TenCT } into grouped
+                                         select new
+                                         {
+                                             CongThucID = grouped.Key.ID,
+                                             TenCongThuc = grouped.Key.TenCT,
+                                             SoNguyenLieuTrongCongThuc = grouped.Select(x => x.cct.IDNguyenLieu).Distinct().Count(),
+                                             SoLuongCongThucCoTheLamRa = grouped.Min(x => x.ck.SoLuong / x.cct.SoLuong) // Kiểm tra cần chỉnh sửa lại phần này
+                                         };
+                            var result1 = query1.FirstOrDefault();
+                            if (result1.SoLuongCongThucCoTheLamRa > 1)
+                            {
+                                <button title="Thêm món ăn vào giỏ hàng" class="btn btn-primary btn-cart">Thêm món ăn vào giỏ hàng</button>
+                            }
+                            else
+                            {
+                                <button title="Thêm món ăn vào giỏ hàng" class="btn btn-primary btn-cart" disabled>Thêm món ăn vào giỏ hàng</button>
+                            }
+                        }
+
+
+                    </div>
+                    <div class="btnAddDSYT">
+                        <button class="btn btn-primary btn-dsyt" id="addDSYT">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <style>
+                </style>
+            </div>
+        </div>
+        @{
+            if (result1.SoLuongCongThucCoTheLamRa <= 1)
+            {
+                <br />
+
+                <h2 class="heading_container heading_center">Danh sách chi nhánh còn món ăn này </h2>
+
+                <!-- offer section -->
+
+                <section class="offer_section" style="padding-top:1px;">
+                    <div class="offer_container">
+                        <div class="container ">
+                            <div class="row" id="DSChiNhanh">
+                                @{
+                                    foreach (var item in dscn)
+                                    {
+
+                                        var queryCN = from ct in db.CongThucs
+                                                      join cct in db.ChiTietCTs on ct.ID equals cct.IDCongThuc
+                                                      join ck in db.ChiTietKhoes on cct.IDNguyenLieu equals ck.IDNguyenLieu
+                                                      join k in db.Khoes on ck.IDKho equals k.ID
+                                                      where k.LocationID == item.LocationID && ct.ID == Model.IDCongThuc && k.LocationID != (string)chiNhanh
+                                                      group new { cct, ck } by new { ct.ID, ct.TenCT } into grouped
+                                                      select new
+                                                      {
+                                                          CongThucID = grouped.Key.ID,
+                                                          TenCongThuc = grouped.Key.TenCT,
+                                                          SoNguyenLieuTrongCongThuc = grouped.Select(x => x.cct.IDNguyenLieu).Distinct().Count(),
+                                                          SoLuongCongThucCoTheLamRa = grouped.Min(x => x.ck.SoLuong / x.cct.SoLuong) // Kiểm tra cần chỉnh sửa lại phần này
+                                                      };
+                                        var resultCN = queryCN.FirstOrDefault();
+                                        if (resultCN != null && resultCN.SoLuongCongThucCoTheLamRa > 1)
+                                        {
+                                            var macn = db.MonAnChiNhanhs.Where(s => s.IDMonAn == Model.ID && s.TrangThai == 1 && s.LocationID == item.LocationID).FirstOrDefault();
+                                            if (macn != null)
+                                            {
+                                                <div class="col-md-6  ">
+                                                    <div class="box">
+                                                        <div class="img-box">
+                                                            <img src="@Model.HinhAnh" alt="">
+                                                        </div>
+                                                        <div class="detail-box">
+                                                            <h5>
+                                                                @item.TenCN
+                                                            </h5>
+                                                            <input id="DiaChiCN" value="@item.DiaChi" hidden />
+                                                            <h5 id="KhoangCachCN">Khoảng cách: </h5>
+                                                            <input value="@item.LocationID" hidden />
+                                                            <h6>
+                                                                <span>Món ăn còn: @resultCN.SoLuongCongThucCoTheLamRa</span>
+                                                            </h6>
+                                                            <button class="btn btn-success" data-location-id="@item.LocationID" id="ChuyenCNKhac">
+                                                                Chuyển chi nhánh
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            }
+        }
+
+
+
+        <!-- Slider main container -->
+        <br />
+
+        <h2 class="heading_container heading_center">Danh sách sản phẩm liên quan</h2>
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                @{
+
+                    var location = (string)Session["locationCN"];
+
+                    var dsmaCN = db.MonAnChiNhanhs.Where(s => s.LocationID == location && s.TrangThai == 1).ToList();
+                    foreach (var item in dsmaCN)
+                    {
+                        var monAn = db.MonAns.Where(s => s.ID == item.IDMonAn && s.ID != Model.ID && s.IDDanhMuc == Model.IDDanhMuc).FirstOrDefault();
+                        if (monAn != null)
+                        {
+                            <div class="swiper-slide">
+                                <input value="@monAn.ID" hidden />
+                                <img src="@monAn.HinhAnh" alt="">
+                                <h2>@monAn.TenMA</h2>
+                                <p>@string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", monAn.GiaGoc).Replace(",00", "")</p>
+                                <div class="btnAddCart1">
+
+                                    <button id="themMonAnLQ" class="btn btn-primary btn-cart1 mb-1">Thêm vào giỏ hàng</button>
+                                    <a href="@Url.Action("TTSanPham", "KhachHang", new { id = monAn.ID })" class="btn btn-primary btn-detaile">Xem chi tiết</a>
+                                    @*<button id="xemTTMonAn" class="btn btn-primary btn-detaile">Xem chi tiết</button>*@
+                                </div>
+                            </div>
+                        }
+
+                    }
+                }
+                <!-- Add more slides for other products -->
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+        <style>
+            .btnAddCart1 {
+                display: block;
+                float: left;
+            }
+
+                .btnAddCart1 .btn-cart1 {
+                    background-color: #ff5b6a;
+                    padding: 8px 7px;
+                    font-weight: 700;
+                }
+
+                    .btnAddCart1 .btn-cart1:hover {
+                        background-color: #ff5b6a;
+                        border-color: #ff5b6a;
+                    }
+
+            .container {
+                width: 100%; /* Đặt chiều rộng theo ý muốn */
+                overflow: hidden; /* Ẩn nội dung vượt quá kích thước */
+                margin: 0 auto; /* Canh giữa container */
+            }
+            /* Bổ sung CSS của bạn ở đây để tạo kiểu cho sản phẩm và Swiper container */
+            .swiper-container {
+                margin-top: 10px;
+                width: 70%;
+                height: 60%;
+            }
+
+            .swiper-slide {
+                text-align: center;
+                font-size: 18px;
+                background: #fff;
+                border-radius: 10px; /* Bo tròn viền cho mỗi slide */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Đổ bóng cho slide */
+                padding: 20px;
+                margin: 10px; /* Khoảng cách giữa các slide */
+            }
+
+                .swiper-slide img {
+                    /*width: 50%;
+            max-width: 200px;
+            height: auto;
+            margin: 0 auto;
+            display: block;*/
+                    width: 80%;
+                    height: 160px; /* Điều chỉnh chiều cao của hình ảnh tại đây */
+                    object-fit: cover; /* Đảm bảo hình ảnh không bị méo hoặc căng */
+                    border-radius: 10px; /* Bo tròn các góc của hình ảnh */
+                }
+
+            .swiper-pagination {
+                position: absolute;
+                width: 100%;
+                text-align: center;
+            }
+
+            .swiper-pagination-bullet {
+                width: 8px;
+                height: 8px;
+                display: inline-block;
+                border-radius: 50%;
+                background-color: #000; /* Đổi màu tại đây */
+                opacity: 0.5;
+                margin: 0 5px;
+                cursor: pointer;
+            }
+
+            .swiper-pagination-bullet-active {
+                opacity: 1;
+            }
+        </style>
+    </div>
+
+</section>
+
+<!-- client section -->
+@{
+    var hoaDon = db.ChiTietHDs
+        .Where(ct => ct.IDMonAn == Model.ID) // Điều kiện lọc theo ID món ăn là "MA10"
+        .Select(ct => ct.IDHoaDon) // Chọn ra ID của hóa đơn liên quan
+        .Distinct() // Lọc ra các ID hóa đơn duy nhất
+        .ToList();
+    var feedbacksOfHoaDon = db.Feedbacks
+        .Where(f => f.IDHoaDon.Contains(f.IDHoaDon)) // Lọc các feedback của các hóa đơn có ID món ăn "MA10"
+        .ToList();
+
+    var result = db.HoaDons
+        .Join(
+            db.ChiTietHDs,
+            hd => hd.ID,
+            cthd => cthd.IDHoaDon,
+            (hd, cthd) => new { hd, cthd }
+        )
+        .Join(
+            db.Feedbacks,
+            combined => combined.hd.ID,
+            fb => fb.IDHoaDon,
+            (combined, fb) => new { combined, fb }
+        )
+        .Where(
+            data => data.combined.hd.LocationID == (string)chiNhanh &&
+                    data.combined.cthd.IDMonAn == Model.ID &&
+                    data.combined.hd.TrangThai == true &&
+                    data.fb.IDHoaDon == data.combined.hd.ID
+        )
+        .Select(
+            data => new
+            {
+                data.combined.hd,
+                data.combined.cthd,
+                data.fb
+            }
+        )
+        .ToList();
+
+    // feedbacksWithInfo chứa danh sách thông tin MaKH và MaCN của Feedback và HoaDon tương ứng
+}
+<section class="client_section layout_padding-bottom">
+    <div class="container">
+        <div class="heading_container heading_center psudo_white_primary mb_45">
+            <h2>
+                Phản hồi từ khách hàng từ món ăn này
+            </h2>
+        </div>
+        <div class="carousel-wrap row ">
+            <div class="owl-carousel client_owl-carousel">
+                @{
+                    foreach (var item in result)
+                    {
+                        <div class="item">
+                            <div class="box">
+                                <div class="detail-box">
+                                    <p>
+                                        @item.fb.NoiDung
+                                    </p>
+                                    <h6>
+                                        @{
+                                            var kh = db.KhachHangs.Where(s => s.MaKH == item.hd.MaKH).FirstOrDefault();
+                                            if (kh != null)
+                                            {
+                                                @kh.TenKH
+                                            }
+                                        }
+                                    </h6>
+                                    <p>
+                                        Đánh giá: @item.fb.DanhGia sao
+                                    </p>
+                                    <p>
+                                        Ngày đánh giá: @item.fb.NgayTao
+                                    </p>
+
+                                </div>
+                                <div class="img-box">
+                                    @{
+                                        if (kh != null)
+                                        {
+                                            <img src="@kh.HinhAnh" alt="" class="box-img">
+                                        }
+                                        else
+                                        {
+                                            <img src="" alt="" class="box-img">
+                                        }
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@section script{
+    <script>
+        $(document).ready(function () {
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    // Lấy vị trí người dùng thành công
+                    var userLatitude = position.coords.latitude;
+                    var userLongitude = position.coords.longitude;
+
+                        //Lặp qua từng thẻ element để kiểm tra khoảng cách
+                        $('#DSChiNhanh .box').each(function (index, element) {
+                            var locationID = $(element).find('input[value]').val();
+                            var diachi = $(element).find('#DiaChiCN').val();
+                            // Lấy vị trí hiện tại của người dùng - Bạn cần code để lấy vị trí từ người dùng ở đây
+
+                            @{
+                                if(user == null)
+                                {
+                                    <text>
+                                        sendLocationToServer(userLatitude, userLongitude, diachi, $(this));
+                                    </text>
+                                }
+                                else
+                                {
+                                    <text>
+                                        sendLocationToServer1(diachi, $(this));
+                                    </text>
+                                }
+                            }
+                        });
+                    // Đợi 1 giây rồi thực hiện hành động
+                    setTimeout(function () {
+                        // Hành động của bạn sau khi đợi 1 giây
+                        searchMinBranch();
+                    }, 2000); // Thời gian là 1000 mili giây tương đương 1 giây
+
+
+                    },
+                    function (error) {
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                console.error("Người dùng từ chối cấp quyền truy cập vị trí.");
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                console.error("Thông tin vị trí không khả dụng.");
+                                break;
+                            case error.TIMEOUT:
+                                console.error("Yêu cầu vượt quá thời gian cho phép để lấy vị trí.");
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                console.error("Đã xảy ra lỗi không xác định.");
+                                break;
+                        }
+                    });
+
+            } else {
+                alert("Trình duyệt của bạn không hỗ trợ Geolocation.");
+            };
+
+
+
+
+            //Hàm tình khoảng cách
+            function sendLocationToServer(userLatitude, userLongitude, storeAddress, element) {
+                // Gửi thông tin vị trí người dùng và địa chỉ cửa hàng lên server
+                $.ajax({
+                    type: "GET",
+                    url: "/Distance/CalculateDistance1", // Đường dẫn đến Controller xử lý thông tin vị trí
+                    data: {
+                        userLatitude: userLatitude,
+                        userLongitude: userLongitude,
+                        storeAddress: storeAddress
+                    },
+                    success: function (response) {
+                        if (response.success == true) {
+                            // Nhận kết quả từ server và cập nhật khoảng cách vào phần tử HTML tương ứng
+                            element.find("#KhoangCachCN").text("Khoảng cách: " + response.Distance);
+                        }
+                        else {
+                            element.find("#KhoangCachCN").text("Khoảng cách không xác định!");
+                        }
+
+                    },
+                    error: function () {
+                        console.error("Đã xảy ra lỗi khi gửi thông tin vị trí.");
+                    }
+                });
+            };
+            function sendLocationToServer1(storeAddress, element) {
+                // Gửi thông tin vị trí người dùng và địa chỉ cửa hàng lên server
+                //console.log(storeAddress);
+                $.ajax({
+                    type: "GET",
+                    url: "/Distance/CalculateDistance", // Đường dẫn đến Controller xử lý thông tin vị trí
+                    data: {
+                        storeAddress: storeAddress
+                    },
+                    success: function (response) {
+                        // Nhận kết quả từ server và cập nhật khoảng cách vào phần tử HTML tương ứng
+                        if (response.success == true) {
+                            element.find("#KhoangCachCN").text("Khoảng cách: " + response.Distance);
+                        }
+                        else {
+                            element.find("#KhoangCachCN").text("Khoảng cách không xác định!");
+                        }
+
+                    },
+                    error: function () {
+                        console.error("Đã xảy ra lỗi khi gửi thông tin vị trí.");
+                    }
+                });
+            };
+            //Hàm kiểm tra chi nhánh có khoản cách nhỏ nhất
+            function searchMinBranch() {
+                var minDistance = Infinity; // Khởi tạo giá trị nhỏ nhất là vô cùng lớn
+                $('#DSChiNhanh .box').each(function () {
+                    var Distance = $(this).find('#KhoangCachCN').text(); // Lấy mã chi nhánh từ input
+                    //console.log(Distance);
+                    var startIndex = 13; // Bắt đầu từ ký tự thứ 13 (đếm từ 0)
+                    var endIndex = Distance.indexOf(' ', startIndex); // Tìm vị trí của khoảng trắng từ vị trí bắt đầu
+
+                    if (endIndex === -1) {
+                        endIndex = Distance.length; // Nếu không tìm thấy khoảng trắng, lấy đến hết chuỗi
+                    }
+
+                    var result = parseFloat(Distance.substring(startIndex, endIndex));
+                    if (!isNaN(result) && result < minDistance) {
+                        minDistance = result; // Cập nhật giá trị nhỏ nhất nếu tìm được kết quả nhỏ hơn
+                    }
+                });
+                console.log("Kết quả là: " + minDistance);
+                if (minDistance != Infinity) {
+                    $('#DSChiNhanh .box').each(function () {
+                        var Distance = $(this).find('#KhoangCachCN').text(); // Lấy mã chi nhánh từ input
+                        //console.log(Distance);
+                        var startIndex = 13; // Bắt đầu từ ký tự thứ 13 (đếm từ 0)
+                        var endIndex = Distance.indexOf(' ', startIndex); // Tìm vị trí của khoảng trắng từ vị trí bắt đầu
+
+                        if (endIndex === -1) {
+                            endIndex = Distance.length; // Nếu không tìm thấy khoảng trắng, lấy đến hết chuỗi
+                        }
+
+                        var result = parseFloat(Distance.substring(startIndex, endIndex))
+
+                        //console.log(Distance);
+                        if (result == minDistance) {
+                            $(this).find('#KhoangCachCN').text(Distance + ' (Gần nhất) ').css('font-weight', 'bold');
+                        }
+                    });
+                }
+            }
+
+
+            //Xử lý sự kiện chuyển chi nhánh khi sản phẩm hết hàng
+            $('.btn-success').click(function () {
+                var locationID = $(this).data('location-id'); // Lấy mã chi nhánh từ thuộc tính data của nút
+                var div = $(this).closest('.col-md-6'); // Tìm div gần nhất chứa nút này
+                var diaChi = div.find('#DiaChiCN').val(); // Lấy giá trị của địa chỉ từ input có id là DiaChiCN
+                var khoangCach = div.find('#KhoangCachCN').val(); // Khởi tạo biến khoảng cách, bạn có thể tính toán khoảng cách ở đây
+
+                console.log("Location ID: " + locationID);
+                console.log("Địa chỉ: " + diaChi);
+                console.log("Khoảng cách: " + khoangCach);
+
+                //Gọi đến Ajax để lưu thông tin location ID hiện tại
+                $.ajax({
+                    url: '/KhachHang/chonChiNhanh',
+                    type: 'POST',
+                    data: JSON.stringify({ id: locationID }),
+                    contentType: 'application/json',
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success == true) {
+                            // Xử lý danh sách nhân viên ở đây
+                            console.log("Đã gửi dữ liệu thành công");
+                            swal({
+                                title: "Chuyển sang chi nhánh" + locationID + " thành công",
+                                text: "Bạn đã được chuyển sang chi nhánh " + locationID,
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            console.log('Lấy data không thành công ');
+                            swal({
+                                title: "Chuyển chi nhánh " + locationID + " không thành công",
+                                text: "Bạn không thể chuyển chi nhánh! " + "\n" + "Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+
+                            });
+                        }
+                        // Xử lý phản hồi và gắn giá trị vào select2
+                        //var selectValue = data.selectValue; // Thay 'selectValue' bằng tên thuộc tính bạn muốn lấy
+                        //$('#EditSelectBox').val(selectValue);
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra trong quá trình lấy dữ liệu.');
+                    }
+                });
+
+            });
+
+            var swiper = new Swiper('.swiper-container', {
+                slidesPerView: 3,
+                slidesPerGroup: 3,
+                spaceBetween: 30,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                preloadImages: false, // Ẩn ảnh cho đến khi được hiển thị
+                lazy: true, // Kích hoạt chế độ lazy load
+            });
+
+            var monAnId = '@Model.ID';
+            var soLuong = 1;
+            var MaKH = "@(userKH != null ? userKH.MaKH : string.Empty)";
+            if (MaKH == '') {
+                $('#addDSYT').click(function () {
+                    window.location.href = '/KhachHang/LRAccount';
+                });
+            }
+
+            $('.btn-plus').click(function () {
+                $('.btn-minute').prop('disabled', false);
+                soLuong++;
+                $('.number').text(soLuong);
+            });
+
+            $('.btn-minute').click(function () {
+                if (soLuong <= 1) {
+                    soLuong = 1;
+                    $(this).attr('disabled', 'disabled');
+                }
+                else {
+                    soLuong--;
+                    $('.number').text(soLuong);
+                }
+            });
+            $('.btn-cart').click(function () {
+                $.ajax({
+                    url: '/KhachHang/ThemVaoGH',
+                    data: { id: monAnId, sl: soLuong },
+                    success: function (response) {
+                        $('#cartItemCount').text(response.sl);
+                        if (response.success == true) {
+                            swal({
+                                title: "Thêm vào giỏ hàng thành công",
+                                text: "Bạn đã thêm món ăn vào giỏ hàng thành công! ",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                 //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Thêm vào giỏ hàng không thành công",
+                                text: "Món ăn bạn vừa gặp sự cố vui lòng thủ lại! ",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                 //Reload lại dữ liệu
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        //Xử lý lỗi
+                        console.log('Lỗi khi thêm vào giỏ hàng');
+                    }
+                });
+            });
+
+            $('.btn-dsyt').click(function () {
+                // Lấy tham số cần thiết
+                var button = $(this).find('.btn-dsyt');
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/KhachHang/ThemDSYT',
+                    data: { id: monAnId, user: MaKH },
+                    success: function (response) {
+                        if (response.success == true) {
+                            swal({
+                                title: "Thêm vào danh sách yêu thích",
+                                text: "Đã thêm món ăn vào danh sách yêu thích của bạn",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); // Reload lại dữ liệu
+                            });
+                        } else {
+                            // Handle the case when response.success is not true
+                            console.log('Failed to add to favorites.');
+                        }
+                    },
+                    error: function (error) {
+                        // Xử lý lỗi
+                        console.log('Lỗi khi thêm vào danh sách yêu thích');
+                    }
+                });
+            });
+            //Xử lý sự kiện thêm sản phẩm có liên quan vào giỏ hàng
+            $('.btn-cart1').click(function () {
+                // Lấy giá trị của ID hoặc thông tin sản phẩm tương ứng với nút được nhấp
+                var productId = $(this).closest('.swiper-slide').find('input').val();
+                console.log(productId);
+                // Thực hiện cuộc gọi AJAX với thông tin sản phẩm hoặc ID tương ứng
+                $.ajax({
+                    url: '/KhachHang/ThemVaoGH',
+                    data: { id: productId, sl: 1 },
+                    success: function (response) {
+                        $('#cartItemCount').text(response.sl);
+                        if (response.success == true) {
+                            swal({
+                                title: "Thêm vào giỏ hàng thành công",
+                                text: "Bạn đã thêm món ăn vào giỏ hàng thành công! ",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }else{
+                            swal({
+                                title: "Thêm vào giỏ hàng không thành công",
+                                text: "Món ăn bạn vừa gặp sự cố vui lòng thủ lại! ",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+                        
+                    },
+                    error: function (error) {
+                        //Xử lý lỗi
+                        console.log('Lỗi khi thêm vào giỏ hàng');
+                    }
+                });
+            });
+            //Xử lý sự kiện xem chi tiết sản phẩm liên quan
+            //$('.btn-detaile').click(function () {
+            //    // Lấy giá trị của ID hoặc thông tin sản phẩm tương ứng với nút được nhấp
+            //    var productId = $(this).closest('.swiper-slide').find('input').val();
+            //    console.log(productId);
+            //    // Thực hiện cuộc gọi AJAX với thông tin sản phẩm hoặc ID tương ứng
+
+            //});
+
+
+
+        });
+    </script>
+}

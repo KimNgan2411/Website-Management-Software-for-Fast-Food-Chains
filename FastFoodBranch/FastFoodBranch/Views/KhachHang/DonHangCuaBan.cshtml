@@ -1,0 +1,429 @@
+﻿@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Đơn hàng của bạn";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var kh = (KhachHang)Session["userKH"];
+}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0">
+                <a href="/KhachHang/TrangChu">Trang chủ</a>
+                <span class="mx-2 mb-0">/</span>
+                <strong class="text-black">Đơn hàng của bạn</strong>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="book_section">
+    <div class="container mb-4 mt-4">
+        <div class="my-account ">
+            <div class="account-left">
+                <div class="b-avatar">
+                    <div class="f-name">
+                        <!--Phần này sẽ render hình ảnh của người dùng-->
+                        <img id="avatarImage" src="@kh.HinhAnh" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                        <input type="file" id="avatarInput" style="display: none;">
+                    </div>
+                    <div class="f-fullname">@kh.TenKH</div>
+                    <div class="f-point">
+                        <span>0 Điểm</span>
+                    </div>
+                </div>
+                @{
+                    ViewBag.history = "active";
+                    var dshd = db.HoaDons.Where(s => s.MaKH == kh.MaKH).ToList();
+                    ViewBag.order = dshd;
+                    Html.RenderPartial("Menu");
+                }
+            </div>
+            <div class="account-right d-block">
+                <button class="f-back" onclick="window.location='MenuMobile'"></button>
+                <h2 class="head-title">Đơn hàng của bạn</h2>
+                <div class="account-content">
+                    <div class="tab-account">
+                        @{
+                            ViewBag.all = "current";
+                            Html.RenderPartial("OrderHistory");
+                        }
+                    </div>
+                    <div class="account-content acc-history">
+
+                        <div id="orderHistoryContainer">
+                            <!-- Nội dung Partial View sẽ được thêm vào đây -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+    .dataTables_filter {
+        margin-left: 200px;
+    }
+
+    .pagination {
+        margin-left: 220px;
+    }
+
+    .custom-select {
+        width: auto;
+    }
+</style>
+<!--Hiển thị chi tiết hóa đơn -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới nguyên liệu</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="#" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="col-lg-12 table-responsive">
+                            <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTableCTHD" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Hình ảnh</th>
+                                        <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Món ăn</th>
+                                        <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Số lượng</th>
+                                        <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Đơn giá</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-end">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!--Phần modal thêm Feedback-->
+<div class="modal fade" id="myModalHD" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabelDG">Thêm mới feedback</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="nd">
+                    <div class="form-group form-inline col-lg-12" style="height:40px;">
+                        <label class="control-label col-sm-5" for="TenFeedback">Mã hóa đơn : </label>
+                        <input class="form-control text-box single-line col-sm-5" id="IDHoaDon" name="IDHoaDon" type="text" min=1 max=5 required disabled>
+                        <span class="control-label input-group-addon" id="icon1"></span>
+                        <div class="form-group col-sm-5">
+                        </div>
+                        <div class=" form-group col-sm-5">
+                            <p id="mess1"></p>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-inline col-lg-12" style="height:40px;">
+                        <label class="control-label col-sm-5" for="TenFeedback">Đánh giá : </label>
+                        <input class="form-control text-box single-line col-sm-5" id="DanhGia" name="DanhGia" type="number" min=1 max=5 required>
+                        <span class="control-label input-group-addon" id="icon1"></span>
+                        <div class="form-group col-sm-5">
+                        </div>
+                        <div class=" form-group col-sm-5">
+                            <p id="mess2"></p>
+                        </div>
+                    </div>
+                    <div class="form-group form-inline col-lg-12" style="height:40px;">
+                        <label class="control-label col-sm-5" for="TenFeedback">Nội dung : </label>
+                        <textarea class="form-control text-box single-line col-sm-5" id="NoiDung" name="NoiDung" type="text" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="submit" class="btn btn-primary" id="btnAddDG">Đánh giá</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section script{
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script>
+        var swiper = new Swiper('.swiper', {
+            slidesPerView: 'auto',  // Cho phép kéo số lượng lớn các mục
+            spaceBetween: 10,  // Khoảng cách giữa các mục
+        });
+        $('.swiper-slide a').click(function () {
+            console.log('Bạn đã nhấn vào swiper');
+            // Lấy thẻ a được chọn
+            var $selectedA = $(this);
+            // Lấy giá trị data-tab từ phần tử a được chọn
+            // Loại bỏ class 'txt current' từ tất cả các thẻ a trong .swiper-slide
+            $('.swiper-slide a').removeClass('current');
+            // Thêm class 'txt current' vào thẻ a được chọn
+            $selectedA.addClass('txt current');
+
+            // Lấy nội dung của thẻ a được chọn
+            var selectedText = $selectedA.data("tab");
+            console.log(selectedText);
+
+            // Tìm phần tử cha chứa thẻ a được chọn bằng closest('.swiper-slide')
+            var $swiperSlide = $selectedA.closest('.swiper-slide');
+
+            //Thực hiện cập nhật danh sách tại đây
+            switch (selectedText) {
+                case "all":
+                    $(".acc-history p").text("Nội dung cho Tất cả");
+                    $("#orderHistoryContainer .f-empty").remove();
+                    $.get("/KhachHang/OrderHistory", function (data) {
+                        $("#orderHistoryContainer").html(data);
+                    });
+                    break;
+                case "dtc":
+                    $(".acc-history p").text("Nội dung cho Đặt thành công");
+                    break;
+                case "cbm":
+                    $(".acc-history p").text("Nội dung cho Chuẩn bị món");
+                    break;
+                case "ship":
+                    $(".acc-history p").text("Nội dung cho Đang giao");
+                    break;
+                case "complete":
+                    $(".acc-history p").text("Nội dung cho Hoàn thành");
+                    break;
+                case "cancle":
+                    $(".acc-history p").text("Nội dung cho Hủy đơn hàng");
+                    break;
+                // Thêm các trường hợp khác tương ứng với các tab
+            };
+
+
+            //var tab = $(this).data("tab");
+            ////console.log(tab);
+            //// Dựa vào giá trị tab, thay đổi nội dung trong acc-history
+
+
+            //switch (tab) {
+            //    case "all":
+            //        $(".acc-history p").text("Nội dung cho Tất cả");
+            //        $('.swiper .txt').addClass('txt current');
+            //        break;
+            //    case "dtc":
+            //        $(".acc-history p").text("Nội dung cho Đặt thành công");
+            //        $('.swiper .txt').addClass('txt current');
+            //        break;
+            //    // Thêm các trường hợp khác tương ứng với các tab
+            //}
+        });
+
+    </script>
+
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script>
+     $('#dataTable').DataTable({
+         "language": {
+             "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+         }
+     });
+
+        //Hiển thị chi tiết hóa đơn
+        $('#dataTable').on('click', '#XemHoaDon', function () {
+            var row = $(this).closest('tr');
+            var madh = row.find('td:eq(0)').text().trim();
+            $('#myModalLabel').html("Thông tin hóa đơn: " + madh);
+
+            $.ajax({
+                url: '/KhachHang/getDataChiTietHD',
+                type: 'POST',
+                data: JSON.stringify({ MaHD: madh }),
+                contentType: 'application/json',
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        var data = response.data
+                        console.log(data);
+
+                        var table = $("#dataTableCTHD tbody");
+
+                        // Xoá dòng cũ trong bảng (nếu có)
+                        table.empty();
+                        var discount = response.vouCher;
+
+                        var tamtinh = 0;
+                        var tongcong = 0;
+                        for (var i = 0; i < data.length; i++) {
+                            var newRow = '<tr>' +
+                                '<td data-b-a-s="thin"> <img src="' + data[i].ImageMA + '" alt="Hình ảnh" width="80" height="70"> </td>' +
+                                '<td data-b-a-s="thin">' + data[i].TenMonAn + '</td>' +
+                                '<td data-b-a-s="thin">' + data[i].SoLuong + '</td>' +
+                                '<td data-b-a-s="thin">' + formatCurrency(data[i].Gia) + '</td>' +
+                                '</tr>';
+                            tamtinh += data[i].Gia * data[i].SoLuong;
+                            table.append(newRow);
+                        }
+                        if (discount != null) {
+                            tongcong = tamtinh - (tamtinh * discount);
+                        }
+                        else {
+                            discount = 0;
+                        }
+                        var lastRow =
+                            '<tr >' +
+                                '<th colspan="3" style="text-align:end; border:1px solid #ffffff">Tạm tính:</th>' +
+                                '<td style="border:1px solid #ffffff"> ' + formatCurrency(tamtinh) + ' </td>' +
+                            '</tr>' +
+                            '<tr">' +
+                                '<th colspan="3" style="text-align:end;border:1px solid #ffffff">Chiết khấu:</th>' +
+                                '<td style="border:1px solid #ffffff"> 0 </td>' +
+                            '</tr>' +
+                            '<tr">' +
+                                '<th colspan="3" style="text-align:end;border:1px solid #ffffff;">Khuyến mãi:</th>' +
+                                '<td style="border:1px solid #ffffff; border-bottom: 1px solid #dee2e6"> '+(discount*100)+'% </td>' +
+                            '</tr>'+
+                            '<tr">' +
+                                '<th colspan="3" style="text-align:end;border:1px solid #ffffff">Tổng tiền:</th>' +
+                                '<td style="border:1px solid #ffffff"> ' + formatCurrency(tongcong) + ' </td>' +
+                            '</tr>'
+                            ;
+
+                        table.append(lastRow);
+
+                    } else {
+                        console.log('Lấy data không thành công ');
+                        console.log('Ma lỗi: ' + response.error);
+                    }
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra trong quá trình lấy dữ liệu.');
+                }
+            })
+
+            $("#myModal").modal("show");
+
+        });
+        //Hiển thị phần đánh giá
+        $('#dataTable').on('click', '#DanhGiaHD', function () {
+            var row = $(this).closest('tr');
+            var madh = row.find('td:eq(0)').text().trim();
+            $('#myModalLabelDG').html("Đánh giá hóa đơn: " + madh);
+            // Xóa nội dung của ô NoiDung và DanhGia
+            $('#NoiDung').val('');
+            $('#DanhGia').val('');
+
+            $('#IDHoaDon').val(madh);
+
+            $("#myModalHD").modal("show");
+            $('#btnAddDG').on('click', function () {
+                var nd = $('#NoiDung').val().trim();
+                var dg = $('#DanhGia').val().trim();
+                if (nd.length == 0 || dg.length == 0) {
+                    alert('Vui lòng không để trống .');
+                }
+                else {
+                    $.ajax({
+                        url: '/KhachHang/DanhGiaHD',
+                        data: { MaHD: madh, DanhGia: dg, NoiDung: nd },
+                        method: 'POST',
+                        success: function (response) {
+                            if (response.success == true) {
+                                swal({
+                                    title: "Cảm ơn bạn đã đánh giá",
+                                    text: "Đơn hàng " + madh + " đã được đánh giá thành công .",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#myModalHD').modal('hide');
+                                    row.find('#DanhGiaHD').hide();
+                                });
+                            } else {
+                                swal({
+                                    title: "Đánh giá đơn hàng không thành công",
+                                    text: "Đơn hàng " + madh + " không được đánh giá. Lý do: " + response.nd,
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#myModalHD').modal("hide");
+                                });
+                            }
+                        },
+                        error: function () {
+                            alert('Có lỗi xảy ra trong quá trình xử lý dữ liệu.');
+                        }
+                    });
+                }
+                
+            });
+        });
+
+        function formatCurrency(number) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+        }
+        //Hủy đơn hàng
+        $('#dataTable').on('click', '#TuChoi', function () {
+            var row = $(this).closest('tr');
+            var madh = row.find('td:eq(0)').text().trim();
+            console.log('Bạn từ chối đơn hàng này: ' + madh);
+            var trangthai = false;
+            $.ajax({
+                url: '/KhachHang/XetDuyetHD',
+                data: { MaHD: madh, TT: trangthai },
+                method: 'POST',
+                success: function (response) {
+                    if (response.success == true) {
+                        swal({
+                            title: "Hủy đơn hàng thành công",
+                            text: "Đơn hàng " + madh + " đã từ chối thành công .",
+                            icon: "success",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    } else {
+                        swal({
+                            title: "Hủy đơn hàng không thành công",
+                            text: "Đơn hàng " + madh + " không được hủy bỏ .",
+                            icon: "success",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra trong quá trình xử lý dữ liệu.');
+                }
+            });
+        });
+
+    </script>
+}

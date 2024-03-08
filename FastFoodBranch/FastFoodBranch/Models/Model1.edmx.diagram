@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="85b388905bb74d53958ce63a827a2bd9" Name="Diagram1" ZoomLevel="82">
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.BangTin" Width="1.5" PointX="11.25" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.BienDongGia" Width="1.5" PointX="8.25" PointY="6.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.ChiNhanh" Width="1.5" PointX="6" PointY="11" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.ChiTietCT" Width="1.5" PointX="3" PointY="6.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.ChiTietHD" Width="1.5" PointX="11.25" PointY="6.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.ChiTietKho" Width="1.5" PointX="13.5" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.ChiTietPNX" Width="1.5" PointX="13.75" PointY="10.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.ChucVu" Width="1.5" PointX="1.5" PointY="11.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.CongThuc" Width="1.5" PointX="0.75" PointY="6.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.DanhMuc" Width="1.5" PointX="3.75" PointY="3.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.Feedback" Width="1.5" PointX="11.25" PointY="18.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.HoaDon" Width="1.5" PointX="9" PointY="17.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.KhachHang" Width="1.5" PointX="6.75" PointY="15.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.Kho" Width="1.5" PointX="8.25" PointY="11.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.LoaiKH" Width="1.5" PointX="4.5" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.MonAn" Width="1.5" PointX="6" PointY="5.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.NguyenLieu" Width="1.5" PointX="0.75" PointY="2.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.NhanVien" Width="1.5" PointX="3.75" PointY="10.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.PhieuNhapXuat" Width="1.5" PointX="10.5" PointY="14" IsExpanded="true" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_BangTin_ChiNhanh" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_BangTin_NhanVien" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_BienDongGia_MonAn" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ChiNhanh_NhanVien" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_Kho_ChiNhanh" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ChiTietNguyenLieu_CongThuc1" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ChiTietNguyenLieu_NguyenLieu" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ChiTietHD_HoaDon" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ChiTietHD_MonAn" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ChiTietKho_Kho" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ChiTietKho_NguyenLieu" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ChiTietPNX_NguyenLieu" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ChiTietPNX_PhieuNhapXuat" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_NhanVien_ChucVu" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_MonAn_CongThuc" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_MonAn_DanhMuc" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_Feedback_HoaDon" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_HoaDon_KhachHang" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_HoaDon_NhanVien" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_KhachHang_LoaiKH" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_PhieuNhapXuat_Kho" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.MonAnChiNhanh" Width="1.5" PointX="8.25" PointY="2.5" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_MonAnChiNhanh_ChiNhanh" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_MonAnChiNhanh_MonAn" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.Voucher" Width="1.5" PointX="10.375" PointY="1" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_HoaDon_Voucher" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.DSYT" Width="1.5" PointX="3.375" PointY="0.75" />
+        <EntityTypeShape EntityType="QuanLyFastFoodModel.ShoppingCart" Width="1.5" PointX="9" PointY="22.875" />
+        <AssociationConnector Association="QuanLyFastFoodModel.FK_ShoppingCart_KhachHang" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

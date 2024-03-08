@@ -1,0 +1,77 @@
+﻿
+@{
+    ViewBag.Title = "DatBan";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.act4 = "active";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+}
+
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0"><a href="/KhachHang/TrangChu">Trang chủ</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">Đặt bàn</strong></div>
+        </div>
+    </div>
+</div>
+
+<!-- Đặt bàn section -->
+<section class="book_section layout_padding">
+    <div class="container">
+        <div class="heading_container">
+            <h2>
+                Đặt bàn tại cửa hàng
+            </h2>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form_container">
+                    <form action="">
+                        <div>
+                            <input type="text" class="form-control" placeholder="Họ tên:" />
+                        </div>
+                        <div>
+                            <input type="text" class="form-control" placeholder="Số điện thoại:" />
+                        </div>
+                        <div>
+                            <input type="email" class="form-control" placeholder="Email:" />
+                        </div>
+                        <div>
+                            <select class="form-control nice-select wide">
+                                <option value="" disabled selected>
+                                    Bạn đi mấy người?
+                                </option>
+                                <option value="">
+                                    2
+                                </option>
+                                <option value="">
+                                    3
+                                </option>
+                                <option value="">
+                                    4
+                                </option>
+                                <option value="">
+                                    5
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="btn_box">
+                            <button>
+                                Đặt bàn ngay
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="map_container ">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d27934.10896256937!2d106.68919889764727!3d10.782785103921787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f4649e7ca29%3A0x55f531b6120cae3b!2zTmjDoCBow6F0IFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaA!5e0!3m2!1svi!2s!4v1696867609201!5m2!1svi!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- end đặt bàn section -->

@@ -1,0 +1,408 @@
+﻿@model IEnumerable<FastFoodBranch.Models.ChiTietKho>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Kho của chi nhánh";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.qlcn4 = "active";
+    ViewBag.qlcn0 = "active";
+    ViewBag.qlcn1 = "show";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var dsk = db.Khoes.ToList();
+    var dsnl = db.NguyenLieux.ToList();
+    var makho = "";
+    var user = (NhanVien)Session["userNV"];
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm nguyên liệu chi nhánh thành công",
+                text: "Chi nhánh @TempData["tencn"] đã được nhập nguyên liệui",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "success1")
+    {
+        <script>
+            swal({
+                title: "Chỉnh sửa chi nhánh thành công",
+                text: "Món ăn @TempData["tencn"] đã được chỉnh sửa",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm chi nhánh không thành công",
+                text: "Chi nhánh @TempData["tencn"] đã bị hủy. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error1")
+    {
+        <script>
+            swal({
+                title: "Chỉnh sửa chi nhánh không thành công",
+                text: "Món ăn @TempData["tencn"] không thể chỉnh sửa. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0"><h4 class="btn btn-outline-warning">Danh sách công thức còn sử dụng</h4></a>
+            </li>
+            @*<li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#menu1"><h5 class="btn btn-outline-info">Danh sách công thức bị thu hồi</h5></a>
+                </li>*@
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách kho nguyên liệu của mỗi chi nhánh đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class=" form-group form-inline col-lg-12">
+                                <button class="btn btn-sm btn-success mr-2" id="NhapNL"><i class="fa fa-plus" aria-hidden="true"></i> Nhập nguyên liệu</button>
+                                <a class="btn btn-sm btn-secondary mr-2" type="button" title="Sao chép" href="~/Admin/KhoCN"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                @*<button class="btn btn-sm btn-primary mr-2" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>*@
+                                <button class="btn btn-sm btn-info mr-2" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                                @{
+                                    if (user.MaCV == "NV")
+                                    {
+                                        <label class="control-label ml-2 mr-2" for="TenTK" hidden>Vui lòng chọn kho: </label>
+                                        <select class="form-control ml-3" id="DSKho" required hidden>
+                                            <option selected disabled>--Vui lòng chọn--</option>
+                                            @{ foreach (var item01 in dsk)
+                                                {
+                                                    if (item01.LocationID != null)
+                                                    {
+                                                        <option value="@item01.ID">@item01.ChiNhanh.TenCN</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <label class="control-label ml-2 mr-2" for="TenTK">Vui lòng chọn kho: </label>
+                                        <select class="form-control ml-3" id="DSKho" required>
+                                            <option selected disabled>--Vui lòng chọn--</option>
+                                            @{ foreach (var item01 in dsk)
+                                                {
+                                                    if (item01.LocationID != null)
+                                                    {
+                                                        <option value="@item01.ID">@item01.ChiNhanh.TenCN</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên nguyên liệu</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Số lượng</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tên nguyên liệu</th>
+                                    <th>Số lượng</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    if (Model != null)
+                                    {
+                                        foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.NguyenLieu.TenNL</td>
+                                                <td data-b-a-s="thin">@item.SoLuong</td>
+                                                <td>
+                                                    @*<button class="btn btn-success btn-sm edit" id="ThemNL">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>*@
+                                                    <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-danger btn-sm edit" id="thuhoiCN">
+                                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    @*DataTales Example*@
+</div>
+<!--Modal thêm phiếu nhập nguyên liệu trong kho-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Nhập nguyên liệu cho kho: </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="~/Admin/ThemPN" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <input id="soluongDom" name="soluongDom" type="text" hidden />
+                        <input id="IDKho" name="IDKho" type="text" hidden />
+                    </div>
+                    <div class="col-lg-12 " style="text-align:start">
+                        <input class="btn btn-warning" id="themnl" type="button" value="Thêm NL" />
+                        <input class="btn btn-danger" id="xoanl" type="button" name="XoaNL" disabled value="Xóa NL" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnAdd" disabled>Thêm mới</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section script{
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script>
+
+        let button01 = document.querySelector("#button_excel");
+        button01.addEventListener("click", e => {
+            let table = document.querySelector("#dataTable");
+            TableToExcel.convert(document.getElementById("dataTable"), {
+                name: "Danh sách tồn kho.xlsx",
+                sheet: {
+                    name: "Sheet 1"
+                }
+            });
+        });
+        let button02 = document.querySelector('#button_excel1');
+        button02.addEventListener("click", e => {
+            let table = document.querySelector("#dataTable1");
+            TableToExcel.convert(document.getElementById("dataTable1"), {
+                name: "Danh sách tồn kho tạm ngưng.xlsx",
+                sheet: {
+                    name: "Sheet 1"
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            //Set up cho selection 2
+            @{
+                if(Model != null)
+                {
+                    makho = @Model.Select(s => s.IDKho).FirstOrDefault();
+                    <text>
+                        let makho = '@makho';
+                        $('#DSKho').val(makho);
+                        @{
+                            if(user.MaCV == "Admin")
+                            {
+                            <text>
+                                $('#DSKho').select2({
+                                    width: "190px",
+                                    val: makho
+                                });
+                            </text>
+                            }
+                        }
+
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        let makho = null;
+                        $('#DSKho').select2({
+                            width: "190px"
+                        });
+                    </text>
+                }
+
+            }
+            @*$('#dataTable').DataTable({
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });*@
+
+            let dataTable = $('#dataTable').DataTable({
+                    "ajax": {
+                        "url": "/Admin/getDataKhoCN",
+                        "type": "POST",
+                        "data": function (d) {
+                            d.idKho = makho;
+                        }
+                    },
+                    "columns": [
+                        { "data": "ID" },
+                        { "data": "IDNguyenLieu" },
+                        { "data": "SoLuong" },
+                        {
+                            "data": null,
+                            "render": function (data, type, row) {
+                                return `
+                                <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt">
+                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm edit" id="thuhoiCN">
+                                    <i class="fa fa-times" aria-hidden="true"></i>
+                                </button>`;
+                            }
+                        }
+                    ],
+                    "language": {
+                        "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                    }
+                });
+
+            $('#DSKho').on('change', function () {
+                let newMaKho = $(this).val(); // Get the selected "Mã Kho"
+                if (newMaKho != null) {
+                    makho = newMaKho;
+                    console.log("Bạn đã chọn " + newMaKho);
+                    // Use the selected "Mã Kho" to update the DataTable
+                    dataTable.clear().draw();
+                    dataTable.ajax.reload();
+                }
+            });
+            $('#NhapNL').on('click', function () {
+                var selectedOption = $("#DSKho option:selected").text();
+                var makho = $('#DSKho').select().val();
+                if (makho != null) {
+                    $('#myModalLabel').html('Nhập nguyên liệu cho ' + selectedOption);
+                    $('#myModal').modal('show');
+                    $('#IDKho').val(makho);
+                }
+                else {
+                    alert('Vui lòng chọn kho trước khi thêm phiếu nhập');
+                }
+
+            });
+        //Thêm nguyên liệu
+        var i = 0;
+        $('#themnl').on('click', function () {
+            i++;
+            //Set số lượng dom sinh ra
+            $('#soluongDom').val(i);
+            $('#btnAdd').prop('disabled', false);
+            $('#xoanl').prop('disabled', false);
+            console.log('bạn vừa nhấn thêm nguyên liệu');
+
+            var row =
+                '<div class="form-group form-inline col-lg-12" id="ndNL' + i + '">' +
+                    '<label class="control-label">Nguyên liệu:  </label>' +
+                    ' <select class="form-control" id="ChonNL'+i+'" name="MaNL' + i +'" required>' +
+                '<option value="1" selected disabled>--Vui lòng chọn--</option>' +
+                '@{ foreach (var item in dsnl)
+                            {
+                                var khoql = db.Khoes.Where(s => s.LocationID == null).FirstOrDefault();
+                                    var slton = db.ChiTietKhoes.Where(s => s.IDNguyenLieu == item.ID && s.IDKho == khoql.ID).FirstOrDefault();
+
+                                    if (slton != null)
+                                    {<option value="@item.ID">@item.TenNL SL: @slton.SoLuong</option>}else{<option value="@item.ID">@item.TenNL SL: 0</option>}} }' +
+                    '</select>' +
+                    '<label class="control-label col-sm-3">Số lượng:</label>' +
+                    '<input class="form-control text-box single-line col-sm-2" type="number" min=0 name="SoLuong' + i + '" id="SoLuong' + i + '" required />' +
+                '</div>';
+            console.log(i);
+
+            //div.innerHTML += row;
+            $("#nd").append(row);
+            $('#ChonNL' + i).select2({
+                dropdownParent: $('#myModal'),
+                width: "180px"
+
+            });
+            // Kiểm tra sự trùng lặp khi người dùng thay đổi một select box
+            $('#ChonNL' + i).on('change', function () {
+                console.log('Bạn vừa chọn nguyên liệu thứ ' + i);
+                var selectedValue = $(this).val();
+
+                // Duyệt qua các select box trước đó để kiểm tra trùng
+                var hasDuplicate = false;
+                $('select[name^="MaNL"]').not(this).each(function () {
+                    if ($(this).val() === selectedValue) {
+                        hasDuplicate = true;
+                        return false; // Dừng duyệt khi tìm thấy trùng
+                    }
+                });
+                if (hasDuplicate) {
+                    alert('Nguyên liệu đã được chọn trước đó.');
+                    $(this).val(null).trigger('change.select2'); // Xóa giá trị nếu trùng
+                }
+            });
+            //Kiểm tra số lượng cho trường hợp dự phòng khi cần code
+
+        });
+            $('#xoanl').click(function () {
+                if (i >= 1) {
+                    $('#ndNL' + i).remove();
+                    i--;
+                    if (i == 0) {
+                        $(this).attr("disabled", "disabled");
+                        $('#btnAdd').attr("disabled", "disabled");
+                    }
+                }
+                else {
+                    console.log('Số lượng dom nguyên liệu phải > 0');
+                }
+            });
+
+        });
+    </script>
+}

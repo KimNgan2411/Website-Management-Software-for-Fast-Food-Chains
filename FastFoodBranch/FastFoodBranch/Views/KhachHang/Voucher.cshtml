@@ -1,0 +1,59 @@
+﻿@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Danh sách Voucher của bạn";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    var kh = (KhachHang)Session["userKH"];
+}
+
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0">
+                <a href="/KhachHang/TrangChu">Trang chủ</a>
+                <span class="mx-2 mb-0">/</span>
+                <strong class="text-black">Danh sách Voucher của bạn</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="book_section">
+    <div class="container mb-4 mt-4">
+        <div class="my-account ">
+            <div class="account-left">
+                <div class="b-avatar">
+                    <div class="f-name">
+                        <!--Phần này sẽ render hình ảnh của người dùng-->
+                        <img id="avatarImage" src="@kh.HinhAnh" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                        <input type="file" id="avatarInput" style="display: none;">
+                    </div>
+                    <div class="f-fullname">@kh.TenKH</div>
+                    <div class="f-point">
+                        <span>0 Điểm</span>
+                    </div>
+
+                </div>
+                @{
+                    ViewBag.coupon = "active";
+                    Html.RenderPartial("Menu");
+                }
+            </div>
+            <div class="account-right d-block">
+                <button class="f-back" onclick="window.location='MenuMobile'"></button>
+                <h2 class="head-title">Danh sách mã voucher của bạn</h2>
+                <div class="account-content">
+                    <div class="account-content acc-history">
+                        <div class="f-empty">
+                            <div class="f-img">
+                                <img src="/grs-static/images/order-empty.png" alt="">
+                            </div><p>Bạn chưa có mã Voucher nào. Hãy nhanh tay lấy ngay !</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,1272 @@
+﻿@model IEnumerable<FastFoodBranch.Models.MonAn>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Danh sách món ăn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.dsma = "active";
+    ViewBag.qlma1 = "show";
+    ViewBag.qlma0 = "active";
+
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var dsdm = db.DanhMucs.ToList();
+    var dsct = db.CongThucs.ToList();
+}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm món ăn thành công",
+                text: "Món ăn @TempData["tenma"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "success1")
+    {
+        <script>
+            swal({
+                title: "Chỉnh sửa món ăn thành công",
+                text: "Món ăn @TempData["tenma"] đã được chỉnh sửa",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm món ăn không thành công",
+                text: "Món ăn @TempData["tenma"] đã bị hủy. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error1")
+    {
+        <script>
+            swal({
+                title: "Món ăn chỉnh sửa không thành công",
+                text: "Món ăn @TempData["tenma"] không thể chỉnh sửa. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0"><h4 class="btn btn-outline-warning">Danh sách món ăn còn sử dụng</h4></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1"><h5 class="btn btn-outline-info">Danh sách món ăn bị thu hồi</h5></a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách món ăn đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-success" data-target="#myModal" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+                                <a class="btn btn-sm btn-secondary" type="button" title="Sao chép" href="~/Admin/DSMA"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                <button class="btn btn-sm btn-primary" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>
+                                <button class="btn btn-sm btn-info" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên món ăn</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Hình ảnh</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Giá gốc</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Loại</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã công thức</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mô tả</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tên món ăn</th>
+                                    <th>Hình ảnh</th>
+                                    <th>Giá gốc</th>
+                                    <th>Loại</th>
+                                    <th>Mã công thức</th>
+                                    <th>Mô tả</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == true)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.TenMA</td>
+                                                <td data-b-a-s="thin"><img src="@item.HinhAnh" alt="Hình ảnh" width="100" height="100"></td>
+                                                <td data-b-a-s="thin">@item.GiaGoc</td>
+                                                <td data-b-a-s="thin">@item.IDDanhMuc</td>
+                                                <td data-b-a-s="thin">@item.IDCongThuc</td>
+                                                <td data-b-a-s="thin">@item.MoTa</td>
+                                                @{
+                                                    if (item.Lock == true)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-warning" style="width:100px">
+                                                                Bình thường
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-info">
+                                                                Tạm ngừng
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+
+                                                <td>
+                                                    <button class="btn btn-success btn-sm edit" id="ChinhSuaMA">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-danger btn-sm edit" id="thuhoiMA">
+                                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách món ăn đang tạm ngừng triển khai trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-info" id="button_excel1" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,30" class="table table-hover table-bordered" id="dataTable1" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên món ăn</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Hình ảnh</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Giá gốc</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Loại</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã công thức</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mô tả</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tên món ăn</th>
+                                    <th>Hình ảnh</th>
+                                    <th>Giá gốc</th>
+                                    <th>Loại</th>
+                                    <th>Mã công thức</th>
+                                    <th>Mô tả</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == false)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.TenMA</td>
+                                                <td data-b-a-s="thin"><img src="@item.HinhAnh" alt="Hình ảnh" width="100" height="100"></td>
+                                                <td data-b-a-s="thin">@item.MoTa</td>
+                                                <td data-b-a-s="thin">@item.GiaGoc</td>
+                                                <td data-b-a-s="thin">@item.IDDanhMuc</td>
+                                                <td data-b-a-s="thin">@item.IDCongThuc</td>
+                                                @{
+                                                    if (item.Lock == true)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-warning" style="width:100px">
+                                                                Bình thường
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-info">
+                                                                Tạm ngừng
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    <button class="btn btn-primary btn-sm edit" id="phuchoiMA">
+                                                        <i class="fa fa-redo" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    <button class="btn btn-danger btn-sm edit" id="xoaMA">
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*DataTales Example*@
+</div>
+
+<!--Modal-->
+<!--Phần modal thêm mới món ăn-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới món ăn</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="~/Admin/ThemMA" enctype="multipart/form-data" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập tên món ăn : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="TenMA" name="TenMA" type="text" required>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập giá gốc : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="GiaGoc" name="GiaGoc" type="number" min="0" required>
+                            <span class="control-label input-group-addon" id="icon2"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess2"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="TenTK">Chọn danh mục: </label>
+                            <select class="form-control" name="IDDanhMuc" id="IDDanhMuc" required>
+                                <option selected disabled>--Vui lòng chọn--</option>
+                                @{ foreach (var item01 in dsdm)
+                                    {
+                                        <option value="@item01.ID">@item01.TenDanhMuc</option>
+                                    }
+                                }
+                            </select>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess3"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="TenTK">Chọn công thức: </label>
+                            <select class="form-control" name="IDCongThuc" id="IDCongThuc" required>
+                                <option selected disabled>--Vui lòng chọn--</option>
+                                @{ foreach (var item01 in dsct)
+                                    {
+                                        <option value="@item01.ID">@item01.TenCT</option>
+                                    }
+                                }
+                            </select>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess4"></p>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5">Chọn ảnh: </label>
+                            <div class="input-group col-sm-6">
+                                <input type="file" id="HinhAnh" name="HinhAnh" accept="image/*">
+                                <span class="input-group-addon" id="icon3">
+
+                                </span>
+                            </div>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess3"></p>
+                            </div>
+                        </div>
+
+                        <!-- Thêm thẻ img để hiển thị hình ảnh -->
+                        <div class="form-group col-md-12">
+
+                            <label class="control-label col-sm-5" for="TenCT">Hình ảnh đã chọn: </label>
+                            <img src="" alt="Hình ảnh đã chọn" id="selectedImage" style="max-width: 100%; max-height: 200px;">
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-9" style="text-align:end">
+                                <button type="button" class="btn btn-danger btn-remove-image" id="btnRemoveImage" style="display: none;">
+                                    <i class="fa fa-times"></i> Xóa ảnh
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group col-md-12">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập mô tả : </label>
+                            <textarea class="form-control" placeholder="Nhập nội dung...." name="MoTa" id="MoTa" style="height:100px" required></textarea>
+                            <span class="control-label input-group-addon" id="icon5"></span>
+                            <div class="col-sm-5">
+                                <p id="mess5"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnAdd" disabled>Thêm mới</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!--Phần chỉnh sửa thông tin món ăn-->
+<div class="modal fade" id="myModalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="text-align:center" class="modal-title" id="myModalLabelE">Cập nhật thông tin thiết bị</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formEdit" action="~/Admin/ChinhSuaMA" enctype="multipart/form-data" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="IDMA">Mã món ăn: </label>
+                            <input class="form-control text-box single-line col-sm-5" id="IDE" name="ID" type="text" hidden required>
+                            <input class="form-control text-box single-line col-sm-5" id="IDE1" type="text">
+                            <span class="control-label input-group-addon" id="icon6"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess6"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="TenMA">Tên món ăn: </label>
+                            <input class="form-control text-box single-line col-sm-4" id="TenMAE" name="TenMA" type="text" required>
+                            <span class="control-label input-group-addon" id="icon7"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess7"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="GiaGoc">Giá gốc : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="GiaGocE" name="GiaGoc" type="number" min="0" required>
+                            <span class="control-label input-group-addon" id="icon8"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess8"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="TenTK">Mã danh mục: </label>
+                            <select class="form-control" name="IDDanhMuc" id="IDDanhMucE" required>
+                                @{ foreach (var item01 in dsdm)
+                                    {
+                                        <option value="@item01.ID">@item01.TenDanhMuc</option>
+                                    }
+                                }
+                            </select>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess9"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="IDCongThuc">Công thức: </label>
+                            <select class="form-control" name="IDCongThuc" id="IDCongThucE" required>
+                                @{ foreach (var item01 in dsct)
+                                    {
+                                        <option value="@item01.ID">@item01.TenCT</option>
+                                    }
+                                }
+                            </select>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess10"></p>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5">Chọn ảnh: </label>
+                            <div class="input-group col-sm-6">
+                                <input type="file" id="HinhAnhE" name="HinhAnh" accept="image/*">
+                                <span class="input-group-addon" id="icon12">
+
+                                </span>
+                            </div>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess12"></p>
+                            </div>
+                        </div>
+
+                        <!-- Thêm thẻ img để hiển thị hình ảnh -->
+                        <div class="form-group col-md-12">
+                            <label class="control-label col-sm-5" for="TenCT">Hình ảnh đã chọn: </label>
+                            <img src="" alt="Hình ảnh đã chọn" id="selectedImageE" style="max-width: 100%; max-height: 200px;">
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-9" style="text-align:end">
+                                <button type="button" class="btn btn-danger btn-remove-image" id="btnRemoveImageE" style="display: none;">
+                                    <i class="fa fa-times"></i> Xóa ảnh
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-12">
+                            <label class="control-label col-sm-5" for="MoTa">Mô tả : </label>
+                            <textarea class="form-control" placeholder="Nhập nội dung...." name="MoTa" id="MoTaE" style="height:100px" required></textarea>
+                            <span class="control-label input-group-addon" id="icon11"></span>
+                            <div class="col-sm-5">
+                                <p id="mess11"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnEdit">Cập nhật</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận thu hồi món ăn -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận thu hồi món ăn này!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thu hồi món ăn này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận phục hồi trạng món ăn -->
+<div class="modal fade" id="RestoreModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RestoreModalLabel">Xác nhận phục hồi món ăn này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn phục hồi món ăn này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmRestore">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Model xác nhận xóa món ăn -->
+<div class="modal fade" id="deleteModal1" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel1">Xác nhận xóa món ăn này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa món ăn này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete1">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section script{
+
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <!--Thanh search cho Selection-->
+    @*<script src="~/Content/js/demo/datatables-demo.js"></script>*@
+    <script>
+        //Set up
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+            $('#dataTable1').DataTable({
+                columnDefs: [
+                    { width: '150px', targets: 0 },// Độ rộng cột 5
+                    { width: '150px', targets: 2 }
+                ],
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+
+            //Set up cho selection 2
+            $('#IDDanhMuc').select2({
+                dropdownParent: $('#myModal'),
+                width: "190px"
+            });
+            $('#IDCongThuc').select2({
+                dropdownParent: $('#myModal'),
+                width: "190px"
+            });
+            $('#IDDanhMucE').select2({
+                dropdownParent: $('#myModalEdit'),
+                width: "190px"
+            });
+            $('#IDCongThucE').select2({
+                dropdownParent: $('#myModalEdit'),
+                width: "190px"
+            });
+        });
+
+        //Thêm mới món ăn
+        var check1 = 0;
+        var check2 = 0;
+        var check3 = 0, check4 =0, check5 = 0, check6 = 0;
+        //Check tên món ăn
+        $('#TenMA').on('input', function () {
+            var input = $(this);
+
+            var icon1 = $('#icon1');
+            var ndmess1 = $('#mess1');
+
+            if (input.val().trim() == "") {
+                icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check1 = 0;
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng nhập nội dung .... !');
+            }
+            else {
+                // Thực hiện kiểm tra bằng Ajax và nhận phản hồi từ máy chủ
+                // Ví dụ: gửi yêu cầu kiểm tra tên công ty đến /kiem-tra-ten-ct
+                $.ajax({
+                    url: '/Admin/KTTenMA',
+                    data: { TenMA: input.val() },
+                    method: 'POST',
+                    beforeSend: function () {
+                        // Hiển thị biểu tượng kiểm tra đang kiểm tra
+                        icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+                        icon1.attr('data-target', 'notok');
+                        icon1.mouseover(function () {
+                            var errorMessage = 'Đang kiểm tra nội dung';
+                            $(this).attr('title', errorMessage);
+                        });
+                        check1 = 0;
+                        ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                        ndmess1.html('Vui lòng đợi trong giây lát .... !');
+                    },
+                    success: function (response) {
+                        // Xử lý phản hồi từ máy chủ
+                        if (response.success == false) {
+                            // Hiển thị biểu tượng không được dùng
+                            icon1.html('<i class="fa fa-times-circle text-danger ml-3 "></i>');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Tên món ăn đã bị trùng';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 0;
+                            ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                            ndmess1.html('Tên nguyên bị trùng !');
+                        } else {
+                            // Hiển thị biểu tượng dấu tích xanh
+                            icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                            icon1.attr('data-target', 'ok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Tên món ăn hợp lệ';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 1;
+                            ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                            ndmess1.html('Tên món ăn hợp lệ.');
+                        }
+                    },
+                    error: function () {
+                        // Xử lý lỗi (nếu có)
+                        // Hiển thị biểu tượng không được dùng hoặc thông báo lỗi khác
+                        icon1.html('<i class="fa fa-times-circle text-danger"></i> Không xác định được lỗi!');
+                        icon1.attr('data-target', 'notok');
+                        icon1.mouseover(function () {
+                            var errorMessage = 'Lỗi không xác định';
+                            $(this).attr('title', errorMessage);
+                        });
+                        check1 = 0;
+                        ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                        ndmess1.html('Không xác định được lỗi!');
+                    }
+                });
+            };
+            KTnd();
+        });
+
+        //Check giá gốc
+        $('#GiaGoc').on('input', function () {
+            var input = $(this);
+            var icon1 = $('#icon2');
+            var ndmess1 = $('#mess2');
+
+            icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+            icon1.attr('data-target', 'notok');
+            icon1.mouseover(function () {
+                var errorMessage = 'Đang kiểm tra nội dung';
+                $(this).attr('title', errorMessage);
+            });
+            ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+            ndmess1.html('Vui lòng đợi trong giây lát .... !');
+
+            if (input.val() == 0) {
+                icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check2 = 0;
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng nhập giá .... !');
+            } else {
+                // Hiển thị biểu tượng dấu tích xanh
+                icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon1.attr('data-target', 'ok');
+                icon1.mouseover(function () {
+                    var errorMessage = 'Giá hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess1.html('Giá hợp lệ.');
+                check2 = 1;
+            }
+            KTnd();
+        });
+        //Check Danh mục
+        $("#IDDanhMuc").change(function () {
+            var maapp = $(this).find(':selected').val();
+            var ndmess3 = $('#mess3');
+            ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+            ndmess3.html('Vui lòng đợi trong giây lát .... !');
+            if (maapp !== null) {
+                check3 = 1;
+                ndmess3.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess3.html('Danh mục hợp lệ.');
+            }
+            else {
+                check3 = 0;
+                ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess3.html('Vui lòng nhập nội dung .... !');
+            }
+            KTnd();
+        });
+        //Check Công thức
+        $("#IDCongThuc").change(function () {
+            var maapp = $(this).find(':selected').val();
+            var ndmess4 = $('#mess4');
+            ndmess4.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+            ndmess4.html('Vui lòng đợi trong giây lát .... !');
+            if (maapp !== null) {
+                check4 = 1;
+                ndmess4.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess4.html('Công thức hợp lệ.');
+            }
+            else {
+                check4 = 0;
+                ndmess4.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess4.html('Vui lòng nhập nội dung .... !');
+            }
+            KTnd();
+        });
+
+        //Hình ảnh
+        $('#HinhAnh').change(function () {
+            if (this.files.length > 0) {
+                var imageUrl = URL.createObjectURL(this.files[0]);
+                $('#selectedImage').attr('src', imageUrl);
+                $('#btnRemoveImage').show();
+            } else {
+                $('#selectedImage').attr('src', ''); // Xóa hình ảnh nếu không có tập tin nào được chọn
+                $('#btnRemoveImage').hide();
+            }
+        });
+
+        $('#btnRemoveImage').click(function () {
+            $('#HinhAnh').val(''); // Xóa tập tin đã chọn
+            $('#selectedImage').attr('src', ''); // Xóa hình ảnh
+            $(this).hide();
+        });
+
+        //check tên
+        $('#MoTa').on('input', function () {
+
+            var input = $(this);
+            var icon1 = $('#icon5');
+            var ndmess1 = $('#mess5');
+
+            // Hiển thị biểu tượng kiểm tra đang kiểm tra
+            icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+            icon1.attr('data-target', 'notok');
+            icon1.mouseover(function () {
+                var errorMessage = 'Đang kiểm tra nội dung';
+                $(this).attr('title', errorMessage);
+            });
+            ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+            ndmess1.html('Vui lòng đợi trong giây lát .... !');
+
+            if (input.val().trim() == "") {
+                icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check5 = 0;
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng nhập nội dung .... !');
+            } else {
+                // Hiển thị biểu tượng dấu tích xanh
+                icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i> Mô tả hợp lệ');
+                icon1.attr('data-target', 'ok');
+                icon1.mouseover(function () {
+                    var errorMessage = 'Mô tả hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess1.html('Mô tả hợp lệ.');
+                check5 = 1;
+            }
+            KTnd();
+        });
+        //Hàm kiểm tra
+        function KTnd() {
+            setTimeout(function () {
+                if (check1 === 1 && check2 === 1 && check3 === 1 && check4 === 1 && check5 === 1) {
+                    $('#btnAdd').prop('disabled', false); // Mở ô thêm mới
+                }
+                else {
+                    $('#btnAdd').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+                };
+            },250)
+        };
+
+
+
+        //Chỉnh sửa món ăn
+        $('#dataTable').on('click', '#ChinhSuaMA', function () {
+            var id = $(this).closest("tr").find("td:nth-child(1)").text();
+            var tenma = $(this).closest("tr").find("td:nth-child(2)").text();
+            var imgSrc = $(this).closest("tr").find("td:nth-child(3) img").attr('src');
+
+            var giagoc = $(this).closest("tr").find("td:nth-child(4)").text();
+            var iddm = $(this).closest("tr").find("td:nth-child(5)").text();
+            var idct = $(this).closest("tr").find("td:nth-child(6)").text();
+            var mota = $(this).closest("tr").find("td:nth-child(7)").text();
+
+            // Đặt giá trị của các trường trong modal
+            $("#IDE").val(id);
+            $("#IDE1").val(id);
+            $('#IDE1').attr('disabled','disabled');
+            $("#TenMAE").val(tenma);
+
+            console.log(imgSrc);
+            $('#HinhAnhE').attr('src', imgSrc);
+            $('#selectedImageE').attr('src', imgSrc);
+
+            $('#selectedImageE').attr('src', imgSrc);
+            $('#btnRemoveImageE').show();
+
+            $('#HinhAnhE').change(function () {
+                if (this.files.length > 0) {
+                    var imageUrl = URL.createObjectURL(this.files[0]);
+                    $('#selectedImageE').attr('src', imageUrl);
+                    $('#btnRemoveImageE').show();
+                } else {
+                    $('#selectedImageE').attr('src', ''); // Xóa hình ảnh nếu không có tập tin nào được chọn
+                    $('#btnRemoveImageE').hide();
+                }
+            });
+
+            $('#btnRemoveImageE').click(function () {
+                $('#HinhAnhE').val(''); // Xóa tập tin đã chọn
+                $('#selectedImageE').attr('src', ''); // Xóa hình ảnh
+                $(this).hide();
+            });
+
+
+            $("#GiaGocE").val(giagoc);
+            $("#IDDanhMucE").val(iddm);
+            $('#IDDanhMucE').select2({
+                dropdownParent: $('#myModalEdit'),
+                width: "190px",
+                val: iddm
+            });
+            $("#IDCongThucE").val(idct);
+            //var formattedValue = moment(ngaySX, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            $("#MoTaE").val(mota || '');
+            // Hiển thị modal
+            $("#myModalEdit").modal("show");
+        });
+        var check7 = 0, check8 = 0, check9 = 0, check10 = 0, check11 = 0;
+
+        //Kiểm tra nội dung cập nhật món ăn
+        $('#TenMAE').on('input', function () {
+            var input = $(this);
+            var icon1 = $('#icon7');
+            var ndmess1 = $('#mess7');
+            if (input.val().trim() == "") {
+                icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check7 = 0;
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng nhập nội dung .... !');
+            }
+            else {
+                // Thực hiện kiểm tra bằng Ajax và nhận phản hồi từ máy chủ
+                // Ví dụ: gửi yêu cầu kiểm tra tên công ty đến /kiem-tra-ten-ct
+                $.ajax({
+                    url: '/Admin/KTTenMA',
+                    data: { TenMA: input.val() },
+                    method: 'POST',
+                    beforeSend: function () {
+                        // Hiển thị biểu tượng kiểm tra đang kiểm tra
+                        icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+                        icon1.attr('data-target', 'notok');
+                        icon1.mouseover(function () {
+                            var errorMessage = 'Đang kiểm tra nội dung';
+                            $(this).attr('title', errorMessage);
+                        });
+                        check7 = 0;
+                        ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                        ndmess1.html('Vui lòng đợi trong giây lát .... !');
+                    },
+                    success: function (response) {
+                        // Xử lý phản hồi từ máy chủ
+                        if (response.success == false) {
+                            // Hiển thị biểu tượng không được dùng
+                            icon1.html('<i class="fa fa-times-circle text-danger ml-3 "></i>');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Tên món ăn đã bị trùng';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check7 = 0;
+                            KTnd1(false);
+                            ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                            ndmess1.html('Tên nguyên bị trùng !');
+                        } else {
+                            // Hiển thị biểu tượng dấu tích xanh
+                            icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                            icon1.attr('data-target', 'ok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Tên món ăn hợp lệ';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check7 = 1;
+                            KTnd1(true);
+                            ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                            ndmess1.html('Tên món ăn hợp lệ.');
+                        }
+                    },
+                    error: function () {
+                        // Xử lý lỗi (nếu có)
+                        // Hiển thị biểu tượng không được dùng hoặc thông báo lỗi khác
+                        icon1.html('<i class="fa fa-times-circle text-danger"></i> Không xác định được lỗi!');
+                        icon1.attr('data-target', 'notok');
+                        icon1.mouseover(function () {
+                            var errorMessage = 'Lỗi không xác định';
+                            $(this).attr('title', errorMessage);
+                        });
+                        check7 = 0;
+                        KTnd1(false);
+                        ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                        ndmess1.html('Không xác định được lỗi!');
+                    }
+                });
+            };
+
+        });
+        $('#GiaGocE').on('input', function () {
+            var input = $(this);
+            var icon1 = $('#icon8');
+            var ndmess1 = $('#mess8');
+
+            icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+            icon1.attr('data-target', 'notok');
+            icon1.mouseover(function () {
+                var errorMessage = 'Đang kiểm tra nội dung';
+                $(this).attr('title', errorMessage);
+            });
+            ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+            ndmess1.html('Vui lòng đợi trong giây lát .... !');
+
+            if (input.val() == 0) {
+                icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check8 = 0;
+                KTnd1(false);
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng nhập giá .... !');
+            } else {
+                // Hiển thị biểu tượng dấu tích xanh
+                icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon1.attr('data-target', 'ok');
+                icon1.mouseover(function () {
+                    var errorMessage = 'Giá hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess1.html('Giá hợp lệ.');
+                check8 = 1;
+                KTnd1(true);
+            }
+        });
+        $("#IDDanhMucE").change(function () {
+            var maapp = $(this).find(':selected').val();
+            var ndmess3 = $('#mess9');
+            ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+            ndmess3.html('Vui lòng đợi trong giây lát .... !');
+            if (maapp !== null) {
+                check9 = 1;
+                KTnd1(true);
+                ndmess3.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess3.html('Danh mục hợp lệ.');
+            }
+            else {
+                check9 = 0;
+                KTnd1(false);
+                ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess3.html('Vui lòng nhập nội dung .... !');
+            }
+        });
+        $("#IDCongThucE").change(function () {
+            var maapp = $(this).find(':selected').val();
+            var ndmess3 = $('#mess10');
+            ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+            ndmess3.html('Vui lòng đợi trong giây lát .... !');
+            if (maapp !== null) {
+                check10 = 1;
+                KTnd1(true);
+                ndmess3.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess3.html('Danh mục hợp lệ.');
+            }
+            else {
+                check10 = 0;
+                KTnd1(false);
+                ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess3.html('Vui lòng nhập nội dung .... !');
+            }
+        });
+        $('#MoTaE').on('input', function () {
+
+            var input = $(this);
+            var icon1 = $('#icon11');
+            var ndmess1 = $('#mess11');
+
+            // Hiển thị biểu tượng kiểm tra đang kiểm tra
+            icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+            icon1.attr('data-target', 'notok');
+            icon1.mouseover(function () {
+                var errorMessage = 'Đang kiểm tra nội dung';
+                $(this).attr('title', errorMessage);
+            });
+            ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+            ndmess1.html('Vui lòng đợi trong giây lát .... !');
+
+            if (input.val().trim() == "") {
+                icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check11 = 0;
+                KTnd1(false);
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng nhập nội dung .... !');
+            } else {
+                // Hiển thị biểu tượng dấu tích xanh
+                icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i> Mô tả hợp lệ');
+                icon1.attr('data-target', 'ok');
+                icon1.mouseover(function () {
+                    var errorMessage = 'Mô tả hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess1.html('Mô tả hợp lệ.');
+                check11 = 1;
+                KTnd1(true);
+            }
+        });
+        //Hàm kiểm tra nội dung cập nhật
+        function KTnd1(check15) {
+            var id = $("#IDE").val().trim();
+            var tenma = $("#TenMAE").val().trim();
+            var giagoc = $("#GiaGocE").val().trim();
+            var iddm = $("#IDDanhMucE").val().trim();
+            var idct = $("#IDCongThucE").val().trim();
+            var mota = $("#MoTaE").val().trim()
+
+            if (check15 === false) {
+                $('#btnEdit').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+            }
+
+            setTimeout(function () {
+                if ((check7 === 1 && check8 === 1 && check9 === 1 && check10 === 1 && check11 === 1)
+                    || (id != null && tenma != null && giagoc != null && iddm != null && idct != null && mota != null )) {
+                    $('#btnEdit').prop('disabled', false); // Mở ô thêm mới
+                }
+                else {
+                    $('#btnEdit').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+                };
+            }, 250)
+        };
+
+        //Thu hồi món ăn
+        $('#dataTable').on('click', '#thuhoiMA', function () {
+            var mama = $(this).closest('tr').find('td:first-child').text();
+            var $row = $(this).closest('tr');
+
+            $('#deleteModalLabel').html('Xác nhận thu hồi món ăn này ' + mama);
+            $('#deleteModal').modal('show');
+
+            $('#confirmDelete').on('click', function () {
+                $.ajax({
+                    url: '/Admin/ThuHoiMA',
+                    type: 'POST',
+                    data: JSON.stringify({ MaMA: mama }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "Json",
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Thu hồi món ăn thành công",
+                                text: "Mã món ăn: " + response.mama + " đã được thu hồi",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                                //$row.remove();
+                            });
+                        } else {
+                            swal({
+                                title: "Thu hồi món ăn không thành công",
+                                text: "Mã món ăn " + response.mama + " không thể thu hồi. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            $('#deleteModal').modal('hide');
+                        });
+                    }
+                });
+            });
+        });
+        //Phục hồi món ăn
+        $('#dataTable1').on('click', '#phuchoiMA', function () {
+            var mama = $(this).closest('tr').find('td:first-child').text().trim();
+
+            $('#RestoreModalLabel').html('Xác nhận phục hồi nguyên liệu ' + mama);
+            $('#RestoreModal').modal('show');
+
+            $('#confirmRestore').on('click', function () {
+                $.ajax({
+                    url: '/Admin/PhucHoiMA',
+                    type: 'POST',
+                    data: JSON.stringify({ MaMA: mama }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Phục hồi nguyên liệu thành công",
+                                text: "Nguyên liệu " + response.mama + " đã được phục hồi trạng thái .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Phục hồi món ăn " + response.mama + " không thành công",
+                                text: "Mã món ăn " + response.mama + "không thể phục hồi trạng thái.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+        //Xóa món ăn
+        $('#dataTable1').on('click', '#xoaMA', function () {
+            var mama = $(this).closest('tr').find('td:first-child').text().trim();
+            $('#deleteModalLabel1').html('Xác nhận xóa món ăn ' + mama);
+            $('#deleteModal1').modal('show');
+
+            $('#confirmDelete1').on('click', function () {
+                $.ajax({
+                    url: '/Admin/XoaMA',
+                    type: 'POST',
+                    data: JSON.stringify({ MaMA: mama }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Xóa món ăn thành công",
+                                text: "Món ăn " + response.mama + " đã được xóa thành công .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Xóa món ăn " + response.mama + " không thành công",
+                                text: "Mã món ăn " + response.mama + "không thể xóa.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+
+    </script>
+}
+
+

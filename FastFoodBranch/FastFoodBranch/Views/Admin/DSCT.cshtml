@@ -1,0 +1,1140 @@
+﻿@model IEnumerable<FastFoodBranch.Models.CongThuc>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Danh sách công thức";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.dsct = "active";
+    ViewBag.qlma1 = "show";
+    ViewBag.qlma0 = "active";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+
+    var dsnl = db.NguyenLieux.ToList();
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm công thức thành công",
+                text: "Công thức @TempData["tenct"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "success1")
+    {
+        <script>
+            swal({
+                title: "Thêm chi tiết công thức thành công",
+                text: "Chi tiết công thức @TempData["idCT"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "success2")
+    {
+        <script>
+            swal({
+                title: "Cập nhật chi tiết công thức thành công",
+                text: "Chi tiết công thức @TempData["idCT"] đã được cập nhật mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm công thức không thành công",
+                text: "Công thức @TempData["tenct"] đã bị hủy. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error1")
+    {
+        <script>
+            swal({
+                title: "Thêm chi tiết công thức không thành công",
+                text: "Công thức @TempData["idCT"] không thể thêm chi tiết. Nội dung lỗi : @TempData["messER"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error2")
+    {
+        <script>
+            swal({
+                title: "Cập nhật chi tiết công thức không thành công",
+                text: "Công thức @TempData["idCT"] không thể thêm chi tiết. Nội dung lỗi : @TempData["messER"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0"><h4 class="btn btn-outline-warning">Danh sách công thức còn sử dụng</h4></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1"><h5 class="btn btn-outline-info">Danh sách công thức bị thu hồi</h5></a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách công thức đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-success" data-target="#myModal" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+                                <a class="btn btn-sm btn-secondary" type="button" title="Sao chép" href="~/Admin/DSThietBi"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                <button class="btn btn-sm btn-primary" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>
+                                <button class="btn btn-sm btn-info" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên công thức</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mô tả</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tên công thức</th>
+                                    <th>Mô tả</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == true)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.TenCT</td>
+                                                <td data-b-a-s="thin">@item.MoTa</td>
+                                                @{
+                                                    if (item.Lock == true)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-warning" style="width:100px">
+                                                                Bình thường
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-info">
+                                                                Tạm ngừng
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    @{
+                                                        var ctct = db.ChiTietCTs.Where(s => s.IDCongThuc == item.ID).FirstOrDefault();
+                                                        if (ctct is null)
+                                                        {
+
+
+                                                            <button class="btn btn-primary btn-sm edit " id="ThemCTCT" style="color:white">
+                                                                <i class="fa fa-plus"></i>
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="btn btn-info btn-sm edit " id="ChiTietCT1" style="color:white">
+                                                                <i class="fa fa-info"></i>
+                                                            </button>
+                                                        }
+                                                    }
+
+
+                                                    <button class="btn btn-success btn-sm edit" id="ChinhSuaCT">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-danger btn-sm edit" id="thuhoiCT">
+                                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách công thức đang tạm ngừng triển khai trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-info" id="button_excel1" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,30" class="table table-hover table-bordered" id="dataTable1" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên công thức</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mô tả</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tên công thức</th>
+                                    <th>Mô tả</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == false)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.TenCT</td>
+                                                <td data-b-a-s="thin">@item.MoTa</td>
+                                                @{
+                                                    if (item.Lock == true)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-warning" style="width:100px">
+                                                                Bình thường
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-info">
+                                                                Tạm ngừng
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    <button class="btn btn-primary btn-sm edit" id="phuchoiCT">
+                                                        <i class="fa fa-redo" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    <button class="btn btn-danger btn-sm edit" id="xoaCT">
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*DataTales Example*@
+</div>
+
+<!--Modal-->
+<!--Phần modal thêm mới công thức-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới công thức</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="~/Admin/ThemCT" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập tên công thức : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="TenCT" name="TenCT" type="text" required>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập mô tả công thức: </label>
+                            <textarea class="form-control" placeholder="Nhập nội dung...." name="MoTa" id="MoTa" style="height:100px" required></textarea>
+                            <span class="control-label input-group-addon" id="icon2"></span>
+                            <div class="col-sm-5">
+                                <p id="mess2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnAdd" disabled>Thêm mới</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận thu hồi công thức-->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận thu hồi công thức này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thu hồi công thức này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận phục hồi trạng thái công thức -->
+<div class="modal fade" id="RestoreModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RestoreModalLabel">Xác nhận phục hồi công thức này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn phục hồi công thức này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmRestore">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Model xác nhận xóa công thức -->
+<div class="modal fade" id="deleteModal1" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel1">Xác nhận xóa công thức này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa công thức này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete1">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Modal hiển thị thêm mới chi tiết công thức-->
+<div class="modal fade" id="myModalAddCTCT" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="text-align:center" class="modal-title" id="myModalLabelE">Thêm mới chi tiết công thức</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formEdit" action="~/Admin/ThemCTCT" enctype="multipart/form-data" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="ndCTCT">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-4" for="MaCongThuc">Mã công thức: </label>
+                            <input class="form-control text-box single-line col-sm-5" id="mact" name="IDCongThuc" type="text" hidden required>
+                            <input class="form-control text-box single-line col-sm-2" id="mact1" type="text">
+
+                            <label class="control-label col-sm-1" for="TenMA">: </label>
+                            <input class="form-control text-box single-line col-sm-4" id="TenCT1" name="TenCT" type="text" required>
+                            <input id="soluongDom" name="soluongDom" type="text" hidden />
+                        </div>
+                        <div class=" col-lg-12">
+                            <h4 class="col-lg-12 " for="DSNL">Danh sách nguyên liệu đi kèm: </h4>
+                            <hr />
+                        </div>
+                    </div>
+                    <div class="col-lg-12 " style="text-align:start">
+                        <input class="btn btn-warning" id="themnl" type="button" value="Thêm NL" />
+                        <input class="btn btn-danger" id="xoanl" type="button" name="XoaNL" disabled value="Xóa NL" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button class="btn btn-primary" id="btnAddCTCT" disabled>Thêm mới</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!--Modal hiển thị danh sách nguyên liệu đã được thêm mới-->
+<div class="modal fade" id="myModalViewCTCT" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="text-align:center" class="modal-title" id="myModalLabelE">Thông tin chi tiết công thức</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formEdit" action="~/Admin/ChinhSuaCTCT" enctype="multipart/form-data" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="ndEditCTCT">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-4" for="MaCongThuc">Mã công thức: </label>
+                            <input class="form-control text-box single-line col-sm-5" id="Editmact" name="IDCongThuc" type="text" hidden required>
+                            <input class="form-control text-box single-line col-sm-2" id="Editmact1" type="text">
+
+                            <label class="control-label col-sm-1" for="TenMA">: </label>
+                            <input class="form-control text-box single-line col-sm-4" id="EditTenCT1" name="TenCT" type="text" required>
+                            <input id="soluongDom1" name="soluongDom1" type="text" hidden />
+                        </div>
+                        <div class=" col-lg-12">
+                            <h4 class="col-lg-12 " for="DSNL">Danh sách nguyên liệu đi kèm: </h4>
+                            <hr />
+                        </div>
+
+                    </div>
+                    <div class="col-lg-12 " style="text-align:start">
+                        <input class="btn btn-success" id="chinhsuaCTCT" type="button" value="Chỉnh sửa" />
+                        <input class="btn btn-warning" id="themnl1" type="button" value="Thêm NL" hidden />
+                        <input class="btn btn-danger" id="xoanl1" type="button" name="XoaNL" disabled value="Xóa NL" hidden />
+                        <input class="btn btn-dark" id="HuyBo" type="button" value="Hủy bỏ" hidden />
+                    </div>
+                    <div class="col-lg-12">
+                        <p id="MSLog" style="color:red" hidden>Số lượng phải lớn hơn 1</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button class="btn btn-primary" id="btnEditCTCT" hidden>Xác nhận</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section script{
+
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    @*<script src="~/Content/js/demo/datatables-demo.js"></script>*@
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+            $('#dataTable1').DataTable({
+                columnDefs: [
+                    { width: '150px', targets: 0 },// Độ rộng cột 5
+                ],
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+        });
+        //Thêm mới công thức
+        var check1 = 0;
+        //Check tên công thức
+        $('#TenCT').on('input', function () {
+            var input = $(this);
+            var icon1 = $('#icon1');
+            var ndmess1 = $('#mess1');
+            if (input.val().trim() == "") {
+                icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check1 = 0;
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng nhập nội dung .... !');
+            }
+            else {
+                // Thực hiện kiểm tra bằng Ajax và nhận phản hồi từ máy chủ
+                // Ví dụ: gửi yêu cầu kiểm tra tên công ty đến /kiem-tra-ten-ct
+                $.ajax({
+                    url: '/Admin/KTTenCT',
+                    data: { TenCT: input.val() },
+                    method: 'POST',
+                    beforeSend: function () {
+                        // Hiển thị biểu tượng kiểm tra đang kiểm tra
+                        icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+                        icon1.attr('data-target', 'notok');
+                        icon1.mouseover(function () {
+                            var errorMessage = 'Đang kiểm tra nội dung';
+                            $(this).attr('title', errorMessage);
+                        });
+                        check1 = 0;
+                        ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                        ndmess1.html('Vui lòng đợi trong giây lát .... !');
+                    },
+                    success: function (response) {
+                        // Xử lý phản hồi từ máy chủ
+                        if (response.success == false) {
+                            // Hiển thị biểu tượng không được dùng
+                            icon1.html('<i class="fa fa-times-circle text-danger ml-3 "></i>');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Tên công thức đã bị trùng';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 0;
+                            ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                            ndmess1.html('Tên công thức bị trùng !');
+                        } else {
+                            // Hiển thị biểu tượng dấu tích xanh
+                            icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                            icon1.attr('data-target', 'ok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Tên công thức hợp lệ';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 1;
+                            ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                            ndmess1.html('Tên công thức hợp lệ.');
+                        }
+                    },
+                    error: function () {
+                        // Xử lý lỗi (nếu có)
+                        // Hiển thị biểu tượng không được dùng hoặc thông báo lỗi khác
+                        icon1.html('<i class="fa fa-times-circle text-danger"></i> Không xác định được lỗi!');
+                        icon1.attr('data-target', 'notok');
+                        icon1.mouseover(function () {
+                            var errorMessage = 'Lỗi không xác định';
+                            $(this).attr('title', errorMessage);
+                        });
+                        check1 = 0;
+                        ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                        ndmess1.html('Không xác định được lỗi!');
+                    }
+                });
+            };
+            KTnd();
+        });
+        //Hàm kiểm tra
+        function KTnd() {
+            setTimeout(function () {
+                if (check1 === 1) {
+                    $('#btnAdd').prop('disabled', false); // Mở ô thêm mới
+                }
+                else {
+                    $('#btnAdd').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+                };
+            }, 250)
+        };
+
+        //Chỉnh sửa công thức
+        $('#dataTable').on('click', '#ChinhSuaCT', function () {
+            var row = $(this).closest('tr');
+
+            // Danh sách chỉ mục cột cho phép chỉnh sửa
+            var editableColumns = [1,2];
+
+            // Chuyển sang chế độ chỉnh sửa
+            row.find('td').each(function (index) {
+
+                if (editableColumns.includes(index)) {
+                    var value = $(this).text().trim();
+                    $(this).html('<input class="form-control" type="text" value="' + value + '">');
+                }
+            });
+            //Hiển thị nút lưu và ẩn nút "Sửa"
+            row.find('#ChinhSuaCT').hide();
+            row.find('#luutt').show();
+        });
+        //Lưu lại thông tin công thức
+        $('#dataTable').on('click', '#luutt', function () {
+            var row = $(this).closest('tr');
+            var mact = row.find('td:eq(0)').text().trim();
+            var tenct = row.find('td:eq(1) input').val().trim();
+            var mota = row.find('td:eq(2) input').val().trim();
+            //console.log(donvi);
+            if (tenct === "") {
+                alert('Vui lòng nhập tên danh mục trước khi cập nhật');
+            }
+            else {
+                // Lấy dữ liệu từ các ô input
+                var data = {
+                    ID: mact,
+                    TenCT: tenct,
+                    MoTa: mota
+                };
+                console.log(data);
+
+                //Gửi dữ liệu lên máy chủ
+                $.ajax({
+                    url: '/Admin/ChinhSuaCT',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success == true) {
+                            swal({
+                                title: "Cập nhật công thức thành công ",
+                                text: "Mã công thức " + response.mact + " đã được cập nhật",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else {
+                            swal({
+                                title: "Cập nhật công thức không thành công",
+                                text: "Mã công thức " + response.mact + " không được cập nhật." + "\n" + " Với nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi dữ liệu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            location.reload();
+                        });
+                    }
+                });
+            }
+
+        });
+
+        //Thu hồi công thức
+        $('#dataTable').on('click', '#thuhoiCT', function () {
+            var mact = $(this).closest('tr').find('td:first-child').text().trim();
+            var $row = $(this).closest('tr');
+
+            $('#deleteModalLabel').html('Xác nhận thu hồi công thức này ' + mact);
+            $('#deleteModal').modal('show');
+
+            $('#confirmDelete').on('click', function () {
+                $.ajax({
+                    url: '/Admin/ThuHoiCT',
+                    type: 'POST',
+                    data: JSON.stringify({ MaCT: mact }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "Json",
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Thu hồi công thức thành công",
+                                text: "Mã công thức: " + response.mact + " đã được xóa",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                                //$row.remove();
+                            });
+                        } else {
+                            swal({
+                                title: "Thu hồi công thức không thành công",
+                                text: "Mã công thức" + response.mact + "không thể thu hồi. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            $('#deleteModal').modal('hide');
+                        });
+                    }
+                });
+            });
+        });
+        //Phục hồi công thức
+        $('#dataTable1').on('click', '#phuchoiCT', function () {
+            var mact = $(this).closest('tr').find('td:first-child').text().trim();
+
+            $('#RestoreModalLabel').html('Xác nhận phục hồi công thức ' + mact);
+            $('#RestoreModal').modal('show');
+
+            $('#confirmRestore').on('click', function () {
+                $.ajax({
+                    url: '/Admin/PhucHoiCT',
+                    type: 'POST',
+                    data: JSON.stringify({ MaCT: mact }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Phục hồi công thức thành công",
+                                text: "Công thức " + response.mact + " đã được phục hồi trạng thái .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Phục hồi công thức " + response.mact + " không thành công",
+                                text: "Mã công thức " + response.mact + "không thể phục hồi trạng thái.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+
+        //xóa nguyên liệu
+        $('#dataTable1').on('click', '#xoaCT', function () {
+            var mact = $(this).closest('tr').find('td:first-child').text().trim();
+            $('#deleteModalLabel1').html('Xác nhận xóa công thức ' + mact);
+            $('#deleteModal1').modal('show');
+
+            $('#confirmDelete1').on('click', function () {
+                $.ajax({
+                    url: '/Admin/XoaCT',
+                    type: 'POST',
+                    data: JSON.stringify({ MaCT: mact }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Xóa công thức thành công",
+                                text: "Công thức " + response.mact + " đã được xóa thành công .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Xóa công thức " + response.mact + " không thành công",
+                                text: "Mã công thức " + response.mact + "không thể xóa.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+
+        //Hiển thị chi tiết công thức
+        $('#dataTable').on('click', '#ThemCTCT', function () {
+            var id = $(this).closest("tr").find("td:nth-child(1)").text();
+            var tenct = $(this).closest("tr").find("td:nth-child(2)").text();
+
+            //Đặt giá trị mặc định
+            $('#mact').val(id);
+            $('#mact1').val(id);
+            $('#mact1').attr('disabled', 'disabled');
+            $('#TenCT1').val(tenct);
+            $('#TenCT1').attr('disabled', 'disabled');
+
+            // Hiển thị modal
+            $("#myModalAddCTCT").modal("show");
+        });
+        var i = 0;
+        $('#themnl').on('click', function () {
+            i++;
+            //Set số lượng dom sinh ra
+            $('#soluongDom').val(i);
+            $('#btnAddCTCT').prop('disabled', false);
+            $('#xoanl').prop('disabled', false);
+            console.log('bạn vừa nhấn thêm nguyên liệu');
+
+            var row =
+                '<div class="form-group form-inline col-lg-12" id="ndNL' + i + '">' +
+                    '<label class="control-label">Nguyên liệu:  </label>' +
+                    ' <select class="form-control" id="ChonNL'+i+'" name="MaNL' + i +'" required>' +
+                        '<option value="1" selected disabled>--Vui lòng chọn--</option>' +
+                        '@{ foreach (var item01 in dsnl)
+                            {<option value="@item01.ID">@item01.TenNL-@item01.TrongLuong @item01.DonVi</option> } }' +
+                    '</select>' +
+                    '<label class="control-label col-sm-3">Số lượng:</label>' +
+                    '<input class="form-control text-box single-line col-sm-2" type="number" min=0 name="SoLuong' + i + '" id="SoLuong' + i + '" required />' +
+                '</div>';
+            console.log(i);
+
+            //div.innerHTML += row;
+            $("#ndCTCT").append(row);
+            $('#ChonNL' + i).select2({
+                dropdownParent: $('#myModalAddCTCT'),
+                width: "180px"
+
+            });
+            // Kiểm tra sự trùng lặp khi người dùng thay đổi một select box
+            $('#ChonNL' + i).on('change', function () {
+                console.log('Bạn vừa chọn nguyên liệu thứ ' + i);
+                var selectedValue = $(this).val();
+
+                // Duyệt qua các select box trước đó để kiểm tra trùng
+                var hasDuplicate = false;
+                $('select[name^="MaNL"]').not(this).each(function () {
+                    if ($(this).val() === selectedValue) {
+                        hasDuplicate = true;
+                        return false; // Dừng duyệt khi tìm thấy trùng
+                    }
+                });
+                if (hasDuplicate) {
+                    alert('Nguyên liệu đã được chọn trước đó.');
+                    $(this).val(null).trigger('change.select2'); // Xóa giá trị nếu trùng
+                }
+            });
+        });
+        $('#xoanl').click(function () {
+            if (i >= 1) {
+                $('#ndNL'+i).remove();
+                i--;
+                if (i == 0) {
+                    $(this).attr("disabled", "disabled");
+                    $('#btnAddCTCT').attr("disabled", "disabled");
+                }
+            }
+            else {
+
+                console.log('Số lượng dom nguyên liệu phải > 0');
+            }
+        });
+
+        //Lấy thông tin danh sách chi tiết công thức
+        $('#dataTable').on('click', '#ChiTietCT1', function () {
+
+            $('#themnl1').prop('hidden', true);
+            $('#xoanl1').prop('hidden', true);
+            $('#HuyBo').prop('hidden', true);
+            $('#btnEditCTCT').prop('hidden', true);
+
+            $('#chinhsuaCTCT').prop('hidden', false);
+
+            var id = $(this).closest("tr").find("td:nth-child(1)").text();
+            var tenct = $(this).closest("tr").find("td:nth-child(2)").text();
+
+            //Đặt giá trị mặc định
+            $('#Editmact').val(id);
+            $('#Editmact1').val(id);
+            $('#Editmact1').attr('disabled', 'disabled');
+            $('#EditTenCT1').val(tenct);
+            $('#EditTenCT1').attr('disabled', 'disabled');
+
+            $('#myModalViewCTCT').modal("show");
+
+            setInterval(function () {
+                getData(id);
+            }, 100000);
+            getData(id);
+
+        });
+
+
+        function getData(id) {
+            // Gửi yêu cầu Ajax để lấy thông tin chi tiết công thức
+            $("[id^='EditndNL']").remove();
+
+            $.ajax({
+                url: '/Admin/GetListCTCT',
+                type: 'POST',
+                data: JSON.stringify({ MaCT: id }),
+                contentType: 'application/json',
+                dataType: "json",
+                success: function (response) {
+                    if (response.success == true) {
+                        // Xử lý danh sách nhân viên ở đây
+                        var data = response.data
+                        console.log(data.length);
+                        for (var i = 1; i <= data.length; i++) {
+                            var id = data[i-1];
+                            console.log(id.IDNguyenLieu + ' Sl: ' + id.SoLuong); // In ra tên nhân viên
+
+                            var row =
+                            '<div class="form-group form-inline col-lg-12" id="EditndNL' + i + '">' +
+                                '<input id="IdCongThuc' + i + '" name="IdCongThuc' + i +'" type="text" hidden />'+
+                                '<label class="control-label">Nguyên liệu:  </label>' +
+                                ' <select class="form-control" id="EditChonNL'+i+'" name="EditMaNL' + i +'" disabled required>' +
+                                    '<option value="1" selected disabled>--Vui lòng chọn--</option>' +
+                                    '@{ foreach (var item01 in dsnl)
+                                        {<option value="@item01.ID">@item01.TenNL-@item01.TrongLuong @item01.DonVi</option> } }' +
+                                '</select>' +
+                                '<label class="control-label col-sm-3">Số lượng:</label>' +
+                                '<input class="form-control text-box single-line col-sm-2" disabled type="number" min=0 name="EditSoLuong' + i + '" id="EditSoLuong' + i + '" required />' +
+                            '</div>';
+
+                            $("#ndEditCTCT").append(row);
+                            $("#EditChonNL" + i).val(id.IDNguyenLieu);
+                            $('#IdCongThuc'+i).val(id.ID);
+
+                            $('#EditChonNL' + i).select2({
+                                dropdownParent: $('#myModalViewCTCT'),
+                                width: "180px",
+                                val: id.IDNguyenLieu
+
+                            });
+
+                            // Kiểm tra sự trùng lặp khi người dùng thay đổi một select box
+                            $('#EditChonNL' + i).on('change', function () {
+                                console.log('Bạn vừa chọn nguyên liệu thứ ' + i);
+                                var selectedValue = $(this).val();
+
+                                // Duyệt qua các select box trước đó để kiểm tra trùng
+                                var hasDuplicate = false;
+                                $('select[name^="EditMaNL"]').not(this).each(function () {
+                                    if ($(this).val() === selectedValue) {
+                                        hasDuplicate = true;
+                                        return false; // Dừng duyệt khi tìm thấy trùng
+                                    }
+                                });
+                                if (hasDuplicate) {
+                                    alert('Nguyên liệu đã được chọn trước đó.');
+                                    $(this).val(null).trigger('change.select2'); // Xóa giá trị nếu trùng
+                                }
+                            });
+
+                            $('#EditSoLuong' + i).val(id.SoLuong);
+                            //Set up số lượng cho dom
+                            $('#soluongDom1').val(data.length);
+
+
+                        }
+                    } else {
+                        console.log('Lấy data không thành công ');
+                        console.log('Ma lỗi: ' + response.error);
+                    }
+                    // Xử lý phản hồi và gắn giá trị vào select2
+                    //var selectValue = data.selectValue; // Thay 'selectValue' bằng tên thuộc tính bạn muốn lấy
+                    //$('#EditSelectBox').val(selectValue);
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra trong quá trình lấy dữ liệu.');
+                }
+            });
+        }
+        var SLDom = 0 ;
+        //Thực hiện chỉnh sửa chi tiết công thức
+        $('#chinhsuaCTCT').on('click', function () {
+
+            $('#xoanl1').prop('disabled', false);
+            console.log('Bạn vừa nhấn vào chỉnh sửa chi tiết công thức');
+            //Thực hiên mở các nút button
+            $(this).attr('hidden', 'hidden');
+            $('#themnl1').prop('hidden', false);
+            $('#xoanl1').prop('hidden', false);
+            $('#HuyBo').prop('hidden', false);
+            $('#btnEditCTCT').prop('hidden', false);
+
+            var numberOfElements = $('#soluongDom1').val();
+            SLDom = numberOfElements;
+            console.log(numberOfElements);
+
+            // Sử dụng vòng lặp foreach để thêm sự kiện cho tất cả các cặp EditChonNL và SoLuong
+            for (var i = 1; i <= numberOfElements; i++) {
+                // Lấy tham chiếu đến thẻ select và input
+                $('#EditChonNL' + i).prop('disabled',false);
+                $('#EditSoLuong' + i).prop('disabled', false);
+            }
+        });
+        //Thêm nguyên liệu trong chi tiết công thức
+        $('#themnl1').on('click', function () {
+            SLDom++;
+            //Set số lượng dom sinh ra
+            $('#MSLog').prop('hidden', true);
+            $('#soluongDom1').val(SLDom);
+            $('#btnEditCTCT').prop('disabled', false);
+            $('#xoanl1').prop('disabled', false);
+            console.log('bạn vừa nhấn thêm nguyên liệu');
+
+            var row =
+                '<div class="form-group form-inline col-lg-12" id="EditndNL' + SLDom + '">' +
+                     '<label class="control-label">Nguyên liệu:  </label>' +
+                     '<select class="form-control" id="EditChonNL' + SLDom + '" name="EditMaNL' + SLDom +'" required>' +
+                      '<option value="1" selected >--Vui lòng chọn--</option>' +
+                      '@{ foreach (var item01 in dsnl)
+                      {<option value="@item01.ID">@item01.TenNL-@item01.TrongLuong @item01.DonVi</option> } }' +
+                      '</select>' +
+                      '<label class="control-label col-sm-3">Số lượng:</label>' +
+                      '<input class="form-control text-box single-line col-sm-2" type="number" min=0 name="EditSoLuong' + SLDom + '" id="EditSoLuong' + i + '" required />' +
+                  '</div>';
+
+            //div.innerHTML += row;
+
+            $("#ndEditCTCT").append(row);
+            $('#EditChonNL' + SLDom).select2({
+                dropdownParent: $('#myModalViewCTCT'),
+                width: "180px"
+
+            });
+            // Kiểm tra sự trùng lặp khi người dùng thay đổi một select box
+            $('#EditChonNL' + SLDom).on('change', function () {
+
+                console.log('Bạn vừa chọn nguyên liệu thứ ' + SLDom);
+                var selectedValue = $(this).val();
+
+                // Duyệt qua các select box trước đó để kiểm tra trùng
+                var hasDuplicate = false;
+                $('select[name^="EditMaNL"]').not(this).each(function () {
+                    if ($(this).val() === selectedValue) {
+                        hasDuplicate = true;
+                        return false; // Dừng duyệt khi tìm thấy trùng
+                    }
+                });
+                if (hasDuplicate) {
+                    alert('Nguyên liệu đã được chọn trước đó.');
+                    $(this).val(null).trigger('change.select2'); // Xóa giá trị nếu trùng
+                }
+            });
+        });
+        //Xóa nguyên liệu
+        $('#xoanl1').click(function () {
+            if (SLDom >= 2) {
+                $('#EditndNL' + SLDom).remove();
+                SLDom--;
+                $('#soluongDom1').val(SLDom);
+                console.log(SLDom);
+                if (SLDom == 1) {
+                    $(this).attr("disabled", "disabled");
+                    $('#MSLog').prop('hidden', false);
+                    console.log('Bạn đã vượt quá giới hạn');
+                    //$('#btnEditCTCT').attr("disabled", "disabled");
+                }
+            }
+            else {
+
+                console.log('Số lượng dom nguyên liệu phải > 0');
+            }
+        });
+
+        //Hủy không thực hiện chỉnh sửa chi tiết nữa
+        $('#HuyBo').on('click', function () {
+            $(this).attr('hidden', 'hidden');
+            $('#themnl1').attr('hidden', 'hidden');
+            $('#xoanl1').attr('hidden', 'hidden');
+            $('#btnEditCTCT').attr('hidden', 'hidden');
+            $('#chinhsuaCTCT').prop('hidden', false);
+
+            // Sử dụng vòng lặp foreach để thêm sự kiện cho tất cả các cặp EditChonNL và SoLuong
+            console.log(SLDom);
+            for (var i = 1; i <= SLDom; i++) {
+                // Lấy tham chiếu đến thẻ select và input
+                $('#EditChonNL' + i).attr('disabled', 'disabled');
+                $('#EditSoLuong' + i).attr('disabled', 'disabled');
+            }
+            //Thực hiện xóa các dom khác khi người dùng không muốn
+
+        });
+
+    </script>
+}

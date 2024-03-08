@@ -1,0 +1,948 @@
+﻿@model IEnumerable<FastFoodBranch.Models.ChiNhanh>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Danh sách chi nhánh";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.qlcn2 = "active";
+    ViewBag.qlcn0 = "active";
+    ViewBag.qlcn1 = "show";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var dsnv = db.NhanViens.ToList();
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm chi nhánh thành công",
+                text: "Chi nhánh @TempData["tencn"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "success1")
+    {
+        <script>
+            swal({
+                title: "Chỉnh sửa chi nhánh thành công",
+                text: "Món ăn @TempData["tencn"] đã được chỉnh sửa",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm chi nhánh không thành công",
+                text: "Chi nhánh @TempData["tencn"] đã bị hủy. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error1")
+    {
+        <script>
+            swal({
+                title: "Chỉnh sửa chi nhánh không thành công",
+                text: "Món ăn @TempData["tencn"] không thể chỉnh sửa. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0"><h4 class="btn btn-outline-warning">Danh sách công thức còn sử dụng</h4></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1"><h5 class="btn btn-outline-info">Danh sách công thức bị thu hồi</h5></a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách chi nhánh đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-success" data-target="#myModal" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+                                <a class="btn btn-sm btn-secondary" type="button" title="Sao chép" href="~/Admin/DSCN"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                <button class="btn btn-sm btn-primary" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>
+                                <button class="btn btn-sm btn-info" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên chi nhánh</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Địa chỉ</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Nhân viên quản lý</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tên chi nhánh</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Nhân viên quản lý</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == true)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.LocationID</td>
+                                                <td data-b-a-s="thin">@item.TenCN</td>
+                                                <td data-b-a-s="thin">@item.DiaChi</td>
+                                                <td data-b-a-s="thin">@item.NVQL</td>
+                                                @{
+                                                    if (item.Lock == true)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-warning" style="width:100px">
+                                                                Bình thường
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-info">
+                                                                Tạm ngừng
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    <a class="btn btn-primary btn-sm edit" href="/Admin/MonAnCN/@item.LocationID" style="color:white">
+                                                        <i class="fa fa-utensils"></i>
+                                                    </a>
+                                                    <a class="btn btn-secondary btn-sm edit" href="/Admin/KhoCN/@item.LocationID" style="color:white">
+                                                        <i class="fa fa-warehouse"></i>
+                                                    </a>
+
+                                                    <button class="btn btn-success btn-sm edit" id="ChinhSuaCN">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-danger btn-sm edit" id="thuhoiCN">
+                                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách chi nhánh đang tạm ngừng triển khai trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-info" id="button_excel1" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,30" class="table table-hover table-bordered" id="dataTable1" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên chi nhánh</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Địa chỉ</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Nhân viên quản lý</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tên chi nhánh</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Nhân viên quản lý</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == false)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.LocationID</td>
+                                                <td data-b-a-s="thin">@item.TenCN</td>
+                                                <td data-b-a-s="thin">@item.DiaChi</td>
+                                                <td data-b-a-s="thin">@item.NVQL</td>
+                                                <td data-b-a-s="thin">
+                                                    <div class="btn btn-sm btn-info">
+                                                        Tạm ngừng
+                                                    </div>
+                                                </td>
+                                                <td>
+
+                                                    <button class="btn btn-primary btn-sm edit" id="phuchoiCN">
+                                                        <i class="fa fa-redo" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    <button class="btn btn-danger btn-sm edit" id="xoaCN">
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*DataTales Example*@
+</div>
+
+<!--Modal-->
+<!--Phần modal thêm mới chi nhánh-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới chi nhánh</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="~/Admin/ThemCN" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập tên chi nhánh : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="TenCN" name="TenCN" type="text" required>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-md-12">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập dịa chỉ chi nhánh: </label>
+                            <input class="form-control text-box single-line col-sm-5" id="DiaChiCN" name="DiaChi" type="text" required>
+                            <span class="control-label input-group-addon" id="icon2"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess2"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="TenTK">Chọn nhân viên QL: </label>
+                            <select class="form-control" name="NVQL" id="NVQL" required>
+                                <option selected disabled>--Vui lòng chọn--</option>
+                                @{ foreach (var item01 in dsnv)
+                                    {
+                                        var checkNV = db.ChiNhanhs.Where(s => s.NVQL == item01.MaNV).FirstOrDefault();
+                                        if (checkNV == null)
+                                        {
+                                            <option value="@item01.MaNV">@item01.TenNV</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess3"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnAdd" disabled>Thêm mới</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận thu hồi nguyên liệu -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận thu hồi chi nhánh này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thu hồi chi nhánh này ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận phục hồi trạng thái nguyên liệu -->
+<div class="modal fade" id="RestoreModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RestoreModalLabel">Xác nhận phục hồi chi nhánh này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn phục hồi chi nhánh này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmRestore">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Model xác nhận xóa nguyên liệu -->
+<div class="modal fade" id="deleteModal1" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel1">Xác nhận xóa chi nhánh này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa chi nhánh này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete1">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Modal xem danh sách kho của nguyên liệu-->
+<!--<div class="modal fade" id="WareHouseNL" tabindex="-1" role="dialog" aria-labelledby="largeModalLabel"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="wareHouseCN">Danh sách kho của chi nhánh</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">-->
+<!-- Nội dung modal ở đây -->
+<!--<div class="container-fluid">
+                    <div class="row">
+                        <div class="form-group form-inline col-md-6">
+                            <label class="control-label col-sm-5" for="TenCT">Mã nguyên liệu : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="IDNguyenLieu" name="IDNguyenLieu" type="text" required>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-md-6">
+                            <label class="control-label col-sm-5" for="TenCT">Số lượng: </label>
+                            <input class="form-control text-box single-line col-sm-5" id="SoLuong" name="SoLuong" type="text" required>
+                            <span class="control-label input-group-addon" id="icon2"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <p id="mess2"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">.col-md-4 .ml-auto</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Understood</button>
+            </div>
+        </div>
+    </div>
+</div>-->
+@*<style>
+        /* Modal fullscreen */
+       #WareHouseNL .modal-lg {
+            max-width: 80%;
+            width: 100%;
+            margin: 0;
+        }
+
+        /* Đảm bảo rằng modal nằm giữa màn hình */
+        #WareHouseNL .modal-dialog {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Đảm bảo modal có thể cuộn khi nội dung quá dài */
+        #WareHouseNL .modal-content {
+            overflow: auto;
+            max-height: 90vh; /* hoặc thay đổi giá trị này tùy theo nhu cầu của bạn */
+        }
+
+    </style>*@
+
+
+@section script{
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script>
+        //Script này xử lý thêm xóa sửa
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+            $('#dataTable1').DataTable({
+                columnDefs: [
+                    { width: '150px', targets: 0 },// Độ rộng cột 5
+                    { width: '150px', targets: 2 }
+                ],
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+
+            //Set up cho selection 2
+            $('#NVQL').select2({
+                dropdownParent: $('#myModal'),
+                width: "190px"
+            });
+            //Thêm mới chi nhánh
+            var check1 = 0,check2 = 0, check3 = 0;
+            //Check tên món ăn
+            $('#TenCN').on('input', function () {
+                var input = $(this);
+
+                var icon1 = $('#icon1');
+                var ndmess1 = $('#mess1');
+
+                if (input.val().trim() == "") {
+                    icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                    check1 = 0;
+                    ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                    ndmess1.html('Vui lòng nhập nội dung .... !');
+                }
+                else {
+                    // Thực hiện kiểm tra bằng Ajax và nhận phản hồi từ máy chủ
+                    // Ví dụ: gửi yêu cầu kiểm tra tên công ty đến /kiem-tra-ten-ct
+                    $.ajax({
+                        url: '/Admin/KTTenCN',
+                        data: { TenCN: input.val() },
+                        method: 'POST',
+                        beforeSend: function () {
+                            // Hiển thị biểu tượng kiểm tra đang kiểm tra
+                            icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Đang kiểm tra nội dung';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 0;
+                            ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                            ndmess1.html('Vui lòng đợi trong giây lát .... !');
+                        },
+                        success: function (response) {
+                            // Xử lý phản hồi từ máy chủ
+                            if (response.success == false) {
+                                // Hiển thị biểu tượng không được dùng
+                                icon1.html('<i class="fa fa-times-circle text-danger ml-3 "></i>');
+                                icon1.attr('data-target', 'notok');
+                                icon1.mouseover(function () {
+                                    var errorMessage = 'Tên chi nhánh đã bị trùng';
+                                    $(this).attr('title', errorMessage);
+                                });
+                                check1 = 0;
+                                ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                                ndmess1.html('Tên chi nhánh đã bị trùng !');
+                            } else {
+                                // Hiển thị biểu tượng dấu tích xanh
+                                icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                                icon1.attr('data-target', 'ok');
+                                icon1.mouseover(function () {
+                                    var errorMessage = 'Tên chi nhánh hợp lệ';
+                                    $(this).attr('title', errorMessage);
+                                });
+                                check1 = 1;
+                                ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                                ndmess1.html('Tên chi nhánh hợp lệ.');
+                            }
+                        },
+                        error: function () {
+                            // Xử lý lỗi (nếu có)
+                            // Hiển thị biểu tượng không được dùng hoặc thông báo lỗi khác
+                            icon1.html('<i class="fa fa-times-circle text-danger"></i> Không xác định được lỗi!');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Lỗi không xác định';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 0;
+                            ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                            ndmess1.html('Không xác định được lỗi!');
+                        }
+                    });
+                };
+                KTnd();
+            });
+            //Check địa chỉ chi nhánh
+            $('#DiaChiCN').on('input', function () {
+                var input = $(this);
+
+                var icon1 = $('#icon2');
+                var ndmess1 = $('#mess2');
+
+                if (input.val().trim() == "") {
+                    icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                    check2 = 0;
+                    icon1.attr('data-target', 'notok');
+                    icon1.mouseover(function () {
+                        var errorMessage = 'Không thể để trống nội dung';
+                        $(this).attr('title', errorMessage);
+                    });
+                    ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                    ndmess1.html('Vui lòng nhập nội dung .... !');
+                }
+                else {
+                    // Thực hiện kiểm tra bằng Ajax và nhận phản hồi từ máy chủ
+                    // Ví dụ: gửi yêu cầu kiểm tra tên công ty đến /kiem-tra-ten-ct
+                    $.ajax({
+                        url: '/Admin/KTDiaChiCN',
+                        data: { DiaChiCN: input.val() },
+                        method: 'POST',
+                        beforeSend: function () {
+                            // Hiển thị biểu tượng kiểm tra đang kiểm tra
+                            icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Đang kiểm tra nội dung';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check2 = 0;
+                            ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                            ndmess1.html('Vui lòng đợi trong giây lát .... !');
+                        },
+                        success: function (response) {
+                            // Xử lý phản hồi từ máy chủ
+                            if (response.success == false) {
+                                // Hiển thị biểu tượng không được dùng
+                                icon1.html('<i class="fa fa-times-circle text-danger ml-3 "></i>');
+                                icon1.attr('data-target', 'notok');
+                                icon1.mouseover(function () {
+                                    var errorMessage = 'Địa chỉ đã bị trùng';
+                                    $(this).attr('title', errorMessage);
+                                });
+                                check2 = 0;
+                                ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                                ndmess1.html('Địa chỉ đã bị trùng !');
+                            } else {
+                                // Hiển thị biểu tượng dấu tích xanh
+                                icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                                icon1.attr('data-target', 'ok');
+                                icon1.mouseover(function () {
+                                    var errorMessage = 'Địa chỉ hợp lệ';
+                                    $(this).attr('title', errorMessage);
+                                });
+                                check2 = 1;
+                                ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                                ndmess1.html('Địa chỉ hợp lệ.');
+                            }
+                        },
+                        error: function () {
+                            // Xử lý lỗi (nếu có)
+                            // Hiển thị biểu tượng không được dùng hoặc thông báo lỗi khác
+                            icon1.html('<i class="fa fa-times-circle text-danger"></i> Không xác định được lỗi!');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Lỗi không xác định';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check2 = 0;
+                            ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                            ndmess1.html('Không xác định được lỗi!');
+                        }
+                    });
+                };
+                KTnd();
+            });
+            //Check danh sách nhân viên
+            $("#NVQL").change(function () {
+                var manv = $(this).find(':selected').val();
+                var ndmess3 = $('#mess3');
+                ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess3.html('Vui lòng đợi trong giây lát .... !');
+                if (manv !== null) {
+                    check3 = 1;
+                    ndmess3.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                    ndmess3.html('Danh mục hợp lệ.');
+                }
+                else {
+                    check3 = 0;
+                    ndmess3.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                    ndmess3.html('Vui lòng nhập nội dung .... !');
+                }
+                KTnd();
+            });
+
+
+            //Hàm kiểm tra
+            function KTnd() {
+                setTimeout(function () {
+                    if (check1 === 1 && check2 === 1 && check3 === 1) {
+                        $('#btnAdd').prop('disabled', false); // Mở ô thêm mới
+                    }
+                    else {
+                        $('#btnAdd').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+                    };
+                }, 250)
+            };
+
+            //Chỉnh sửa nguyên liệu
+            $('#dataTable').on('click', '#ChinhSuaCN', function () {
+                $(this).prop('hidden', true);
+                var row = $(this).closest('tr');
+
+                // Danh sách chỉ mục cột cho phép chỉnh sửa
+                var editableColumns = [1, 2, 3];
+
+                //Chuyển sang chế độ chỉnh sửa
+                //row.find('td:not(:last-child)').each(function () {
+                //    var value = $(this).text().trim();
+                //    $(this).html('<input class="form-control" type="text" value="' + value + '">')
+                //});
+
+                // Chuyển sang chế độ chỉnh sửa
+                row.find('td').each(function (index) {
+
+                    if (editableColumns.includes(index)) {
+                        var value = $(this).text().trim();
+                        if (index === 3) {
+                            $(this).html(
+                                '<select class="form-control" required id="" name="" >' +
+                                '<option selected value="' + value + '" disabled>' + value + '</option>' +
+                               '@{
+                                    foreach(var item in dsnv)
+                                    {
+                                        var checkNV = db.ChiNhanhs.Where(s => s.NVQL == item.MaNV).FirstOrDefault();
+                                        if (checkNV == null)
+                                        {
+                                            <option value="@item.MaNV">@item.TenNV</option>;
+                                        }
+                                    }
+                                }'
+                                +
+                                '</select>');
+                        } else {
+                            $(this).html('<input class="form-control" type="text" value="' + value + '">');
+                        }
+
+                    }
+                });
+                //Hiển thị nút lưu và ẩn nút "Sửa"
+                row.find('#ChinhSuaNL').hide();
+                row.find('#luutt').show();
+            });
+            //Lưu lại thông tin nguyên liệu
+            $('#dataTable').on('click', '#luutt', function () {
+                var row = $(this).closest('tr');
+                var macn = row.find('td:eq(0)').text().trim();
+                var tencn = row.find('td:eq(1) input').val().trim();
+                var diachi = row.find('td:eq(2) input').val().trim();
+                var nvql = row.find('td:eq(3)').find('option:selected').val();
+
+                // Lấy dữ liệu từ các ô input
+                var data = {
+                    LocationID: macn,
+                    TenCN: tencn,
+                    DiaChi: diachi,
+                    NVQL: nvql
+                };
+
+                console.log(data);
+                //Gửi dữ liệu lên máy chủ
+                $.ajax({
+                    url: '/Admin/ChinhSuaCN',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success == true) {
+                            swal({
+                                title: "Cập nhật chi nhánh thành công ",
+                                text: "Mã chi nhánh " + response.macn + " đã được cập nhật",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else {
+                            swal({
+                                title: "Cập nhật chi nhánh không thành công",
+                                text: "Mã chi nhánh " + response.macn + " không được cập nhật." + "\n" + " Với nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi dữ liệu" + error,
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            location.reload();
+                        });
+                    }
+                });
+            });
+
+            //Thu hồi nguyên liệu
+            $('#dataTable').on('click', '#thuhoiCN', function () {
+                var macn = $(this).closest('tr').find('td:first-child').text().trim();
+
+                $('#deleteModalLabel').html('Xác nhận thu hồi chi nhánh liệu này ' + macn);
+                $('#deleteModal').modal('show');
+
+                $('#confirmDelete').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/ThuHoiCN',
+                        type: 'POST',
+                        data: JSON.stringify({ MaCN: macn }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "Json",
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                swal({
+                                    title: "Thu hồi chi nhánh thành công",
+                                    text: "Mã chi nhánh: " + response.macn + " đã được xóa",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#deleteModal').modal('hide');
+                                    location.reload(); //Reload lại dữ liệu
+                                    //$row.remove();
+                                });
+                            } else {
+                                swal({
+                                    title: "Thu hồi chi nhánh không thành công",
+                                    text: "Mã nguyên liệu" + response.macn + "không thể thu hồi. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#deleteModal').modal('hide');
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                            });
+                        }
+                    });
+                });
+            });
+            //Phục hồi nguyên liệu
+            $('#dataTable1').on('click', '#phuchoiCN', function () {
+                var macn = $(this).closest('tr').find('td:first-child').text().trim();
+
+                $('#RestoreModalLabel').html('Xác nhận phục hồi chi nhánh ' + macn);
+                $('#RestoreModal').modal('show');
+
+                $('#confirmRestore').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/PhucHoiCN',
+                        type: 'POST',
+                        data: JSON.stringify({ MaCN: macn }),
+                        contentType: 'application/json',
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                swal({
+                                    title: "Phục hồi chi nhánh thành công",
+                                    text: "Mã chi nhánh " + response.manl + " đã được phục hồi trạng thái .",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            } else {
+                                swal({
+                                    title: "Phục hồi chi nhánh " + response.macn + " không thành công",
+                                    text: "Mã chi nhánh " + response.macn + "không thể phục hồi trạng thái.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+                    });
+                });
+            });
+            //xóa nguyên liệu
+            $('#dataTable1').on('click', '#xoaCN', function () {
+                var macn = $(this).closest('tr').find('td:first-child').text().trim();
+
+                $('#deleteModalLabel1').html('Xác nhận xóa chi nhánh ' + macn);
+                $('#deleteModal1').modal('show');
+
+                $('#confirmDelete1').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/XoaCN',
+                        type: 'POST',
+                        data: JSON.stringify({ MaCN: macn }),
+                        contentType: 'application/json',
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                swal({
+                                    title: "Xóa chi nhánh thành công",
+                                    text: "Mã chi nhánh " + response.macn + " đã được xóa thành công .",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            } else {
+                                swal({
+                                    title: "Xóa chi nhánh " + response.macn + " không thành công",
+                                    text: "Mã chi nhánh " + response.macn + "không thể xóa.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+                    });
+                });
+            });
+
+            //Thực hiện điều hướng sang kho của nguyên liệu đó
+            $('#dataTable').on('click', '#DanhSachNL', function () {
+                var row = $(this).closest('tr');
+                var id = row.find("td:nth-child(1)").text();
+                console.log(id);
+
+                // Thực hiện yêu cầu Ajax
+                var url = '/Admin/KhoCN/' + id;
+                window.location.href = url;
+            })
+        });
+    </script>
+    @*<script>
+            //Script này xử lý danh sách kho cho từng cho nhánh
+            $('#dataTable').on('click', '#DanhSachNL', function () {
+                var id = $(this).closest("tr").find("td:nth-child(1)").text();
+
+                $('#wareHouseCN').text('Danh sách kho của chi nhánh '+ id);
+                $('#WareHouseNL').modal('show');
+            });
+        </script>*@
+}
+

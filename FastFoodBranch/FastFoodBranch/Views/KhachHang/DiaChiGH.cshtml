@@ -1,0 +1,257 @@
+﻿@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Thông tin giao hàng";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    var userKH = (KhachHang)Session["userKH"];
+}
+
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0">
+                <a href="/KhachHang/TrangChu">Trang chủ</a>
+                <span class="mx-2 mb-0">/</span>
+                <strong class="text-black">Địa chỉ giao hàng </strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="book_section">
+    <div class="container mb-4 mt-4">
+        <div class="my-account ">
+            <div class="account-left">
+                <div class="b-avatar">
+                    <div class="f-name">
+                        <!--Phần này sẽ render hình ảnh của người dùng-->
+                        <img id="avatarImage" src="@userKH.HinhAnh" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                        <input type="file" id="avatarInput" style="display: none;">
+                    </div>
+                    <div class="f-fullname">@userKH.TenKH</div>
+                    <div class="f-point">
+                        <span>0 Điểm</span>
+                    </div>
+
+                </div>
+                @{
+                    ViewBag.shipAddr = "active";
+                    Html.RenderPartial("Menu");
+                }
+            </div>
+            <div class="account-right d-block">
+                <button class="f-back" onclick="window.location='MenuMobile'"></button>
+                <h2 class="head-title">
+                    <button class="btn-add-adddress" title="Add">+ Add</button>
+                    Địa chỉ giao hàng
+                </h2>
+                <div class="account-content">
+                    <div class="adds-list">
+                        <div class="item">
+                            <div class="btn-grp">
+                                <button type="button" title="Edit" class="btn edit" id="btnEdit"></button>
+                                <button type="button" title="Delete" class="btn delete"></button>
+                            </div>
+                            <p class="add-name">
+                                <img src="/grs-static/images/icon-1-o.svg" alt="">Trương Tấn Nhã
+                            </p>
+                            <p>84 Trường Chinh, Phường 1, Q.10, Thành phố Hồ Chí Minh, Việt Nam</p>
+                            <div class="store-name">Cửa hàng: <span id="storeName">PHAN XÍCH LONG</span> </div>
+                        </div>
+                        <div class="item">
+                            <div class="btn-grp">
+                                <button type="button" title="Edit" class="btn edit" id="btnEdit"></button>
+                                <button type="button" title="Delete" class="btn delete"></button>
+                            </div>
+                            <p class="add-name">
+                                <img src="/grs-static/images/icon-1-o.svg" alt="">Trương Tấn Nhã
+                            </p>
+                            <p>84 hẻm Trần Đại Nghĩa, Phường 1, Q.01, Thành phố Hồ Chí Minh, Việt Nam</p>
+                            <div class="store-name">Cửa hàng: <span id="storeName">BẠCH ĐẰNG</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--Modal thêm mới địa chỉ giao hàng-->
+<div role="dialog" aria-modal="true" class="fade modal-delivery-address modal" hidden tabindex="-1" style="overflow-y: scroll; display: block; padding-right: 8px;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="delivery-address-form">
+                    <form>
+                        <p>Vui lòng nhập địa chỉ của bạn (địa chỉ này sẽ được dùng làm địa chỉ giao hàng). Hệ thống sẽ tìm cửa hàng gần nơi bạn sinh sống.</p>
+                        <div class="form-group form-group-address">
+                            <label class="col-form-label">Địa chỉ</label>
+                            <div class="col-address">
+                                <input type="text" class="form-control" placeholder="Vui lòng nhập" name="address" id="address" value="">
+                                <p class="valid-feedback"></p>
+                                <button type="button" class="btn-action"></button>
+                                <div class="dropdown-location" style="z-index: 2;">
+                                    <div class="inner">
+                                        <h5>Địa điểm</h5>
+                                        <div class="lc-saved">
+                                            <ul>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group col-grp">
+                                    <label class="col-form-label">Tên địa chỉ</label>
+                                    <div class="col-control">
+                                        <input type="text" class="form-control" placeholder=" Gym / Nhà riêng / cơ quan" name="nameAddr" id="nameAddr" value="">
+                                        <p class="valid-feedback">
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group col-grp">
+                                    <label class="col-form-label">Ghi chú</label>
+                                    <div class="col-control">
+                                        <input type="text" class="form-control" placeholder="Vui lòng nhập" name="note" id="note" value="">
+                                        <p class="valid-feedback"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="switch-wrap">
+                                    <label class="switch">
+                                        <input type="checkbox">
+                                        <span class="slider-switch round"></span>
+                                    </label>
+                                    <span class="txt">Đặt làm địa chỉ mặc định</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="f-result">
+                    <div class="f-top">
+                        Tìm thấy
+                        <strong class="red-color">21 cửa hàng</strong> gần nơi bạn ở:
+                    </div>
+                    <div class="stores-list">
+                        <!--Phần này sẽ render ra tất cả các chi nhánh hiện có-->
+                        <div class="item ">
+                            <div class="content" style="cursor: pointer;">
+                                <p class="name">
+                                    PHAN XÍCH LONG
+                                </p>
+                                <em class="green-color">- Gần nhất</em>
+                                <span class="red-color">0.7km</span>
+                                <p>1C5 Phan Xích Long, Phường 7, Phú Nhuận</p>
+                                <p>
+                                    Thời gian hoạt:
+                                    <strong>08:00 ~ 21:30</strong>
+                                </p>
+                                <p>
+                                    Ngày cuối tuần:
+                                    <strong>08:00 ~ 21:30</strong>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="item ">
+                            <div class="content" style="cursor: pointer;">
+                                <p class="name">
+                                    BẠCH ĐẰNG
+                                </p>
+                                <span class="red-color">0.7km</span>
+                                <p>445 Bạch Đằng, Phường 2, Bình Thạnh</p>
+                                <p>
+                                    Thời gian hoạt:
+                                    <strong>08:00 ~ 21:30</strong>
+                                </p>
+                                <p>
+                                    Ngày cuối tuần:
+                                    <strong>08:00 ~ 21:30</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" title="Hủy bỏ">Hủy bỏ</button>
+                <button type="button" class="btn btn-primary" title="Thêm mới" disabled="">Thêm mới</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section script{
+    <script>
+        $('.btn-add-adddress').click(function () {
+            $('.modal-delivery-address').prop('hidden', false);
+            $('.modal-delivery-address').modal("show");
+        });
+        $('.modal-footer .btn-outline-primary').click(function () {
+            $('.modal-delivery-address').modal("hide");
+        });
+        $('.stores-list .item').click(function () {
+            // Xóa class "active" khỏi tất cả các item
+            $(".item").removeClass("active");
+
+            // Thêm class "active" vào item được chọn
+            $(this).addClass("active");
+        });
+        //$('#btnEdit').click(function () {
+        //    console.log('Bạn vừa nhấn nút chỉnh sửa');
+        //    // Tìm item cha của nút "Edit" đã được click
+        //    var item = $(this).closest(".item");
+
+        //    // Lấy thông tin từ item
+        //    var addName = item.find(".add-name").text().trim();
+        //    var address = item.find("p:eq(1)").text().trim();
+        //    var storeName = item.find(".store-name").text().trim();
+
+        //    // Hiển thị thông tin hoặc thực hiện các tác vụ khác ở đây
+        //    console.log("Tên: " + addName);
+        //    console.log("Địa chỉ: " + address);
+        //    console.log("Cửa hàng: " + storeName);
+        //});
+        $('.adds-list').on('click', '#btnEdit', function () {
+            var item = $(this).closest('.item');
+
+            // Lấy thông tin từ item
+            var addName = item.find(".add-name").text().trim();
+            var address = item.find("p:eq(1)").text().trim();
+            var storeName = item.find("#storeName").text().trim();
+
+            // Hiển thị thông tin hoặc thực hiện các tác vụ khác ở đây
+            //console.log("Tên địa chỉ: " + addName);
+            //console.log("Địa chỉ: " + address);
+            //console.log("Cửa hàng: " + storeName);
+
+            //Nhập thông tin
+            $('#address').val(addName);
+            $('#nameAddr').val(address);
+            /*$('#note').val(storeName);*/
+
+            $(".stores-list .item").each(function () {
+                // Lấy tên của cửa hàng từ từng item
+                var storeName1 = $(this).find(".name").text().trim();
+                //console.log(storeName1);
+                // Kiểm tra nếu tên cửa hàng là "PHAN XÍCH LONG"
+                if (storeName === storeName1) {
+                    //console.log('Trùng khớp');
+                    $(this).addClass("active");
+                }
+            });
+
+
+            $('.modal-delivery-address').prop('hidden', false);
+            $('.modal-delivery-address').modal("show");
+        });
+
+    </script>
+}

@@ -1,0 +1,70 @@
+﻿@model IEnumerable<FastFoodBranch.Models.BangTin>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Tin tức hôm nay";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    ViewBag.act2_1 = "active";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    
+
+
+}
+<!-- food section -->
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0">
+                <a href="/KhachHang/TrangChu">Trang chủ</a>
+                <span class="mx-2 mb-0">/</span>
+                <strong class="text-black">Tin tức</strong>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<section class="food_section layout_padding">
+    <div class="container">
+        <div class="heading_container heading_center">
+            <h2>
+                Tin tức hôm nay có gì ?
+            </h2>
+            <br />
+
+            <div class="wrapper">
+                <main class="main">
+                    <div class="container">
+                        <div class="news-list">
+                            <ul>
+                                @{
+                                    if (Model != null)
+                                    {
+                                        foreach (var item in Model)
+                                        {
+                                            <li>
+                                                <div class="content">
+                                                    <a title="@item.TieuDe" href="/KhachHang/NoiDungTT/@item.ID" previewlistener="true">
+                                                        <span class="field-img">
+                                                            <img src="@item.HinhAnh1" title="@item.TieuDe" alt="@item.TieuDe" style="width: 100%;">
+                                                        </span><span class="field-txt">@item.TieuDe</span>
+                                                        <span class="field-date">@item.NgayDang</span>
+                                                        <span class="field-readmore">Xem thêm</span>
+                                                    </a>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+

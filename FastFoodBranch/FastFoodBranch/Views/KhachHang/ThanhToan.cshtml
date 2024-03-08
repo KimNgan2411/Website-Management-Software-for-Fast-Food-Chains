@@ -1,0 +1,700 @@
+﻿@model FastFoodBranch.Models.Cart
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Thanh toán";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    double tamtinh = 0;
+    double discount = 0;
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var dsvc = db.Vouchers.Where(s => s.LocationID == null).ToList();
+    if (Model != null)
+    {
+        discount = (double)Model.discount * 100;
+    }
+
+    double tongcong = 0;
+    var kh = (KhachHang)Session["userKH"];
+
+
+}
+
+<link rel="stylesheet" type="text/css" href="~/Content/LayoutKH/ShoppingCartCSS/aos.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/LayoutKH/ShoppingCartCSS/styleCart.css" />
+<div class="site-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-md-12">
+                <div class="border p-4 rounded" role="alert">
+                    Bạn đã có tài khoản? <a href="#">Nhập vào đây để </a> đăng nhập vào tài khoản của bạn!
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-6 mb-5 mb-md-0">
+                <form id="paymentForm" action="XacNhanThanhToan" method="POST">
+                    <h2 class="h3 mb-3 text-black">Thông tin khách hàng</h2>
+                    <div class="p-3 p-lg-5 border">
+                        <input id="LoaiTT" name="LoaiTT" hidden />
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="c_country" class="text-black">Country <span class="text-danger">*</span></label>
+                                <select class="nice-select wide" id="niceSelect1">
+                                    <option value="" disabled selected>
+                                        Bạn đi mấy người?
+                                    </option>
+                                    <option value="">
+                                        2
+                                    </option>
+                                    <option value="">
+                                        3
+                                    </option>
+                                    <option value="">
+                                        4
+                                    </option>
+                                    <option value="">
+                                        5
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="c_lname" class="text-black">Tên khách hàng<span class="text-danger">*</span></label>
+                                @{
+                                    if (kh != null)
+                                    {
+                                        <input type="text" class="form-control" id="c_lname" name="TenKH" value="@kh.TenKH">
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control" id="c_lname" name="TenKH">
+                                    }
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="c_address" class="text-black">CCCD <span class="text-danger">*</span></label>
+                                @{
+                                    if (kh != null)
+                                    {
+
+
+                                        <input type="text" class="form-control" id="c_cccd" name="CCCD" value="@kh.CCCD" placeholder="Nhập căn cước công dân...">
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control" id="c_cccd" name="CCCD" placeholder="Nhập căn cước công dân...">
+                                    }
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="c_address" class="text-black">Địa chỉ <span class="text-danger">*</span></label>
+                                @{
+                                    if (kh != null)
+                                    {
+                                        <input type="text" class="form-control" id="c_address" name="DiaChi" value="@kh.DiaChi" placeholder="Nhập địa chỉ">
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control" id="c_address" name="DiaChi" placeholder="Nhập địa chỉ">
+                                    }
+
+
+
+
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-6">
+                                <label for="c_state_country" class="text-black">State / Country <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="c_state_country" name="c_state_country">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="c_postal_zip" class="text-black">Posta / Zip <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="c_postal_zip" name="c_postal_zip">
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-5">
+                            <div class="col-md-6">
+                                <label for="c_email_address" class="text-black">Địa chỉ Email <span class="text-danger">*</span></label>
+                                @{
+                                    if (kh != null)
+                                    {
+                                        <input type="text" class="form-control" value="@kh.Email" id="c_email_address" name="Email">
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control" id="c_email_address" name="Email">
+                                    }
+                                }
+
+                            </div>
+                            <div class="col-md-6">
+                                <label for="c_phone" class="text-black">Số điện thoại <span class="text-danger">*</span></label>
+                                @{
+                                    if (kh != null)
+                                    {
+                                        <input type="text" class="form-control" id="c_phone" name="SDT" value="@kh.SDT" placeholder="Nhập số điện thoại">
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control" id="c_phone" name="SDT" placeholder="Nhập số điện thoại">
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                        @{
+                            if (kh == null)
+                            {
+                                <div class="form-group">
+                                    <label for="c_create_account" class="text-black" data-toggle="collapse" href="#create_an_account" role="button" aria-expanded="false" aria-controls="create_an_account">
+                                        <input type="checkbox" value="1" id="c_create_account" name="c_create_account"> Tạo mới tài khoản?
+                                    </label>
+                                    <div class="collapse" id="create_an_account">
+                                        <div class="py-2">
+                                            <p class="mb-3">
+                                                Tạo tài khoản bằng cách nhập thông tin vào ô bên dưới. Nếu như bạn đã có tài khoản hãy đăng nhập ở đầu trang.
+                                            </p>
+                                            <div class="form-group">
+                                                <label for="c_account_password" class="text-black">Mật khẩu tài khoản</label>
+                                                <input type="password" class="form-control" id="c_account_password" name="Password" placeholder="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        <div class="form-group">
+                            <label for="c_ship_different_address" class="text-black" data-toggle="collapse" href="#ship_different_address" role="button" aria-expanded="false" aria-controls="ship_different_address">
+                                <input type="checkbox" value="1" id="c_ship_different_address"> Giao hàng đến địa chỉ khác?
+                            </label>
+                            <div class="collapse" id="ship_different_address">
+                                <div class="py-2">
+                                    <div class="form-group">
+                                        <label for="c_diff_country" class="text-black">Country <span class="text-danger">*</span></label>
+                                        <select id="c_diff_country" class="nice-select wide">
+                                            <option value="1" data-display="Select">Select a country</option>
+                                            <option value="2">bangladesh</option>
+                                            <option value="3">Algeria</option>
+                                            <option value="4">Afghanistan</option>
+                                            <option value="5">Ghana</option>
+                                            <option value="6">Albania</option>
+                                            <option value="7">Bahrain</option>
+                                            <option value="8">Colombia</option>
+                                            <option value="9">Dominican Republic</option>
+                                        </select>
+                                    </div>
+
+
+                                    <div class="form-group row">
+                                        <div class="col-md-6">
+                                            <label for="c_diff_fname" class="text-black">Họ <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="c_diff_fname" name="c_diff_fname">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="c_diff_lname" class="text-black">Tên khách hàng <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="c_diff_lname" name="c_diff_lname">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label for="c_diff_companyname" class="text-black">Company Name </label>
+                                            <input type="text" class="form-control" id="c_diff_companyname" name="c_diff_companyname">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label for="c_diff_address" class="text-black">Địa chỉ <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="c_diff_address" name="c_diff_address" placeholder="Nhập địa chỉ">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label for="c_diff_cccd" class="text-black">CCCD <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="c_diff_cccd" name="c_diff_cccd" placeholder="Nhập căn cước công dân...">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-md-6">
+                                            <label for="c_diff_state_country" class="text-black">State / Country <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="c_diff_state_country" name="c_diff_state_country">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="c_diff_postal_zip" class="text-black">Posta / Zip <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="c_diff_postal_zip" name="c_diff_postal_zip">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-5">
+                                        <div class="col-md-6">
+                                            <label for="c_diff_email_address" class="text-black">Địa chỉ Email <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="c_diff_email_address" name="c_diff_email_address">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="c_diff_phone" class="text-black">Số điện thoại <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="c_diff_phone" name="c_diff_phone" placeholder="Nhập số điện thoại">
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="c_order_notes" class="text-black">Ghi chú</label>
+                            <textarea name="c_order_notes" id="c_order_notes" cols="30" rows="5" class="form-control" placeholder="Viết ghi chú đơn hàng ở đây..."></textarea>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="row mb-5">
+                    <div class="col-md-12">
+                        <h2 class="h3 mb-3 text-black">Mã khuyến mãi khác</h2>
+                        <div class="p-3 p-lg-5 border">
+                            <label for="c_code"><strong>*Hãy chắc chắn rằng bạn muốn sử dụng mã khác! </strong></label>
+                            <label for="c_code" class="text-black mb-3">Chọn mã khuyến mãi đang có sẵn trong hệ thống.</label>
+                            <div class="row">
+                                <div class="col-lg-6">
+
+                                    <select class="form-control" id="ChonVC">
+                                        <option value="1" selected disabled>Chọn mã KM</option>
+                                        @{
+                                            foreach (var item in dsvc)
+                                            {
+                                                if (item.ConLai == 0)
+                                                {
+                                                    <option value="@item.ID" disabled>@item.TenVoucher - @item.ConLai</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@item.ID">@item.TenVoucher - @item.ConLai</option>
+                                                }
+
+                                            }
+                                        }
+                                    </select>
+
+                                </div>
+                                <div class="col-lg-6">
+                                    <button class="btn btn-primary btn-sm" type="button" id="button-addon2">Áp dụng</button>
+                                </div>
+                                <div class="col-md-12">
+                                    <div id="ketQua"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-5">
+                    <div class="col-md-12">
+                        <h2 class="h3 mb-3 text-black">Đơn hàng của bạn</h2>
+                        <div class="p-3 p-lg-5 border">
+                            <table class="table site-block-order-table mb-5">
+                                <thead>
+                                <th>Món ăn</th>
+                                <th>Giá tiền</th>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        if (Model != null)
+                                        {
+                                            foreach (var item in Model.Items)
+                                            {
+
+                                                var tinhtong = item.idMA.GiaGoc * item.soLuong;
+                                                tamtinh += (double)tinhtong;
+                                                <tr>
+                                                    <td>@item.idMA.TenMA <strong class="mx-x">x</strong> @item.soLuong</td>
+                                                    <td>@string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", item.idMA.GiaGoc * item.soLuong).Replace(",00", "")</td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                    <tr>
+                                        <td class="text-black font-weight-bold"><strong>Tạm tính</strong></td>
+                                        <td class="text-black">@string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", tamtinh).Replace(",00", "")</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-black font-weight-bold"><strong>Giảm giá</strong></td>
+                                        @{
+                                            if (discount != 0)
+                                            {
+                                                <td class="text-black font-weight-bold" id="giamGia"><strong>@discount %</strong></td>
+                                            }
+                                            else
+                                            {
+                                                <td class="text-black font-weight-bold" id="giamGia"><strong> 0 %</strong></td>
+                                            }
+                                        }
+
+
+                                    </tr>
+                                    <tr>
+                                        <td class="text-black font-weight-bold"><strong>Tổng cộng</strong></td>
+                                        @{
+                                            tongcong = tamtinh - (tamtinh * (discount / 100));
+                                        }
+                                        <td class="text-black font-weight-bold" id="tongCong"><strong>@string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", tongcong).Replace(",00", "")</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            @*<div class="border p-3 mb-3">
+                                    <h3 class="h6 mb-0"><a class="d-block" data-toggle="collapse" href="#collapsebank" role="button" aria-expanded="false" aria-controls="collapsebank">Chuyển khoản qua ngân hàng</a></h3>
+
+                                    <div class="collapse" id="collapsebank">
+                                        <div class="py-2">
+                                            <p class="mb-0">Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order won’t be shipped until the funds have cleared in our account.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="border p-3 mb-3">
+                                    <h3 class="h6 mb-0"><a class="d-block" data-toggle="collapse" href="#collapsecheque" role="button" aria-expanded="false" aria-controls="collapsecheque">Cheque Payment</a></h3>
+
+                                    <div class="collapse" id="collapsecheque">
+                                        <div class="py-2">
+                                            <p class="mb-0">Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order won’t be shipped until the funds have cleared in our account.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="border p-3 mb-5">
+                                    <h3 class="h6 mb-0"><a class="d-block" data-toggle="collapse" href="#collapsepaypal" role="button" aria-expanded="false" aria-controls="collapsepaypal">Thanh toán bằng VNPay</a></h3>
+
+                                    <div class="collapse" id="collapsepaypal">
+                                        <div class="py-2">
+                                            <p class="mb-0">Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order won’t be shipped until the funds have cleared in our account.</p>
+                                        </div>
+                                    </div>
+                                </div>*@
+
+                            <div class="card border-primary">
+                                <div class="card-header bg-info border-0">
+                                    <h4 class="font-weight-bold m-0" style="color:aliceblue">THANH TOÁN</h4>
+                                </div>
+                                <div class="card-body">
+                                    <label>Chọn một trong các phương thức thanh toán sau đây: </label>
+                                    <div class="form-group">
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" class="custom-control-input" name="payment" id="paypal">
+                                            <label class="custom-control-label" for="paypal">VNPay</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" class="custom-control-input" name="payment" id="directcheck">
+                                            <label class="custom-control-label" for="directcheck">Thanh toán trực tiếp</label>
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" class="custom-control-input" name="payment" id="banktransfer">
+                                            <label class="custom-control-label" for="banktransfer">Chuyển khoản ngân hàng</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer border-secondary bg-transparent">
+                                    <button class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3" id="XacNhanTT">Xác nhận thanh toán</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- </form> -->
+    </div>
+</div>
+
+@section script{
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        //Quy đổi tiền tệ
+        function formatCurrency(number) {
+            return number.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        }
+        $('#ChonVC').select2({
+            width: "200px"
+        });
+        $('#button-addon2').on('click', function () {
+            var value = $('#ChonVC').val();
+            console.log("Bạn vừa nhấn vào nút áp dụng mã voucher mới " + value);
+            if (value == null) {
+                $("#ketQua").html('<span style="color: red;">✘ Vui lòng chọn mã khuyến mãi trước khi áp dụng.</span>');
+            }
+            else {
+                $.ajax({
+                    url: '/KhachHang/CheckVoucher',
+                    method: 'POST',
+                    data: JSON.stringify({ id: value }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success == 1) {
+                            //Thực hiện tính lại tổng cộng
+                            $('#tongCong').text(formatCurrency(response.tc));
+                            swal({
+                                title: "Áp dụng mã khuyến mãi thành công",
+                                text: "Chúc mừng bạn mã khuyến mãi đã đươc áp dụng với trị giá: " + response.vc * 100 + ' %',
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                $('#giamGia').text(response.vc * 100 + ' %');
+                                console.log('Được sử dụng' + response.vc);
+                                $("#ketQua").html('<span style="color: green;">✔ Bạn đã áp dụng thành công mã khuyến mãi.</span>');
+
+                            });
+
+                        } else if (response.success == 2) {
+                            $("#ketQua").html('<span style="color: red;">✘ Mã này không phù hợp cho chi nhánh này.</span>');
+                            $('#giamGia').text('0 %');
+                            $('#tongCong').text(formatCurrency(response.tc));
+                        }
+                        else if (response.success == 0) {
+                            $("#ketQua").html('<span style="color: red;">✘ Mã này không tồn tại hoặc đã hết lượt sử dụng.</span>');
+                            $('#giamGia').text('0 %');
+                            $('#tongCong').text(formatCurrency(response.tc));
+
+                        } else {
+                            $("#ketQua").html('<span style="color: red;">✘ Hệ thống đang quá tải. Vui lòng thử lại sau!</span>');
+                            $('#giamGia').text('0 %');
+                            $('#tongCong').text(formatCurrency(response.tc));
+                        }
+                    },
+                    error: function (error) {
+                        console.log('Lỗi khi truy cập dữ liệu số lượng giỏ hàng');
+                        $("#ketQua").html('<span style="color: red;">✘ Lỗi khi kiểm tra mã khuyến mãi.</span>');
+                        $('#giamGia').text('0 %');
+                        $('#tongCong').text(formatCurrency(response.tc));
+                    }
+                });
+            }
+        })
+        $('#XacNhanTT').click(function () {
+
+            // Kiểm tra xem radio button nào đã được chọn
+            var selectedPaymentMethod = $("input[name='payment']:checked").attr('id');
+
+            // Kiểm tra giá trị của selectedPaymentMethod và thực hiện hành động tương ứng
+            if (selectedPaymentMethod === 'paypal') {
+                // Thực hiện hành động khi người dùng chọn VNPay
+                console.log('Bạn đã chọn phương thức thanh toán VNPay.');
+                $('#LoaiTT').val("1")
+                var form = document.getElementById('paymentForm');
+                // Gửi biểu mẫu
+                form.submit();
+            } else if (selectedPaymentMethod === 'directcheck') {
+                // Thực hiện hành động khi người dùng chọn Thanh toán trực tiếp
+                console.log('Bạn đã chọn phương thức thanh toán trực tiếp.');
+                $('#LoaiTT').val("2")
+                var form = document.getElementById('paymentForm');
+                // Gửi biểu mẫu
+                form.submit();
+            } else if (selectedPaymentMethod === 'banktransfer') {
+                // Thực hiện hành động khi người dùng chọn Chuyển khoản ngân hàng
+                console.log('Bạn đã chọn phương thức thanh toán chuyển khoản ngân hàng.');
+            } else {
+                // Người dùng chưa chọn phương thức thanh toán
+                alert('Vui lòng chọn một phương thức thanh toán trước khi xác nhận.');
+            }
+            //Lấy thông tin
+            var data = KiemTraTT();
+            console.log(data);
+
+
+            var isCreateAccountChecked = $('#c_create_account').is(':checked');
+
+            if (isCreateAccountChecked) {
+                // Người dùng đã chọn ô checkbox Tạo mới tài khoản
+                // Thực hiện hành động tương ứng ở đây
+                alert('Người dùng đã chọn tạo mới tài khoản.');
+
+            } else {
+                // Người dùng chưa chọn ô checkbox Tạo mới tài khoản
+                // Thực hiện hành động tương ứng ở đây
+                alert('Người dùng chưa chọn tạo mới tài khoản.');
+            }
+            //window.location.href = '/Payment/Payment01';
+
+            //Cách 1
+            //Thực hiện lời gọi đến ajax
+            //$.ajax({
+            //    url: '/KhachHang/XacNhanThanhToan',
+            //    method: 'POST',
+            //    data: JSON.stringify(data),
+            //    contentType: 'application/json',
+            //    success: function (response) {
+
+            //    },
+            //    error: function (error) {
+            //        console.log('Lỗi khi truy cập dữ liệu số lượng giỏ hàng');
+            //    }
+            //});
+            //Cách 2
+            // Lấy ra biểu mẫu
+
+
+        });
+        function KiemTraTT() {
+            // Kiểm tra các ô input trong form
+            var isFormValid = true;
+            var Data, ho, ten, cccd, diachi, email, sdt, pass;
+
+
+            // Kiểm tra thông tin khách hàng
+            if ($('#c_fname').val() === '') {
+                alert('Vui lòng điền Họ.');
+                isFormValid = false;
+            } else
+                ho = $('#c_fname').val();
+            console.log(ho);
+
+            if ($('#c_lname').val() === '') {
+                alert('Vui lòng điền Tên.');
+                isFormValid = false;
+            } else
+                ten = $('#c_lname').val();
+            console.log(ten);
+
+            if ($('#c_cccd').val() === '') {
+                alert('Vui lòng điền CCCD.');
+                isFormValid = false;
+            } else
+                cccd = $('#c_cccd').val();
+            console.log(cccd);
+
+            if ($('#c_address').val() === '') {
+                alert('Vui lòng điền Địa chỉ.');
+                isFormValid = false;
+            } else
+                diachi = $('#c_address').val();
+            console.log(diachi);
+
+            if ($('#c_state_country').val() === '') {
+                alert('Vui lòng điền State / Country.');
+                isFormValid = false;
+            }
+
+            if ($('#c_postal_zip').val() === '') {
+                alert('Vui lòng điền Posta / Zip.');
+                isFormValid = false;
+            }
+
+            if ($('#c_email_address').val() === '') {
+                alert('Vui lòng điền Địa chỉ Email.');
+                isFormValid = false;
+            } else
+                email = $('#c_email_address').val();
+            console.log(email);
+
+            if ($('#c_phone').val() === '') {
+                alert('Vui lòng điền Số điện thoại.');
+                isFormValid = false;
+            } else
+                sdt = $('#c_phone').val();
+            console.log(sdt);
+
+            // Kiểm tra thông tin tài khoản (nếu có)
+            var isCreateAccountChecked = $('#c_create_account').is(':checked');
+            if (isCreateAccountChecked) {
+                if ($('#c_account_password').val() === '') {
+                    alert('Vui lòng điền Mật khẩu tài khoản.');
+                    isFormValid = false;
+                }
+            }
+
+            // Kiểm tra thông tin giao hàng đến địa chỉ khác (nếu có)
+            var isShipDifferentAddressChecked = $('#c_ship_different_address').is(':checked');
+            if (isShipDifferentAddressChecked) {
+                if ($('#c_diff_country').val() === '') {
+                    alert('Vui lòng điền Country cho địa chỉ giao hàng khác.');
+                    isFormValid = false;
+                }
+
+                if ($('#c_diff_fname').val() === '') {
+                    alert('Vui lòng điền Họ cho địa chỉ giao hàng khác.');
+                    isFormValid = false;
+                }
+
+                if ($('#c_diff_lname').val() === '') {
+                    alert('Vui lòng điền Tên cho địa chỉ giao hàng khác.');
+                    isFormValid = false;
+                }
+
+                if ($('#c_diff_address').val() === '') {
+                    alert('Vui lòng điền Địa chỉ cho địa chỉ giao hàng khác.');
+                    isFormValid = false;
+                }
+
+                if ($('#c_diff_state_country').val() === '') {
+                    alert('Vui lòng điền State / Country cho địa chỉ giao hàng khác.');
+                    isFormValid = false;
+                }
+
+                if ($('#c_diff_postal_zip').val() === '') {
+                    alert('Vui lòng điền Posta / Zip cho địa chỉ giao hàng khác.');
+                    isFormValid = false;
+                }
+
+                if ($('#c_diff_email_address').val() === '') {
+                    alert('Vui lòng điền Địa chỉ Email cho địa chỉ giao hàng khác.');
+                    isFormValid = false;
+                }
+
+                if ($('#c_diff_phone').val() === '') {
+                    alert('Vui lòng điền Số điện thoại cho địa chỉ giao hàng khác.');
+                    isFormValid = false;
+                }
+            }
+
+            // Kiểm tra ghi chú (nếu có)
+            if ($('#c_order_notes').val() === '') {
+                alert('Vui lòng viết ghi chú đơn hàng.');
+                isFormValid = false;
+            }
+
+            // Kiểm tra xem có hợp lệ để thanh toán hay không
+            if (isFormValid) {
+                alert('Thông tin đủ điều kiện để thanh toán.');
+                //Thực hiện hành động thanh toán tại đây
+                data = {
+                    TenKH: ho + ten,
+                    SDT: sdt,
+                    DiaChi: diachi,
+                    Email: email,
+                    CCCD: cccd
+                }
+                console.log(data);
+                return data;
+            }
+        };
+    </script>
+}

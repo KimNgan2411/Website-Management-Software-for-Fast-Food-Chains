@@ -1,0 +1,333 @@
+﻿@model FastFoodBranch.Models.Cart
+@{
+    ViewBag.Title = "Giỏ hàng";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    double discount = 0;
+    if (Model != null)
+    {
+        discount = (double)Model.discount * 100;
+    }
+
+    double tamtinh = 0;
+}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/LayoutKH/ShoppingCartCSS/aos.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/LayoutKH/ShoppingCartCSS/styleCart.css" />
+<div class="site-section">
+    <div class="container">
+        <div class="row mb-5">
+            <form class="col-md-12" method="post">
+                <div class="site-blocks-table">
+                    <table class="table table-bordered" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th class="product-thumbnail">Hình ảnh</th>
+                                <th class="product-name">Món ăn</th>
+                                <th class="product-price">Giá tiền</th>
+                                <th class="product-quantity">Số lượng</th>
+                                <th class="product-total">Tổng cộng</th>
+                                <th class="product-remove">Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null)
+                            {
+                                foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td id="idMA" hidden>@item.idMA.ID</td>
+                                        <td class="product-thumbnail">
+                                            <img src="@item.idMA.HinhAnh" alt="Image" class="img-fluid">
+                                        </td>
+                                        <td class="product-name">
+                                            <h2 class="h5 text-black">@item.idMA.TenMA</h2>
+                                        </td>
+                                        <td id="giaGoc">@string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", item.idMA.GiaGoc).Replace(",00", "")</td>
+                                        <td>
+                                            <div class="input-group ml-5" style="max-width: 120px;text-align:center">
+                                                <div class="input-group-prepend">
+                                                    <button class="btn btn-outline-primary js-btn-minus" type="button">&minus;</button>
+                                                </div>
+                                                <input type="text" disabled class="form-control text-center" value="@item.soLuong" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-primary js-btn-plus" type="button">&plus;</button>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                        @{
+                                            var tinhtong = item.idMA.GiaGoc * item.soLuong;
+                                            tamtinh += (double)tinhtong;
+                                            <td id="tcMA">@string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", tinhtong).Replace(",00", "")</td>
+                                        }
+
+                                        <td>
+                                            <div class="btn btn-danger btn-sm" id="xoaMA">X</div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row mb-5">
+                    @*<div class="col-md-6 mb-3 mb-md-0">
+                        <button class="btn btn-primary btn-sm btn-block">Cập nhật giỏ hàng</button>
+                    </div>*@
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary btn-sm btn-block">Tiếp tục mua món ăn</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="text-black h4" for="coupon">Mã khuyến mãi</label>
+                        <p>Nhập mã khuyến mãi (nếu có)</p>
+                    </div>
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <input type="text" class="form-control py-3" id="coupon" placeholder="Mã khuyến mãi...">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary btn-sm" id="checkKM">Áp dụng mã khuyến mãi</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="ketQua"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 pl-5">
+                <div class="row justify-content-end">
+                    <div class="col-md-7">
+                        <div class="row">
+                            <div class="col-md-12 text-right border-bottom mb-5">
+                                <h3 class="text-black h4 text-uppercase">Tổng kết giỏ hàng</h3>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <span class="text-black">Giá tạm tính</span>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <strong class="text-black" id="tamTinh">@string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", tamtinh).Replace(",00", "")</strong>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <span class="text-black">Giảm giá</span>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                @{
+                                    if (discount != 0)
+                                    {
+                                        <strong class="text-black" id="giamGia">@discount %</strong>
+                                    }
+                                    else
+                                    {
+                                        <strong class="text-black" id="giamGia">0 %</strong>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row mb-5">
+                            <div class="col-md-6">
+                                <span class="text-black">Tổng cộng</span>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                @{
+                                    tamtinh = tamtinh - (tamtinh * (discount / 100));
+                                }
+                                <strong class="text-black" id="tongCong">@string.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", tamtinh).Replace(",00", "")</strong>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                @{
+                                    if ( Model!= null && Model.Items.Count() != 0)
+                                    {
+                                        <button id="ThanhToan" class="btn btn-primary btn-lg py-3 btn-block" onclick="window.location='ThanhToan'">Thanh toán</button>
+                                    }
+                                    else
+                                    {
+                                        <button id="ThanhToan" class="btn btn-primary btn-lg py-3 btn-block" onclick="window.location='ThanhToan'" disabled>Thanh toán</button>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section script{
+    <script>
+        function formatCurrency(number) {
+            return number.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        }
+
+        var sitePlusMinus = function () {
+            $('.js-btn-minus, .js-btn-plus').on('click', function (e) {
+                e.preventDefault();
+                var inputGroup = $(this).closest('.input-group');
+
+                var input = inputGroup.find('.form-control');
+                var priceCell = inputGroup.closest('tr').find('#giaGoc');
+                var totalCell = inputGroup.closest('tr').find('#tcMA');
+                //Lấy thông tin id món ăn
+                var idma = inputGroup.closest('tr').find('#idMA').text();
+
+                var tamtinh = parseFloat($('#tamTinh').text().replace("₫", "").replace(",", "").trim());
+                //console.log(tamtinh);
+                //var totalOrder = parseFloat($('#tamTinh').text().replace("₫", "").replace(",", "").trim());
+                var totalOrder = tamtinh;
+
+
+                var price = parseFloat(priceCell.text().replace("₫", "").replace(",", "").trim()); // Lấy giá tiền
+                var quantity = parseInt(input.val()); // Lấy số lượng
+
+                if ($(this).hasClass('js-btn-minus')) {
+                    if (quantity > 1) {
+                        quantity--;
+                        //totalOrder -= price;
+                    }
+                } else {
+                    quantity++;
+                    //totalOrder += price;
+                }
+
+                input.val(quantity); // Cập nhật giá trị số lượng
+
+                var total = price * quantity; // Tính toán tổng cộng
+                totalCell.text(total.toFixed(3).toLocaleString('vi-VN') + " ₫"); // Hiển thị tổng cộng với định dạng tiền tệ
+                //console.log(totalOrder);
+                //$('#tamTinh').text(totalOrder.toFixed(3).toLocaleString('vi-VN') + " ₫");
+                // Gọi AJAX hoặc cập nhật thông tin số lượng trong giỏ hàng ở đây nếu cần
+
+                var data = {
+                    id: idma,
+                    sl: quantity
+                };
+                $.ajax({
+                    url: '/KhachHang/CapNhatGH',
+                    method: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        $('#cartItemCount').text(response.sl);
+                        $('#tamTinh').text(formatCurrency(response.tt));
+                        $('#tongCong').text(formatCurrency(response.tc));
+
+                    },
+                    error: function (error) {
+                        console.log('Lỗi khi truy cập dữ liệu số lượng giỏ hàng');
+                    }
+                });
+            });
+        };
+
+        sitePlusMinus();
+
+        //kiểm tra mã khuyến mãi
+        $('#checkKM').click(function () {
+            var val = $('#coupon').val();
+            if (val === "") {
+                $("#ketQua").html('<span style="color: red;">✘ Vui lòng không để trống mã khuyến mãi.</span>');
+            }
+            else {
+                $.ajax({
+                    url: '/KhachHang/CheckVoucher',
+                    method: 'POST',
+                    data: JSON.stringify({ id: val }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success == 1) {
+                            //Thực hiện tính lại tổng cộng
+                            $('#tongCong').text(formatCurrency(response.tc));
+                            swal({
+                                title: "Áp dụng mã khuyến mãi thành công",
+                                text: "Chúc mừng bạn mã khuyến mãi đã đươc áp dụng với trị giá: " + response.vc * 100 + ' %',
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                $('#giamGia').text(response.vc * 100 + ' %');
+                                console.log('Được sử dụng' + response.vc);
+                                $("#ketQua").html('<span style="color: green;">✔ Bạn đã áp dụng thành công mã khuyến mãi.</span>');
+
+                            });
+
+                        } else if (response.success == 2) {
+                            $("#ketQua").html('<span style="color: red;">✘ Mã này không phù hợp cho chi nhánh này.</span>');
+                            $('#giamGia').text('0 %');
+                            $('#tongCong').text(formatCurrency(response.tc));
+                        }
+                        else if (response.success == 0) {
+                            $("#ketQua").html('<span style="color: red;">✘ Mã này không tồn tại hoặc đã hết lượt sử dụng.</span>');
+                            $('#giamGia').text('0 %');
+                            $('#tongCong').text(formatCurrency(response.tc));
+
+                        } else {
+                            $("#ketQua").html('<span style="color: red;">✘ Hệ thống đang quá tải. Vui lòng thử lại sau!</span>');
+                            $('#giamGia').text('0 %');
+                            $('#tongCong').text(formatCurrency(response.tc));
+                        }
+                    },
+                    error: function (error) {
+                        console.log('Lỗi khi truy cập dữ liệu số lượng giỏ hàng');
+                        $("#ketQua").html('<span style="color: red;">✘ Lỗi khi kiểm tra mã khuyến mãi.</span>');
+                        $('#giamGia').text('0 %');
+                        $('#tongCong').text(formatCurrency(response.tc));
+                    }
+                });
+            }
+            
+        });
+        //Xóa món ăn ra khỏi giỏ hàng
+        $('#dataTable').on('click', '#xoaMA', function () {
+            var row = $(this).closest('tr');
+            var idma = row.find('#idMA').text();
+            console.log(idma);
+            //Thực hiện lời gọi đến ajax
+            $.ajax({
+                url: '/KhachHang/XoaMA',
+                method: 'POST',
+                data: JSON.stringify({ id: idma }),
+                contentType: 'application/json',
+                success: function (response) {
+
+                    $('#cartItemCount').text(response.sl);
+                    $('#tamTinh').text(formatCurrency(response.tt));
+                    $('#tongCong').text(formatCurrency(response.tc));
+                    row.remove();
+                },
+                error: function (error) {
+                    console.log('Lỗi khi truy cập dữ liệu số lượng giỏ hàng');
+                }
+            });
+            checkItem();
+        });
+        function checkItem() {
+            // Kiểm tra xem bảng có hàng tr không
+            var hasRows = $("#dataTable tbody tr").length;
+            console.log(hasRows);
+            // Nếu không có hàng nào trong bảng, disable nút thanh toán
+            if (hasRows == 1) {
+                $("#ThanhToan").prop('disabled', true);
+            }
+        }
+
+    </script>
+}

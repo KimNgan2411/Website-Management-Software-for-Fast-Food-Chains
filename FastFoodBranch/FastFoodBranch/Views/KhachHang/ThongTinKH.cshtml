@@ -1,0 +1,322 @@
+﻿@using FastFoodBranch.Models
+@{
+    ViewBag.Title = "Thông tin khách hàng";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    var userKH = (KhachHang)Session["userKH"];
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Cập nhật tài khoản thành công",
+                text: "Tài khoản của khách hàng đã được cập nhật",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Cập nhật tài khoản không thành công",
+                text: "Vui lòng kiểm tra lại thông tin. Nội dung lỗi : @TempData["mess5"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0">
+                <a href="/KhachHang/TrangChu">Trang chủ</a>
+                <span class="mx-2 mb-0">/</span>
+                <strong class="text-black">Thông tin tài khoản</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="book_section">
+    <div class="container mb-4 mt-4">
+        <div class="my-account ">
+            <div class="account-left">
+                <div class="b-avatar">
+                    <form action="~/KhachHang/CapNhatAvartarKH" enctype="multipart/form-data" method="post" >
+                        <div class="f-name">
+                            <!--Phần này sẽ render hình ảnh của người dùng-->
+                            @{
+                                if (userKH.HinhAnh != null)
+                                {
+                                    <img id="avatarImage" src="@userKH.HinhAnh" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                                }
+                                else
+                                {
+                                    <img id="avatarImage" src="~/Content/Avartar/user_552909.png" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                                }
+                            }
+
+                            <input type="file" id="avatarInput" name="HinhAnh" style="display: none;">
+                        </div>
+                        <div class="d-flex justify-content-center mb-2">
+                            <button type="button" class="btn btn-primary ms-2" id="UpAvar">Cập nhật hình đại diện</button>
+                            <button type="button" class="btn btn-secondary ms-1" id="CancelAvar" style="display:none">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-success ms-1" id="SaveAvar" style="display:none">Lưu lại</button>
+                        </div>
+                    </form>
+                    
+                    <div class="f-fullname">@userKH.TenKH</div>
+                    <div class="f-point">
+                        <span>0 Điểm</span>
+                    </div>
+
+                </div>
+                @*<div id="avatarContainer">
+
+                        <input type="file" id="avatarInput" style="display: none;">
+                    </div>*@
+
+                @{
+                    ViewBag.info = "active";
+                    Html.RenderPartial("Menu");
+                }
+
+            </div>
+            <div class="account-right d-block">
+                <button class="f-back" onclick="window.location='MenuMobile'"></button>
+                <h2 class="head-title">Thông tin khách hàng</h2><div class="account-content">
+                    <div class="acc-info-form">
+                        <form action="~/KhachHang/CapNhatTTKH" method="post" id="CapNhatThongTinKH">
+                            <h5>Thông tin người dùng</h5><div class="form-group row">
+                                <label for="r_name" class="col-md-3 col-form-label">Họ và tên: </label>
+                                <div class="col-md-7">
+                                    <input type="text" placeholder="Fullname" class="form-control" id="r_name" name="TenKH" disabled="" value="@userKH.TenKH">
+                                </div>
+                            </div><div class="form-group row">
+                                <label for="r_birthday" class="col-md-3 col-form-label">Ngày sinh: </label>
+                                <div class="col-md-7">
+                                    <div class="react-datepicker-wrapper">
+                                        <div class="react-datepicker__input-container ">
+                                            <span role="alert" aria-live="polite" class="react-datepicker__aria-live"></span>
+                                            @{
+                                                if (userKH.NgaySinh != null)
+                                                {
+                                                    DateTime ngaysinh = (DateTime)userKH.NgaySinh;
+                                                    string ngaySinhFormatted = ngaysinh.ToString("yyyy-MM-dd");
+                                                    <input type="date" id="r_birthday" placeholder="Date of birth" name="NgaySinh" disabled="" class="form-control" value="@ngaySinhFormatted">
+                                                }
+                                                else
+                                                {
+                                                    <input type="date" id="r_birthday" placeholder="Date of birth" name="NgaySinh" disabled="" class="form-control">
+                                                }
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="r_tel" class="col-md-3 col-form-label">Căn cước công dân: </label>
+                                <div class="col-md-7">
+                                    <input type="text" placeholder="Số căn cước" name="CCCD" class="form-control" id="r_idf" disabled="" value="@userKH.CCCD">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="r_tel" class="col-md-3 col-form-label">Số điện thoại: </label>
+                                <div class="col-md-7">
+                                    <input type="tel" placeholder="Phone number" name="SDT" class="form-control" id="r_tel" disabled="" value="@userKH.SDT">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="r_email" class="col-md-3 col-form-label">Địa chỉ Email: </label>
+                                <div class="col-md-7">
+                                    <input type="email" placeholder="Nhập email..." class="form-control" id="r_email" name="Email" value="@userKH.Email" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="r_email" class="col-md-3 col-form-label">Địa chỉ: </label>
+                                <div class="col-md-7">
+                                    <input type="text" placeholder="Nhập địa chỉ..." class="form-control" name="DiaChi" value="@userKH.DiaChi" disabled>
+                                </div>
+                            </div>
+                            <div class="form-action">
+                                <button type="button" class="btn btn-outline-primary " title="Withdraw account" id="CapNhatTK">Cập nhật tài khoản</button>
+                                <button type="button" class="btn btn-danger" title="Save information" id="HuyCS" hidden>Hủy bỏ</button>
+                                <button type="submit" class="btn btn-success" title="Save information" id="LuuTK" hidden>Lưu thông tin</button>
+                            </div>
+                            <br>
+                        </form>
+                        <form action="~/KhachHang/CapNhatMKKH" method="post">
+                            <h5>Thay đổi Password</h5>
+                            <div class="form-group row">
+                                <label for="r_old_password" class="col-md-3 col-form-label">Password cũ: </label>
+                                <div class="col-md-7">
+                                    <input type="password" placeholder="Enter your old password" class="form-control" id="r_old_password" name="oldPassword" autocomplete="off" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="r_new_password" class="col-md-3 col-form-label">Password mới: </label>
+                                <div class="col-md-7">
+                                    <input type="password" placeholder="Enter your new password" class="form-control" id="r_new_password" name="newPassword" autocomplete="off" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="r_confirm_password" class="col-md-3 col-form-label">Xác nhận lại Password: </label>
+                                <div class="col-md-7">
+                                    <input type="password" placeholder="Re-enter your password" class="form-control" id="r_confirm_password" name="confirmPassword" autocomplete="off" required>
+                                </div>
+                            </div>
+                            <div class="form-action">
+                                <button type="submit" class="btn btn-outline-primary" title="Withdraw account" id="CapNhatMK">Cập nhật mật khẩu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section script{
+    <script>
+        $(document).ready(function () {
+            var initialSrc = null;
+            // Xử lý sự kiện nhấp chuột vào nút "Cập nhật hình đại diện"
+            $("#UpAvar").click(function () {
+                //lấy thông tin nội dung img ban đầu
+                initialSrc = $("#avatarImage").attr("src");
+                // Hiển thị dialog chọn file
+                $("#avatarInput").click();
+            });
+
+            // Xử lý sự kiện khi người dùng chọn hình từ dialog
+            $("#avatarInput").change(function () {
+                var file = this.files[0];
+
+                // Kiểm tra xem file có tồn tại và là hình ảnh không
+                if (file && file.type.match(/^image\//)) {
+                    var reader = new FileReader();
+
+                    // Đọc nội dung của file hình ảnh
+                    reader.onload = function (e) {
+                        // Hiển thị hình đã chọn lên trang
+                        $("#avatarImage").attr("src", e.target.result);
+                        // Ẩn nút "Cập nhật hình đại diện" và hiển thị nút "Hủy bỏ" và "Lưu lại"
+                        $("#UpAvar").hide();
+                        $("#CancelAvar").show();
+                        $("#SaveAvar").show();
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Xử lý sự kiện nhấp chuột vào nút "Hủy bỏ"
+            $("#CancelAvar").click(function () {
+                // Đặt lại giá trị của input file
+                $("#avatarInput").val("");
+                // Hiển thị lại hình đại diện ban đầu
+                $("#avatarImage").attr("src", initialSrc);
+                // Hiển thị nút "Cập nhật hình đại diện" và ẩn nút "Hủy bỏ" và "Lưu lại"
+                $("#UpAvar").show();
+                $("#CancelAvar").hide();
+                $("#SaveAvar").hide();
+            });
+
+            // Xử lý sự kiện nhấp chuột vào nút "Lưu lại"
+            $("#SaveAvar").click(function () {
+                // Lấy thông tin hình đã chọn
+                var file = $("#avatarInput")[0].files[0];
+
+                if (file) {
+                    // Tạo đối tượng FormData để chứa hình
+                    var formData = new FormData();
+                    formData.append("avatar", file);
+
+                    // Gửi AJAX request đến server để lưu hình
+                    $.ajax({
+                        url: "/KhachHang/UpAnh",
+                        type: "POST",
+                        data: JSON.stringify({ hinhAnh: formData }),
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            if (response.success == true) {
+                                console.log("Hình đã được cập nhật thành công!");
+                                swal({
+                                    title: "Cập nhật thông ảnh đại diện thành công ",
+                                    text: "Ảnh đại diện đã được thay đổi thành công",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                console.log("Hình đã không được cập nhật thành công!");
+                                swal({
+                                    title: "Cập nhật ảnh đại diện không thành công ",
+                                    text: "Ảnh đại diện cập nhật không thành công." + "\n" + "Vui lòng kiểm tra lại.",
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    location.reload();
+                                });
+                            }
+                            // Xử lý kết quả thành công
+                            alert("Hình đại diện đã được lưu thành công!");
+                            // Hiển thị lại nút "Cập nhật hình đại diện" và ẩn nút "Hủy bỏ" và "Lưu lại"
+                            $("#UpAvar").show();
+                            $("#CancelAvar").hide();
+                            $("#SaveAvar").hide();
+                        },
+                        error: function () {
+                            // Xử lý lỗi khi gửi request
+                            console.log("Đã xảy ra lỗi khi cập nhật ảnh đại diện!");
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi dữ liệu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        }
+                    });
+                }
+            });
+            //Cập nhật thông tin tài khoản người dùng
+            $("#CapNhatTK").on("click", function () {
+                // Mở các thẻ input để cho phép chỉnh sửa
+                $("input[disabled]").prop("disabled", false);
+
+                // Ẩn nút "Cập nhật tài khoản"
+                $("#CapNhatTK").prop('hidden', true);
+
+                // Hiện nút "Lưu thông tin"
+                $("#LuuTK").prop('hidden', false);
+
+                //Hiện nút hủy bỏ chỉnh sửa
+                $('#HuyCS').prop('hidden', false);
+            });
+            $('#HuyCS').on('click', function () {
+                // Đóng các thẻ input để cho phép chỉnh sửa
+                $('#CapNhatThongTinKH input').prop('disabled', true);
+
+                // Ẩn nút "Cập nhật tài khoản"
+                $("#HuyCS").prop('hidden', true);
+                // Hiện nút "Lưu thông tin"
+                $("#LuuTK").prop('hidden', true);
+                $("#CapNhatTK").prop('hidden', false);
+            })
+        });
+    </script>
+}

@@ -1,0 +1,1082 @@
+﻿@model IEnumerable<FastFoodBranch.Models.NguyenLieu>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "Danh sách nguyên liệu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.dsnl = "active";
+    ViewBag.qlma1 = "show";
+    ViewBag.qlma0 = "active";
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm nguyên liệu thành công",
+                text: "Nguyên liệu @TempData["tennl"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm nguyên liệu không thành công",
+                text: "Nguyên liệu @TempData["tennl"] đã bị hủy. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0">
+                    <h4 class="btn btn-outline-warning">Danh sách nguyên liệu còn sử dụng</h4>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1">
+                    <h5 class="btn btn-outline-info">Danh sách nguyên liệu bị thu hồi</h5>
+                </a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách nguyên liệu đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-success" data-target="#myModal" data-toggle="modal"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+                                <a class="btn btn-sm btn-secondary" type="button" title="Sao chép" href="~/Admin/DSNL"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                <button class="btn btn-sm btn-primary" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>
+                                <button class="btn btn-sm btn-info" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true" hidden>ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên nguyên liệu</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trọng lượng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Đơn vị</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Nhà cung cấp</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Bảo quản</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày SX</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Hạn SD</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true" hidden>Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th hidden>ID</th>
+                                    <th>Tên nguyên liệu</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn vị</th>
+                                    <td>Nhà cung cấp</td>
+                                    <td>Bảo quản</td>
+                                    <td>Ngày SX</td>
+                                    <td>Hạn SD</td>
+                                    <th hidden>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == true)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin" hidden>@item.ID</td>
+                                                <td data-b-a-s="thin">@item.TenNL</td>
+                                                <td data-b-a-s="thin">@item.TrongLuong</td>
+                                                <td data-b-a-s="thin">@item.DonVi</td>
+                                                <td data-b-a-s="thin">@item.TenNCC</td>
+                                                @{
+                                                    if (item.BaoQuan == 1)
+                                                    {
+
+
+                                                        <td data-b-a-s="thin">Bình thường</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">Đông lạnh</td>
+                                                    }
+                                                }
+                                                @{
+                                                    if (item.NgaySX != null && item.HanSD != null)
+                                                    {
+                                                        DateTime nsx = (DateTime)item.NgaySX;
+                                                        DateTime hsd = (DateTime)item.HanSD;
+                                                        <td data-b-a-s="thin">@nsx.ToString("dd/MM/yyyy")</td>
+                                                        <td data-b-a-s="thin">@hsd.ToString("dd/MM/yyyy")</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">@item.NgaySX</td>
+                                                        <td data-b-a-s="thin">@item.HanSD</td>
+                                                    }
+
+                                                }
+
+                                                @{
+                                                    if (item.Lock == true)
+                                                    {
+                                                        <td data-b-a-s="thin" hidden>
+                                                            <div class="btn btn-sm btn-warning" style="width:100px">
+                                                                Bình thường
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin" hidden>
+                                                            <div class="btn btn-sm btn-info">
+                                                                Tạm ngừng
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    <button class="btn btn-success btn-sm edit" id="ChinhSuaNL">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                    <button class="btn btn-danger btn-sm edit" id="thuhoiNL">
+                                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách nguyên liệu đang tạm ngừng triển khai trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-info" id="button_excel1" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,30" class="table table-hover table-bordered" id="dataTable1" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true" hidden>ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên nguyên liệu</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trọng lượng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Đơn vị</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Nhà cung cấp</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Bảo quản</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày SX</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Hạn SD</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true" hidden>Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th hidden>ID</th>
+                                    <th>Tên nguyên liệu</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn vị</th>
+                                    <td>Nhà cung cấp</td>
+                                    <td>Bảo quản</td>
+                                    <td>Ngày SX</td>
+                                    <td>Hạn SD</td>
+                                    <th hidden>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == false)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin" hidden>@item.ID</td>
+                                                <td data-b-a-s="thin">@item.TenNL</td>
+                                                <td data-b-a-s="thin">@item.TrongLuong</td>
+                                                <td data-b-a-s="thin">@item.DonVi</td>
+                                                <td data-b-a-s="thin">@item.TenNCC</td>
+                                                @{
+                                                    if (item.BaoQuan == 1)
+                                                    {
+
+
+                                                        <td data-b-a-s="thin">Bình thường</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">Đông lạnh</td>
+                                                    }
+                                                }
+
+                                                @{
+                                                    if (item.NgaySX != null && item.HanSD != null)
+                                                    {
+                                                        DateTime nsx = (DateTime)item.NgaySX;
+                                                        DateTime hsd = (DateTime)item.HanSD;
+                                                        <td data-b-a-s="thin">@nsx.ToString("dd/MM/yyyy")</td>
+                                                        <td data-b-a-s="thin">@hsd.ToString("dd/MM/yyyy")</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">@item.NgaySX</td>
+                                                        <td data-b-a-s="thin">@item.HanSD</td>
+                                                    }
+
+                                                }
+                                                @{
+                                                    if (item.Lock == true)
+                                                    {
+                                                        <td data-b-a-s="thin" hidden>
+                                                            <div class="btn btn-sm btn-warning" style="width:100px">
+                                                                Bình thường
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin" hidden>
+                                                            <div class="btn btn-sm btn-info">
+                                                                Tạm ngừng
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    <button class="btn btn-primary btn-sm edit" id="phuchoiNL">
+                                                        <i class="fa fa-redo" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    <button class="btn btn-danger btn-sm edit" id="xoaNL">
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*DataTales Example*@
+</div>
+
+<!--Modal-->
+<!--Phần modal thêm mới nguyên liệu-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới nguyên liệu</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="~/Admin/ThemNL" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập tên nguyên liệu : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="TenNL" name="TenNL" type="text" required>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Nhập đơn vị: </label>
+                            <input class="form-control text-box single-line col-sm-2" id="DonVi" name="TrongLuong" type="number" min="0" required>
+                            <div class="form-group col-sm-1">
+                                <select class="form-control" id="SelectDV" name="DonVi">
+                                    <option selected disabled>--Chọn--</option>
+                                    <option value="g">Gram (g)</option>
+                                    <option value="kg">Kilo (kg)</option>
+                                    <option value="l">Lít (l)</option>
+                                    <option value="Miếng">Miếng</option>
+                                    <option value="Gói">Gói</option>
+                                    <option value="Ổ">Ổ (slice)</option>
+                                    <option value="Muỗng">Muỗng</option>
+                                    <option value="Cốc">Cốc</option>
+                                    <option value="Tách">Tách</option>
+                                    <option value="Thùng">Thùng</option>
+                                    <option value="Chai">Chai</option>
+                                </select>
+                            </div>
+                            <span class="control-label input-group-addon" id="icon2"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess2"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Tên nhà cung cấp : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="TenNCC" name="TenNCC" type="text" required>
+                            <span class="control-label input-group-addon" id="icon3"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess3"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Bảo quản : </label>
+                            <select class="form-control text-box single-line col-sm-5" id="SelectBQ" name="BaoQuan">
+                                <option selected disabled>Vui lòng chọn</option>
+                                <option value="1">Thường</option>
+                                <option value="2">Đông lạnh</option>
+                            </select>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess4"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Ngày SX : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="NgaySX" name="NgaySX" type="date" required>
+                            <span class="control-label input-group-addon" id="icon5"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess5"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCT">Hạn SD : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="HanSD" name="HanSD" type="date" required disabled>
+                            <span class="control-label input-group-addon" id="icon6"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess6"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnAdd" disabled>Thêm mới</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận thu hồi nguyên liệu -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận thu hồi nguyên liệu này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thu hồi nguyên liệu này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận phục hồi trạng thái nguyên liệu -->
+<div class="modal fade" id="RestoreModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RestoreModalLabel">Xác nhận phục hồi nguyên liệu này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn phục hồi nguyên liệu này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmRestore">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model xác nhận xóa nguyên liệu -->
+<div class="modal fade" id="deleteModal1" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel1">Xác nhận xóa nguyên liệu này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa nguyên liệu này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete1">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section script{
+
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    @*<script src="~/Content/js/demo/datatables-demo.js"></script>*@
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+            $('#dataTable1').DataTable({
+                columnDefs: [
+                    { width: '150px', targets: 0 },// Độ rộng cột 5
+                ],
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+        });
+
+        //Thêm mới nguyên liệu
+        var check1 = 0;
+        var check2 = 0,check3 = 0, check4 = 0, check5 = 0, check6 = 0;
+        //Check tên nguyên liệu
+        $('#TenNL').on('input', function () {
+            var input = $(this);
+            var icon1 = $('#icon1');
+            var ndmess1 = $('#mess1');
+            if (input.val().trim() == "") {
+                icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check1 = 0;
+                ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess1.html('Vui lòng nhập nội dung .... !');
+            }
+            else {
+                // Thực hiện kiểm tra bằng Ajax và nhận phản hồi từ máy chủ
+                // Ví dụ: gửi yêu cầu kiểm tra tên công ty đến /kiem-tra-ten-ct
+                $.ajax({
+                    url: '/Admin/KTTenNL',
+                    data: { TenNL: input.val() },
+                    method: 'POST',
+                    beforeSend: function () {
+                        // Hiển thị biểu tượng kiểm tra đang kiểm tra
+                        icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+                        icon1.attr('data-target', 'notok');
+                        icon1.mouseover(function () {
+                            var errorMessage = 'Đang kiểm tra nội dung';
+                            $(this).attr('title', errorMessage);
+                        });
+                        check1 = 0;
+                        ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                        ndmess1.html('Vui lòng đợi trong giây lát .... !');
+                    },
+                    success: function (response) {
+                        // Xử lý phản hồi từ máy chủ
+                        if (response.success == false) {
+                            // Hiển thị biểu tượng không được dùng
+                            icon1.html('<i class="fa fa-times-circle text-danger ml-3 "></i>');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Tên nguyên liệu bị trùng';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 0;
+                            ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                            ndmess1.html('Tên nguyên bị trùng !');
+                        } else {
+                            // Hiển thị biểu tượng dấu tích xanh
+                            icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                            icon1.attr('data-target', 'ok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Tên nguyên liệu hợp lệ';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 1;
+                            ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                            ndmess1.html('Tên nguyên liệu hợp lệ.');
+                        }
+                    },
+                    error: function () {
+                        // Xử lý lỗi (nếu có)
+                        // Hiển thị biểu tượng không được dùng hoặc thông báo lỗi khác
+                        icon1.html('<i class="fa fa-times-circle text-danger"></i>');
+                        icon1.attr('data-target', 'notok');
+                        icon1.mouseover(function () {
+                            var errorMessage = 'Lỗi không xác định';
+                            $(this).attr('title', errorMessage);
+                        });
+                        check1 = 1;
+                        ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                        ndmess1.html('Không xác định được lỗi!');
+                    }
+                });
+            };
+            KTnd();
+        });
+        //Check đơn vị nguyên liệu
+        $('#DonVi').on('input', function () {
+            var input = $(this).val();
+            console.log(input);
+            var selectValue = $("#SelectDV").val();
+            console.log(selectValue);
+            var icon2 = $('#icon2');
+            var ndmess2 = $('#mess2');
+            if (selectValue === null) {
+                icon2.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check2 = 0;
+                ndmess2.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess2.html('Vui lòng chọn loại đơn vị .... !');
+            } else {
+                icon2.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon2.attr('data-target', 'ok');
+                icon2.mouseover(function () {
+                    var errorMessage = 'Số lượng và đơn vị hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                check2 = 1;
+                ndmess2.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess2.html('Số lượng và đơn vị hợp lệ.');
+            }
+            KTnd();
+        });
+        $('#SelectDV').on('change', function () {
+            var input = $('#DonVi').val();
+            var selectValue = $(this).val();
+            var icon2 = $('#icon2');
+            var ndmess2 = $('#mess2');
+            if (selectValue === null) {
+                icon2.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check2 = 0;
+                ndmess2.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess2.html('Vui lòng chọn loại đơn vị .... !');
+            } else if (input === "" && input > 0) {
+                icon2.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check2 = 0;
+                ndmess2.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess2.html('Vui lòng nhập số lượng .... !');
+            }else {
+                icon2.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon2.attr('data-target', 'ok');
+                icon2.mouseover(function () {
+                    var errorMessage = 'Số lượng và đơn vị hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                check2 = 1;
+                ndmess2.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess2.html('Số lượng và đơn vị hợp lệ.');
+            }
+            KTnd();
+
+        });
+        //Check tên nhà cung cấp
+        $('#TenNCC').on('input', function () {
+            var input = $(this).val();
+            var icon2 = $('#icon3');
+            var ndmess2 = $('#mess3');
+            if (input.length <= 0) {
+                icon2.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check3 = 0;
+                ndmess2.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess2.html('Vui lòng nhập nhà cung cấp !');
+            } else {
+                icon2.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon2.attr('data-target', 'ok');
+                icon2.mouseover(function () {
+                    var errorMessage = 'Nhà cung cấp hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                check3 = 1;
+                ndmess2.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess2.html('Nhà cung cấp hợp lệ.');
+            }
+            KTnd();
+        });
+        //Check bảo quản
+        $('#SelectBQ').on('change', function () {
+            var selectValue = $(this).val();
+            var icon2 = $('#icon4');
+            var ndmess2 = $('#mess4');
+            if (selectValue === null) {
+                icon2.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                check4 = 0;
+                ndmess2.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                ndmess2.html('Vui lòng chọn loại đơn vị .... !');
+            } else {
+                icon2.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon2.attr('data-target', 'ok');
+                icon2.mouseover(function () {
+                    var errorMessage = 'Bảo quản hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                check4 = 1;
+                ndmess2.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess2.html('Bảo quản hợp lệ.');
+            }
+            KTnd();
+
+        });
+        //Check ngày sản xuất
+        $("#NgaySX").change(function () {
+            var ngaySX = new Date($("#NgaySX").val());
+            if (!isNaN(ngaySX.getTime())) { // Kiểm tra nếu ngày là hợp lệ
+                var ngaySX = new Date($("#NgaySX").val());
+                if (!isNaN(ngaySX.getTime())) { // Kiểm tra nếu ngày là hợp lệ
+                    // Mở trường HanSD và tính ngày hạn sử dụng
+                    $("#HanSD").prop("disabled", false);
+                    var ngayHetHan = new Date(ngaySX);
+                    ngayHetHan.setMonth(ngayHetHan.getMonth() + 1); // Đặt ngày hết hạn sau ngày sản xuất 1 tháng
+                    var dd = ngayHetHan.getDate();
+                    var mm = ngayHetHan.getMonth() + 1;
+                    var yyyy = ngayHetHan.getFullYear();
+                    if (dd < 10) {
+                        dd = '0' + dd;
+                    }
+                    if (mm < 10) {
+                        mm = '0' + mm;
+                    }
+                    var ngayHetHanFormatted = yyyy + '-' + mm + '-' + dd;
+                    $("#HanSD").val(ngayHetHanFormatted);
+
+                    // Đặt giá trị min của trường HanSD
+                    $("#HanSD").attr("min", ngayHetHanFormatted);
+                }
+
+
+                var icon2 = $('#icon5');
+                var ndmess2 = $('#mess5');
+
+                icon2.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                icon2.attr('data-target', 'ok');
+                icon2.mouseover(function () {
+                    var errorMessage = 'Ngày SX hợp lệ';
+                    $(this).attr('title', errorMessage);
+                });
+                check5 = 1;
+                ndmess2.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                ndmess2.html('Ngày SX hợp lệ.');
+            }
+        });
+        //Check hạn sử dụng
+        $("#NgaySX").change(function () {
+            var icon2 = $('#icon6');
+            var ndmess2 = $('#mess6');
+
+            icon2.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+            icon2.attr('data-target', 'ok');
+            icon2.mouseover(function () {
+                var errorMessage = 'Hạn sử dụng hợp lệ';
+                $(this).attr('title', errorMessage);
+            });
+            check6 = 1;
+            ndmess2.attr('style', 'color:green;font-size:12px;font-weight:bold');
+            ndmess2.html('Hạn sử dụng hợp lệ.');
+        });
+
+
+        //Hàm kiểm tra
+        function KTnd() {
+            setTimeout(function () {
+                console.log(check1);
+
+                if (check1 === 1 && check2 === 1 && check3 == 1 && check4 ==1 && check5 == 1 && check6 == 1) {
+                    $('#btnAdd').prop('disabled', false); // Mở ô thêm mới
+                }
+                else {
+                    $('#btnAdd').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+                };
+            }, 250)
+        }
+
+        var originalDV;
+        //Chỉnh sửa nguyên liệu
+        $('#dataTable').on('click', '#ChinhSuaNL', function () {
+            var row = $(this).closest('tr');
+
+            // Danh sách chỉ mục cột cho phép chỉnh sửa
+            var editableColumns = [1,2,3,4,5,6,7,8];
+
+            //Chuyển sang chế độ chỉnh sửa
+            //row.find('td:not(:last-child)').each(function () {
+            //    var value = $(this).text().trim();
+            //    $(this).html('<input class="form-control" type="text" value="' + value + '">')
+            //});
+
+            // Chuyển sang chế độ chỉnh sửa
+            var ngaysx;
+            row.find('td').each(function (index) {
+
+                if (editableColumns.includes(index)) {
+                    var value = $(this).text().trim();
+                    if (index === 2) {
+                        $(this).html('<input class="form-control" type="number" min="0" value="' + value + '">');
+                    } else if (index === 3) {
+                        originalDV = value;
+                        $(this).html(
+                            '<select class="form-control" required> id="" name="" ' +
+                            '<option selected value="' + value + '" disabled>' + value + '</option>' +
+                            '<option value="g">Gram (g)</option>' +
+                            '<option value="kg">Kilo (kg)</option>' +
+                            '<option value="l">Lít (l)</option>' +
+                            '<option value="Miếng">Miếng</option>' +
+                            '<option value="Gói">Gói</option>' +
+                            '<option value="Ổ">Ổ (slice)</option>' +
+                            '<option value="Muỗng">Muỗng</option>' +
+                            '<option value="Cốc">Cốc</option>' +
+                            '<option value="Tách">Tách</option>' +
+                            '<option value="Thùng">Thùng</option>' +
+                            '</select>');
+                    } else if (index == 5) {
+                        var status;
+                        if (value == 1) {
+                            status = "Bình thường";
+                        }
+                        else {
+                            status = "Đông lạnh";
+                        }
+                        $(this).html(
+                            '<select class="form-control" required> id="" name="" ' +
+                            '<option selected value="' + value + '" disabled>' + status + '</option>' +
+                            '<option value="1">Bình thường</option>' +
+                            '<option value="2">Đông lạnh</option>' +
+                            '</select>');
+                    }
+                    else if (index == 6) {
+                        var dateValue = formatDate(value);
+                        $(this).html('<input class="form-control" type="date" value="' + dateValue + '">');
+                        ngaysx = dateValue;
+                    } else if (index == 7) {
+                        console.log(ngaysx);
+                        var dateValue = formatDate(value);
+                        $(this).html('<input class="form-control" type="date" value="' + dateValue + '" min = "' + ngaysx +'">');
+                    }
+
+                    else {
+                        $(this).html('<input class="form-control" type="text" value="' + value + '">');
+                    }
+
+                }
+            });
+
+            //Hiển thị nút lưu và ẩn nút "Sửa"
+            row.find('#ChinhSuaNL').hide();
+            row.find('#luutt').show();
+        });
+        // Tạo hàm chuyển đổi định dạng ngày/tháng/năm thành yyyy-mm-dd
+        function formatDate(inputDate) {
+            var parts = inputDate.split('/');
+            if (parts.length === 3) {
+                var day = parts[0];
+                var month = parts[1];
+                var year = parts[2];
+                if (day.length === 1) {
+                    day = '0' + day;
+                }
+                if (month.length === 1) {
+                    month = '0' + month;
+                }
+                return year + '-' + month + '-' + day;
+            }
+            return inputDate; // Trả về giá trị gốc nếu không thể chuyển đổi
+        }
+
+        //Lưu lại thông tin nguyên liệu
+        $('#dataTable').on('click', '#luutt', function () {
+            var row = $(this).closest('tr');
+            var manl = row.find('td:eq(0)').text().trim();
+            var tennl = row.find('td:eq(1) input').val().trim();
+            var trongluong = row.find('td:eq(2) input').val().trim();
+            var donvi = row.find('td:eq(3) select').val();
+            var tenncc = row.find('td:eq(4) input').val();
+            var baoquan = row.find('td:eq(5) select').val();
+            var ngaysx = row.find('td:eq(6) input').val();
+            var hansd = row.find('td:eq(7) input').val();
+            if (donvi === null) {
+                donvi = originalDV;
+                console.log(donvi);
+            }
+            //console.log(donvi);
+            if (tennl === "") {
+                alert('Vui lòng nhập tên danh mục trước khi cập nhật');
+            }
+            else {
+                // Lấy dữ liệu từ các ô input
+                var data = {
+                    ID: manl,
+                    TenNL: tennl,
+                    TrongLuong: trongluong,
+                    DonVi: donvi,
+                    TenNCC: tenncc,
+                    BaoQuan: baoquan,
+                    NgaySX: ngaysx,
+                    HanSD: hansd
+                };
+                console.log(data);
+
+                //Gửi dữ liệu lên máy chủ
+                $.ajax({
+                    url: '/Admin/ChinhSuaNL',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success == true) {
+                            swal({
+                                title: "Cập nhật nguyên liệu thành công ",
+                                text: "Mã nguyên liệu " + response.manl + " đã được cập nhật",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else {
+                            swal({
+                                title: "Cập nhật danh mục không thành công",
+                                text: "Mã nguyên liệu " + response.manl + " không được cập nhật." + "\n" + " Với nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi dữ liệu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            location.reload();
+                        });
+                    }
+                });
+            }
+
+        });
+
+        //Thu hồi nguyên liệu
+        $('#dataTable').on('click', '#thuhoiNL', function () {
+            var manl = $(this).closest('tr').find('td:first-child').text().trim();
+            var $row = $(this).closest('tr');
+
+            $('#deleteModalLabel').html('Xác nhận thu hồi nguyên liệu này ' + manl);
+            $('#deleteModal').modal('show');
+
+            $('#confirmDelete').on('click', function () {
+                $.ajax({
+                    url: '/Admin/ThuHoiNL',
+                    type: 'POST',
+                    data: JSON.stringify({ MaNL: manl }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "Json",
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Thu hồi nguyên liệu thành công",
+                                text: "Mã nguyên liệu: " + response.manl + " đã được xóa",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                                //$row.remove();
+                            });
+                        } else {
+                            swal({
+                                title: "Thu hồi nguyên liệu không thành công",
+                                text: "Mã nguyên liệu" + response.manl + "không thể thu hồi. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            $('#deleteModal').modal('hide');
+                        });
+                    }
+                });
+            });
+        });
+
+        //Phục hồi nguyên liệu
+        $('#dataTable1').on('click', '#phuchoiNL', function () {
+            var manl = $(this).closest('tr').find('td:first-child').text().trim();
+
+            $('#RestoreModalLabel').html('Xác nhận phục hồi nguyên liệu ' + manl);
+            $('#RestoreModal').modal('show');
+
+            $('#confirmRestore').on('click', function () {
+                $.ajax({
+                    url: '/Admin/PhucHoiNL',
+                    type: 'POST',
+                    data: JSON.stringify({ MaNL: manl }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Phục hồi nguyên liệu thành công",
+                                text: "Nguyên liệu " + response.manl + " đã được phục hồi trạng thái .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Phục hồi nguyên liệu " + response.manl + " không thành công",
+                                text: "Mã nguyên liệu " + response.manl + "không thể phục hồi trạng thái.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+        //xóa nguyên liệu
+        $('#dataTable1').on('click', '#xoaNL', function () {
+            var manl = $(this).closest('tr').find('td:first-child').text().trim();
+            $('#deleteModalLabel1').html('Xác nhận xóa nguyên liệu ' + manl);
+            $('#deleteModal1').modal('show');
+
+            $('#confirmDelete1').on('click', function () {
+                $.ajax({
+                    url: '/Admin/XoaNL',
+                    type: 'POST',
+                    data: JSON.stringify({ MaNL: manl }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Xóa nguyên liệu thành công",
+                                text: "Nguyên liệu " + response.manl + " đã được xóa thành công .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Xóa nguyên liệu " + response.manl + " không thành công",
+                                text: "Mã nguyên liệu " + response.madm + "không thể xóa.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+}

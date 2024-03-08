@@ -1,0 +1,168 @@
+﻿@using FastFoodBranch.Models
+@{
+    ViewBag.Title = "DanhSachYeuThich";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+    var userKH = (KhachHang)Session["userKH"];
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+
+}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0">
+                <a href="/KhachHang/TrangChu">Trang chủ</a>
+                <span class="mx-2 mb-0">/</span>
+                <strong class="text-black">Danh sách yêu thích</strong>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="book_section">
+    <div class="container mb-4 mt-4">
+        <div class="my-account ">
+            <div class="account-left">
+                <div class="b-avatar">
+                    <div class="f-name">
+                        <!--Phần này sẽ render hình ảnh của người dùng-->
+                        <img id="avatarImage" src="@userKH.HinhAnh" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                        <input type="file" id="avatarInput" style="display: none;">
+                    </div>
+                    <div class="f-fullname">@userKH.TenKH</div>
+                    <div class="f-point">
+                        <span>0 Điểm</span>
+                    </div>
+
+                </div>
+                @{
+                    ViewBag.wishlist = "active";
+                    Html.RenderPartial("Menu");
+                }
+
+            </div>
+            <div class="account-right d-block">
+                <button class="f-back" onclick="window.location='DanhSachYeuThich'"></button>
+                <h2 class="head-title">Danh sách yêu thích</h2>
+                <div class="account-content">
+                    <div class="adds-list">
+                        <!-- Danh sách yêu thích sẽ được hiển thị ở đây -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var MaKH = "@userKH.MaKH";
+
+        $.ajax({
+            type: "POST",
+            url: "/KhachHang/getDanhSachYeuThich",
+            data: { MaKH: MaKH },
+            success: function (data) {
+                if (data.success) {
+                    renderYeuThichList(data.data);
+                } else {
+                    console.error("Lỗi khi lấy danh sách yêu thích: " + data.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Lỗi khi gọi phương thức getDanhSachYeuThich: " + error);
+            }
+        });
+
+        function renderYeuThichList(yeuThichList) {
+            $(".adds-list").empty();
+
+            $.each(yeuThichList, function (index, item) {
+
+                var html =
+                        '<div class="item">' +
+                        '<div class="row">' +
+                        '<div class="col">' +
+                        '<img src="' + item.HinhAnh + '"  "alt="Hinh Anh" class="rounded-circle img-fluid" style="width: 120px;"/>' +
+                        '</div>' +
+                        '<div class="col">' +
+                        '<a href = "#" id = "ctma" data-monan-id = "' + item.IDMonAn + '" data-chinhanh-id ="' + item.IDCN + '">' +
+                        '<p class="add-name">' + item.TenMA + '</p>' +
+                        '<p>' + item.TenCN + '</p>' +
+                        '</a>' +
+                        '</div>' +
+                        '<div class="col">' +
+                        '<div class="btn-grp">' +
+                        '<button type="button" title="Delete" class="btn delete" data-monan-id="' + item.IDMonAn + '" data-chinhanh-id="' + item.IDCN + '"></button>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' ;
+                $(".adds-list").append(html);
+            });
+
+
+            $(".adds-list").on("click", ".btn.delete", function () {
+                var $this = $(this); // Store $(this) reference
+
+                var monAnID = $this.data("monan-id");
+                var chiNhanhID = $this.data("chinhanh-id");
+                var userId = "@userKH.MaKH";
+
+                $.ajax({
+                    type: "POST",
+                    url: "/KhachHang/XoaDSYT",
+                    data: { id: monAnID, user: userId, idCN: chiNhanhID },
+                    success: function (response) {
+                        if (response.success == true) {
+                            swal({
+                                title: "Xoá khỏi danh sách yêu thích",
+                                text: "Đã xoá món ăn khỏi danh sách yêu thích của bạn",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                $this.closest('.item').remove(); // Use $this here
+                                location.reload(); // Reload lại dữ liệu
+                            });
+                        } else {
+                            console.error("Lỗi khi xoá yêu thích: " + response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Lỗi khi gọi phương thức XoaDSYT: " + error);
+                    }
+                });
+            });
+            //Chuyển trang đến thông tin chi tiết sản phẩm
+            $(".adds-list").on("click", "#ctma", function () {
+                var $this = $(this); // Store $(this) reference
+
+                var monAnID = $this.data("monan-id");
+                var chiNhanhID = $this.data("chinhanh-id");
+                var userId = "@userKH.MaKH";
+                console.log('Bạn vừa nhấn vào sản phẩm này ' + monAnID + ' của chi nhánh ' + chiNhanhID);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/KhachHang/TrangTTMA",
+                    data: {idCN: chiNhanhID },
+                    success: function (response) {
+                        if (response.success == true) {
+                            window.location.href = "/KhachHang/TTSanPham/" + monAnID;
+                        }
+                        if (response.success == false) {
+                            window.location.href = "/KhachHang/DSThucDon";
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Lỗi khi gọi phương thức TrangTTMA: " + error);
+                    }
+                });
+            });
+        }
+    });
+</script>

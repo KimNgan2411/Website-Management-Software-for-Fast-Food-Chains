@@ -1,0 +1,1253 @@
+﻿@model IEnumerable<FastFoodBranch.Models.Voucher>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "DSKM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.qlcn0 = "active";
+    ViewBag.qlcn1 = "show";
+    ViewBag.qlcn6 = "active";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var dscn = db.ChiNhanhs.ToList();
+    var macn = "";
+    var user = (NhanVien)Session["userNV"];
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm voucher thành công",
+                text: "Voucher của chi nhánh @TempData["voucherCN"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "success1")
+    {
+        <script>
+        swal({
+            title: "Cập nhật voucher thành công",
+            text: "Voucher @TempData["mavoucher"] đã được cập nhật !",
+            icon: "success",
+            button: "OK",
+        });
+        </script>
+    }
+    else if (checkmess == "success2")
+    {
+        <script>
+        swal({
+            title: "Thu hồi voucher thành công",
+            text: "Voucher @TempData["mavoucher"] đã được thu hồi !",
+            icon: "success",
+            button: "OK",
+        });
+        </script>
+    }
+    else if (checkmess == "success3")
+    {
+        <script>
+    swal({
+        title: "Phục hồi voucher thành công",
+        text: "Voucher @TempData["mavoucher"] đã được phục hồi !",
+        icon: "success",
+        button: "OK",
+    });
+        </script>
+    }
+    else if (checkmess == "success4")
+    {
+        <script>
+    swal({
+        title: "Xóa voucher thành công",
+        text: "Voucher @TempData["mavoucher"] đã được xóa !",
+        icon: "success",
+        button: "OK",
+    });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm voucher không thành công",
+                text: "Voucher của chi nhánh @TempData["voucherCN"] đã bị hủy. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error1")
+    {
+        <script>
+        swal({
+            title: "Cập nhật voucher không thành công",
+            text: "Voucher  @TempData["mavoucher"] không được cập nhật. Nội dung lỗi : @TempData["mess"]",
+            icon: "error",
+            button: "OK",
+        });
+        </script>
+    }
+    else if (checkmess == "error2")
+    {
+        <script>
+        swal({
+            title: "Thu hồi voucher không thành công",
+            text: "Voucher  @TempData["mavoucher"] không được thu hồi. Nội dung lỗi : @TempData["mess"]",
+            icon: "error",
+            button: "OK",
+        });
+        </script>
+    }
+    else if (checkmess == "error3")
+    {
+        <script>
+        swal({
+            title: "Phục hồi voucher không thành công",
+            text: "Voucher  @TempData["mavoucher"] không được phục hồi. Nội dung lỗi : @TempData["mess"]",
+            icon: "error",
+            button: "OK",
+        });
+        </script>
+    }
+    else if (checkmess == "error4")
+    {
+        <script>
+        swal({
+            title: "Xóa voucher không thành công",
+            text: "Voucher  @TempData["mavoucher"] không được xóa. Nội dung lỗi : @TempData["mess"]",
+            icon: "error",
+            button: "OK",
+        });
+        </script>
+    }
+}
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0"><h4 class="btn btn-outline-warning">Danh sách voucher còn sử dụng</h4></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1"><h5 class="btn btn-outline-info">Danh sách voucher bị thu hồi</h5></a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách voucher của mỗi chi nhánh đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group form-inline col-lg-12">
+                                <button class="btn btn-sm btn-success mr-2" id="ThemMoiVC"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+                                <a class="btn btn-sm btn-secondary mr-2" type="button" title="Sao chép" href="~/Admin/DSKM"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                @*<button class="btn btn-sm btn-primary mr-2" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>*@
+                                <button class="btn btn-sm btn-info mr-2" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                                @{
+                                    if (user.MaCV == "NV")
+                                    {
+                                        <label class="control-label ml-2 mr-0" for="TenTK" hidden>Vui lòng chọn chi nhánh: </label>
+                                        <select class="form-control ml-3" id="DSChiNhanh" required hidden>
+                                            <option selected disabled>--Vui lòng chọn--</option>
+                                            @{ foreach (var item01 in dscn)
+                                                {
+                                                    <option value="@item01.LocationID">@item01.TenCN</option>
+                                                }
+
+
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <label class="control-label ml-2 mr-0" for="TenTK">Vui lòng chọn chi nhánh: </label>
+                                        <select class="form-control ml-3" id="DSChiNhanh" required>
+                                            <option selected disabled>--Vui lòng chọn--</option>
+                                            @{ foreach (var item01 in dscn)
+                                                {
+                                                    <option value="@item01.LocationID">@item01.TenCN</option>
+                                                }
+                                            }
+                                        </select>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên voucher</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày áp dụng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày hết hạn</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mô tả</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Discount</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Còn lại</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tên voucher</th>
+                                    <th>Ngày áp dụng</th>
+                                    <th>Ngày hết hạn</th>
+                                    <th>Mô tả</th>
+                                    <th>Discount</th>
+                                    <th>Còn lại</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    if (Model != null)
+                                    {
+                                        foreach (var item in Model)
+                                        {
+                                            if (item.Lock == true)
+                                            {
+                                                <tr>
+                                                    <td data-b-a-s="thin">@item.ID</td>
+                                                    <td data-b-a-s="thin">@item.TenVoucher</td>
+                                                    <td data-b-a-s="thin">@item.NgayApDung</td>
+                                                    <td data-b-a-s="thin">@item.NgayHetHan</td>
+                                                    <td data-b-a-s="thin">@item.MoTa</td>
+                                                    <td data-b-a-s="thin">@item.Discount</td>
+                                                    <td data-b-a-s="thin">@item.ConLai</td>
+                                                    @{
+                                                        if (item.TrangThai == 2)
+                                                        {
+                                                            <td data-b-a-s="thin">
+                                                                <div class="btn btn-sm btn-danger">
+                                                                    Từ chối
+                                                                </div>
+                                                            </td>
+
+                                                        }
+                                                        else if (item.TrangThai == 1)
+                                                        {
+                                                            <td data-b-a-s="thin">
+                                                                <div class="btn btn-sm btn-success">
+                                                                    Đã duyệt
+                                                                </div>
+                                                            </td>
+                                                        }
+                                                        else if (item.TrangThai == 0)
+                                                        {
+                                                            <td data-b-a-s="thin">
+                                                                <div class="btn btn-sm btn-warning">
+                                                                    Đang xử lý
+                                                                </div>
+                                                            </td>
+                                                        }
+                                                    }
+                                                    <td>
+                                                        <button class="btn btn-success btn-sm edit" id="ChinhSuaVoucher">
+                                                            <i class="fa fa-edit"></i>
+                                                        </button>
+                                                        <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                        <button class="btn btn-danger btn-sm edit" id="thuhoiVoucher">
+                                                            <i class="fa fa-times" aria-hidden="true"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách voucher đang tạm ngừng triển khai trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-info" id="button_excel1" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,30" class="table table-hover table-bordered" id="dataTable1" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tên voucher</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày áp dụng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày hết hạn</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mô tả</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Discount</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Còn lại</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>ID</th>
+                                    <th>Tên voucher</th>
+                                    <th>Ngày áp dụng</th>
+                                    <th>Ngày hết hạn</th>
+                                    <th>Mô tả</th>
+                                    <th>Discount</th>
+                                    <th>Còn lại</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    if (Model != null)
+                                    {
+                                        foreach (var item in Model)
+                                        {
+                                            if (item.Lock == false)
+                                            {
+                                                <tr>
+                                                    <td data-b-a-s="thin">@item.ID</td>
+                                                    <td data-b-a-s="thin">@item.TenVoucher</td>
+                                                    <td data-b-a-s="thin">@item.NgayApDung</td>
+                                                    <td data-b-a-s="thin">@item.NgayHetHan</td>
+                                                    <td data-b-a-s="thin">@item.MoTa</td>
+                                                    <td data-b-a-s="thin">@item.Discount</td>
+                                                    <td data-b-a-s="thin">@item.ConLai</td>
+                                                    @{
+                                                        if (item.TrangThai == 2)
+                                                        {
+                                                            <td data-b-a-s="thin">
+                                                                <div class="btn btn-sm btn-danger">
+                                                                    Từ chối
+                                                                </div>
+                                                            </td>
+
+                                                        }
+                                                        else if (item.TrangThai == 1)
+                                                        {
+                                                            <td data-b-a-s="thin">
+                                                                <div class="btn btn-sm btn-success">
+                                                                    Đã duyệt
+                                                                </div>
+                                                            </td>
+                                                        }
+                                                        else if (item.TrangThai == 0)
+                                                        {
+                                                            <td data-b-a-s="thin">
+                                                                <div class="btn btn-sm btn-warning">
+                                                                    Đang xử lý
+                                                                </div>
+                                                            </td>
+                                                        }
+                                                    }
+                                                    <td>
+                                                        <button class="btn btn-primary btn-sm edit" id="phuchoiVoucher">
+                                                            <i class="fa fa-redo" aria-hidden="true"></i>
+                                                        </button>
+
+                                                        <button class="btn btn-danger btn-sm edit" id="xoaVoucher">
+                                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+
+                                            }
+                                        }
+                                    }
+
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*DataTales Example*@
+</div>
+
+<!--Modal-->
+<!--Phần modal thêm mới voucher-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới voucher</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="~/Admin/ThemVoucherCN" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenCN">Chi nhánh : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="VoucherCN" name="LocationID" type="text" hidden required>
+                            <input class="form-control text-box single-line col-sm-5" id="VoucherCN1" name="LocationID" type="text" disabled required>
+                            <span class="control-label input-group-addon" id="icon0"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess0"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenVoucher">Nhập tên voucher : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="TenVoucher" name="TenVoucher" type="text" required>
+                            <span class="control-label input-group-addon" id="icon1"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess1"></p>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label class="control-label col-sm-5" for="TenVoucher">Nhập mô tả voucher: </label>
+                            <textarea class="form-control" placeholder="Nhập nội dung...." name="MoTa" id="MoTa" style="height:100px" required></textarea>
+                            <span class="control-label input-group-addon" id="icon2"></span>
+                            <div class="col-sm-5">
+                                <p id="mess2"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenVoucher">Chọn ngày áp dụng : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="NgayApDung" name="NgayApDung" type="date" required>
+                            <span class="control-label input-group-addon" id="icon2"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess3"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12" style="height:40px;">
+                            <label class="control-label col-sm-5" for="TenVoucher">Chọn ngày hết hạn : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="NgayHetHan" name="NgayHetHan" type="date" required>
+                            <span class="control-label input-group-addon" id="icon3"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess4"></p>
+                            </div>
+                        </div>
+                        <div class="form-group form-inline col-lg-12">
+                            <label class="control-label col-sm-5" for="TenVoucher">Nhập Discount : </label>
+                            <input class="form-control text-box single-line col-sm-5" id="Discount" name="Discount" type="number" min="0" max="100" required>
+                            <span class="control-label input-group-addon" id="icon2"></span>
+                            <div class="form-group col-sm-5">
+                            </div>
+                            <div class=" form-group col-sm-5">
+                                <p id="mess5"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="btnAdd" disabled>Thêm mới</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận thu hồi voucher-->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận thu hồi voucher này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thu hồi voucher này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận phục hồi trạng thái voucher -->
+<div class="modal fade" id="RestoreModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RestoreModalLabel">Xác nhận phục hồi voucher này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn phục hồi voucher này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmRestore">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Model xác nhận xóa voucher -->
+<div class="modal fade" id="deleteModal1" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel1">Xác nhận xóa voucher này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa voucher này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete1">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Phần modal xét duyệt voucher-->
+<div class="modal fade" id="confirmTT" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel1">Xác nhận xét duyệt bài viết này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xác nhận món ăn này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmTT">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Phần modal từ chối voucher-->
+<div class="modal fade" id="rejectedTT" tabindex="-1" role="dialog" aria-labelledby="rejectedModalLabel1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectedModalLabel1">Xác nhận từ chối bài viết này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn từ chối món ăn này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="rejectedTT">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section script{
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script>
+
+        let button01 = document.querySelector("#button_excel");
+        button01.addEventListener("click", e => {
+            let table = document.querySelector("#dataTable");
+            TableToExcel.convert(document.getElementById("dataTable"), {
+                name: "Danh sách khuyến mãi.xlsx",
+                sheet: {
+                    name: "Sheet 1"
+                }
+            });
+        });
+        let button02 = document.querySelector('#button_excel1');
+        button02.addEventListener("click", e => {
+            let table = document.querySelector("#dataTable1");
+            TableToExcel.convert(document.getElementById("dataTable1"), {
+                name: "Danh sách khuyến mãi tạm ngưng.xlsx",
+                sheet: {
+                    name: "Sheet 1"
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+         @{
+        if(Model != null)
+        {
+             macn = @Model.Select(s => s.LocationID).FirstOrDefault();
+             <text>
+            let macn = '@macn';
+            $('#DSChiNhanh').val(macn);
+            @{
+                if(user.MaCV == "Admin")
+                {
+                <text>
+                    $('#DSChiNhanh').select2({
+                        width: "190px",
+                        val: macn
+                    });
+                </text>
+
+                }
+            }
+
+             </text>
+        }
+        else
+        {
+             <text>
+            let macn = null;
+            $('#DSChiNhanh').select2({
+                width: "190px"
+            });
+             </text>
+        }
+         <text>
+            let checkNV = '@user.MaCV';
+        </text>
+         }
+            function getAdditionalData(macn1, lock01) {
+                // Định dạng dữ liệu bạn muốn gửi đi
+                var additionalData = {
+                    MaCN: macn1,
+                    Lock01: lock01
+                    // Thêm các tham số khác nếu cần
+                };
+
+                return additionalData;
+            }
+
+            let dataTable = $('#dataTable').DataTable({
+                "ajax": {
+                    "url": "/Admin/getDataVoucherCN",
+                    "type": "POST",
+                    "data": function (d) {
+                        // Lấy dữ liệu thêm từ hàm getAdditionalData
+                        var additionalData = getAdditionalData(macn,true);
+
+                        // Kết hợp dữ liệu thêm với dữ liệu gốc
+                        $.extend(d, additionalData);
+
+                        return JSON.stringify(d);
+                    },
+                    "contentType": "application/json",
+                },
+                "columns": [
+                    { "data": "ID" },
+                    { "data": "TenVoucher" },
+                    {
+                        "data": "NgayApDung",
+                        "render": function (data, type, row) {
+                            // Định dạng ngày áp dụng
+                            return moment(data).format('DD/MM/YYYY');
+                        }
+                    },
+                    {
+                        "data": "NgayHetHan",
+                        "render": function (data, type, row) {
+                            // Định dạng ngày áp dụng
+                            return moment(data).format('DD/MM/YYYY');
+                        }
+                    },
+                    { "data": "MoTa" },
+                    { "data": "Discount" },
+                    { "data": "ConLai" },
+                    {
+                        "data": "TrangThai",
+                        "render": function (data, type, row) {
+                            var status = '';
+                            if (data === 2) {
+                                status = '<div class="btn btn-sm btn-danger">Từ chối</div>';
+                            } else if (data === 1) {
+                                status = '<div class="btn btn-sm btn-success">Đã duyệt</div>';
+                            } else if (data === 0) {
+                                status = '<div class="btn btn-sm btn-warning">Đang xử lý</div>';
+                            }
+                            return '<td data-b-a-s="thin">' + status + '</td>';
+                        }
+                    },
+                    {
+                        "data": "TrangThai",
+                        "render": function (data, type, row) {
+                            var buttons = '';
+                            if (data === 0 && checkNV == "Admin") { // Trạng thái là 'Đang xử lý'
+                                buttons = `
+                                <button class="btn btn-success btn-sm edit" id="duyetVoucherCN">
+                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm edit" id="tuchoiVoucherCN">
+                                    <i class="fa fa-times" aria-hidden="true"></i>
+                                </button>`;
+                            }
+                            if ((data == 1 && checkNV == "Admin") || (data == 0 && checkNV == "NV")) {
+                                buttons += `
+                                <button class="btn btn-success btn-sm edit" id="ChinhSuaVoucher">
+                                    <i class="fa fa-edit"></i>
+                                </button>`;
+                            }
+                            return buttons +=`
+
+                            <button class="btn btn-success btn-sm save edit" style="display:none" id="luutt"><i class="fa fa-check" aria-hidden="true"></i></button>
+                            <button class="btn btn-danger btn-sm edit" id="thuhoiVoucher">
+                                <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                            </button>`;
+                        }
+                    }
+                ],
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+
+            let dataTable1 = $('#dataTable1').DataTable({
+            "ajax": {
+                "url": "/Admin/getDataVoucherCN",
+                "type": "POST",
+                "data": function (d) {
+                    // Lấy dữ liệu thêm từ hàm getAdditionalData
+                    var additionalData = getAdditionalData(macn,false);
+
+                    // Kết hợp dữ liệu thêm với dữ liệu gốc
+                    $.extend(d, additionalData);
+
+                    return JSON.stringify(d);
+                },
+                "contentType": "application/json",
+            },
+            "columns": [
+                { "data": "ID" },
+                { "data": "TenVoucher" },
+                {
+                    "data": "NgayApDung",
+                    "render": function (data, type, row) {
+                        // Định dạng ngày áp dụng
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
+                {
+                    "data": "NgayHetHan",
+                    "render": function (data, type, row) {
+                        // Định dạng ngày áp dụng
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
+                { "data": "MoTa" },
+                { "data": "Discount" },
+                { "data": "ConLai" },
+                {
+                    "data": "TrangThai",
+                    "render": function (data, type, row) {
+                        var status = '';
+                        if (data === 2) {
+                            status = '<div class="btn btn-sm btn-danger">Từ chối</div>';
+                        } else if (data === 1) {
+                            status = '<div class="btn btn-sm btn-success">Đã duyệt</div>';
+                        } else if (data === 0) {
+                            status = '<div class="btn btn-sm btn-warning">Đang xử lý</div>';
+                        }
+                        return '<td data-b-a-s="thin">' + status + '</td>';
+                    }
+                },
+                {
+                    "data": "TrangThai",
+                    "render": function (data, type, row) {
+                        var status = '';
+                        if (data === 0 || data === 1) {
+                            status += `
+                            <button class="btn btn-primary btn-sm edit" id="phuchoiVoucher">
+                                 <i class="fa fa-redo" aria-hidden="true"></i>
+                             </button>`;
+                        }
+
+                        return status +=`
+                        <button class="btn btn-danger btn-sm edit" id="xoaVoucher">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>`;
+                    }
+                }
+            ],
+            "language": {
+                "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+            }
+        });
+            $('#DSChiNhanh').on('change', function () {
+                let newMaCN = $(this).val(); // Get the selected "Mã Kho"
+                if (newMaCN != null) {
+                    macn = newMaCN;
+                    console.log("Bạn đã chọn " + newMaCN);
+                    // Use the selected "Mã Kho" to update the DataTable
+                    dataTable.clear().draw();
+                    dataTable.ajax.reload();
+
+                    dataTable1.clear().draw();
+                    dataTable1.ajax.reload();
+                }
+            });
+            $('#ThemMoiVC').on('click', function () {
+                var macn = $('#DSChiNhanh').val();
+                if (macn == null) {
+                    alert('Vui lòng chọn chi nhánh trước khi thêm voucher')
+                } else {
+                    $('#VoucherCN').val(macn);
+                    $('#VoucherCN1').val(macn);
+                    $('#myModal').modal('show');
+                }
+            });
+
+            var check1 = 0;
+            //Check tên voucher
+            $('#TenVoucher').on('input', function () {
+                var macn = $('#DSChiNhanh').val();
+                var input = $(this);
+                var icon1 = $('#icon1');
+                var ndmess1 = $('#mess1');
+                if (input.val().trim() == "") {
+                    icon1.html('<i class="fa fa-exclamation-circle ml-3 hidden-icon" aria-hidden="true"></i>');
+                    check1 = 0;
+                    ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                    ndmess1.html('Vui lòng nhập nội dung .... !');
+                }
+                else {
+                    // Thực hiện kiểm tra bằng Ajax và nhận phản hồi từ máy chủ
+                    // Ví dụ: gửi yêu cầu kiểm tra tên công ty đến /kiem-tra-ten-ct
+                    $.ajax({
+                        url: '/Admin/KTVoucherCN',
+                        data: { TenVoucher: input.val(), MaCN: macn  },
+                        method: 'POST',
+                        beforeSend: function () {
+                            // Hiển thị biểu tượng kiểm tra đang kiểm tra
+                            icon1.html('<i class="fa fa-spinner fa-spin ml-3"></i>');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Đang kiểm tra nội dung';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 0;
+                            ndmess1.attr('style', 'color:blue;font-size:12px;font-weight:bold');
+                            ndmess1.html('Vui lòng đợi trong giây lát .... !');
+                        },
+                        success: function (response) {
+                            // Xử lý phản hồi từ máy chủ
+                            if (response.success == false) {
+                                // Hiển thị biểu tượng không được dùng
+                                icon1.html('<i class="fa fa-times-circle text-danger ml-3 "></i>');
+                                icon1.attr('data-target', 'notok');
+                                icon1.mouseover(function () {
+                                    var errorMessage = 'Tên voucher đã bị trùng';
+                                    $(this).attr('title', errorMessage);
+                                });
+                                check1 = 0;
+                                ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                                ndmess1.html('Tên voucher bị trùng !');
+                            } else {
+                                // Hiển thị biểu tượng dấu tích xanh
+                                icon1.html('<i class="fa fa-check-circle text-success ml-3" id="ic2" data-target="ok"></i>');
+                                icon1.attr('data-target', 'ok');
+                                icon1.mouseover(function () {
+                                    var errorMessage = 'Tên voucher hợp lệ';
+                                    $(this).attr('title', errorMessage);
+                                });
+                                check1 = 1;
+                                ndmess1.attr('style', 'color:green;font-size:12px;font-weight:bold');
+                                ndmess1.html('Tên voucher hợp lệ.');
+                            }
+                        },
+                        error: function () {
+                            // Xử lý lỗi (nếu có)
+                            // Hiển thị biểu tượng không được dùng hoặc thông báo lỗi khác
+                            icon1.html('<i class="fa fa-times-circle text-danger"></i> Không xác định được lỗi!');
+                            icon1.attr('data-target', 'notok');
+                            icon1.mouseover(function () {
+                                var errorMessage = 'Lỗi không xác định';
+                                $(this).attr('title', errorMessage);
+                            });
+                            check1 = 0;
+                            ndmess1.attr('style', 'color:red;font-size:12px;font-weight:bold');
+                            ndmess1.html('Không xác định được lỗi!');
+                        }
+                    });
+                };
+                KTnd();
+            });
+            //Hàm kiểm tra
+            function KTnd() {
+                setTimeout(function () {
+                    if (check1 === 1) {
+                        $('#btnAdd').prop('disabled', false); // Mở ô thêm mới
+                    }
+                    else {
+                        $('#btnAdd').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+                    };
+                }, 250)
+            };
+
+            //Chỉnh sửa voucher
+            $('#dataTable').on('click', '#ChinhSuaVoucher', function () {
+                var row = $(this).closest('tr');
+
+                // Danh sách chỉ mục cột cho phép chỉnh sửa
+                var editableColumns = [1, 4, 5];
+
+                // Chuyển sang chế độ chỉnh sửa
+                row.find('td').each(function (index) {
+
+                    if (editableColumns.includes(index)) {
+
+                        var value = $(this).text().trim();
+                        if (index == 5) {
+                            $(this).html('<input class="form-control" type="number" min = "0" max = "100" value="' + value*100 + '">');
+                        }
+                        else {
+                            $(this).html('<input class="form-control" type="text" value="' + value + '">');
+                        }
+
+                    }
+                });
+                //Hiển thị nút lưu và ẩn nút "Sửa"
+                row.find('#ChinhSuaVoucher').hide();
+                row.find('#luutt').show();
+            });
+
+            //Lưu lại thông tin voucher
+            $('#dataTable').on('click', '#luutt', function () {
+                var row = $(this).closest('tr');
+                var idvoucher = row.find('td:eq(0)').text().trim();
+                var tenvoucher = row.find('td:eq(1) input').val().trim();
+                var mota = row.find('td:eq(4) input').val().trim();
+                var discount = row.find('td:eq(5) input').val().trim();
+                //console.log(donvi);
+                if (tenvoucher === "") {
+                    alert('Vui lòng nhập tên danh mục trước khi cập nhật');
+                }
+                else {
+                    // Lấy dữ liệu từ các ô input
+                    var data = {
+                        ID: idvoucher,
+                        TenVoucher: tenvoucher,
+                        MoTa: mota,
+                        Discount: discount
+                    };
+                    console.log(data);
+
+                    //Gửi dữ liệu lên máy chủ
+                    $.ajax({
+                        url: '/Admin/ChinhSuaVoucherCN',
+                        type: 'POST',
+                        data: JSON.stringify(data),
+                        contentType: 'application/json',
+                        success: function (response) {
+                            if (response.success == true) {
+                                var id = response.MaCN; // Thay thế giá trị id bằng giá trị thực tế bạn muốn truyền
+                                console.log(id);
+                                window.location.href = '/Admin/DSKM/' + id;
+                            } else {
+                                window.location.href = '/Admin/DSKM/' + id;
+                                console.log("Cập nhật không thành công")
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi dữ liệu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        }
+                    });
+                }
+
+            });
+            //Thu hồi voucher
+            $('#dataTable').on('click', '#thuhoiVoucher', function () {
+                var mact = $(this).closest('tr').find('td:first-child').text().trim();
+                var $row = $(this).closest('tr');
+
+                $('#deleteModalLabel').html('Xác nhận thu hồi voucher này ' + mact);
+                $('#deleteModal').modal('show');
+
+                $('#confirmDelete').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/ThuHoiVoucherCN',
+                        type: 'POST',
+                        data: JSON.stringify({ IDVoucher: mact }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "Json",
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                var id = response.MaCN; // Thay thế giá trị id bằng giá trị thực tế bạn muốn truyền
+                                console.log(id);
+                                window.location.href = '/Admin/DSKM/' + id;
+                            } else {
+                                swal({
+                                    title: "Thu hồi voucher không thành công",
+                                    text: "Mã voucher" + response.mact + "không thể thu hồi. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#deleteModal').modal('hide');
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                            });
+                        }
+                    });
+                });
+            });
+            //Phục hồi voucher
+            $('#dataTable1').on('click', '#phuchoiVoucher', function () {
+                var mact = $(this).closest('tr').find('td:first-child').text().trim();
+
+                $('#RestoreModalLabel').html('Xác nhận phục hồi voucher ' + mact);
+                $('#RestoreModal').modal('show');
+
+                $('#confirmRestore').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/PhucHoiVoucherCN',
+                        type: 'POST',
+                        data: JSON.stringify({ IDVoucher: mact }),
+                        contentType: 'application/json',
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                var id = response.MaCN; // Thay thế giá trị id bằng giá trị thực tế bạn muốn truyền
+                                console.log(id);
+                                window.location.href = '/Admin/DSKM/' + id;
+                            } else {
+                                swal({
+                                    title: "Phục hồi voucher " + response.mact + " không thành công",
+                                    text: "Mã voucher " + response.mact + "không thể phục hồi trạng thái.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+                    });
+                });
+            });
+
+            //xóa nguyên liệu
+            $('#dataTable1').on('click', '#xoaVoucher', function () {
+                var mact = $(this).closest('tr').find('td:first-child').text().trim();
+                $('#deleteModalLabel1').html('Xác nhận xóa voucher ' + mact);
+                $('#deleteModal1').modal('show');
+
+                $('#confirmDelete1').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/XoaVoucherCN',
+                        type: 'POST',
+                        data: JSON.stringify({ IDVoucher: mact }),
+                        contentType: 'application/json',
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                var id = response.MaCN; // Thay thế giá trị id bằng giá trị thực tế bạn muốn truyền
+                                console.log(id);
+                                window.location.href = '/Admin/DSKM/' + id;
+                            } else {
+                                swal({
+                                    title: "Xóa voucher " + response.maVoucher + " không thành công",
+                                    text: "Mã voucher " + response.maVoucher + "không thể xóa.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+                    });
+                });
+            });
+
+            //Xác nhận xét duyệt món ăn chi nhánh
+            $('#dataTable').on('click', '#duyetVoucherCN', function () {
+                var matt = $(this).closest('tr').find('td:first-child').text();
+
+                $('#confirmModalLabel1').html('Xác nhận xét duyệt voucher chi nhánh này ' + matt);
+                $('#confirmTT').modal('show');
+
+                $('#confirmTT').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/DuyetVoucherCN',
+                        type: 'POST',
+                        data: JSON.stringify({ MaVC: matt }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "Json",
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                swal({
+                                    title: "Xét duyệt voucher thành công",
+                                    text: "Mã voucher: " + response.mavc + " đã được xét duyệt",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#confirmTT').modal('hide');
+                                    location.reload(); //Reload lại dữ liệu
+                                    //$row.remove();
+                                });
+                            } else {
+                                swal({
+                                    title: "Xét duyệt voucher không thành công",
+                                    text: "Mã voucher " + response.mavc + " không thể thực hiện. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#confirmTT').modal('hide');
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#confirmTT').modal('hide');
+                            });
+                        }
+                    });
+                });
+            });
+            //Xác nhận từ chối món ăn chi nhánh
+            $('#dataTable').on('click', '#tuchoiVoucherCN', function () {
+                var matt = $(this).closest('tr').find('td:first-child').text();
+
+                $('#rejectedModalLabel1').html('Xác nhận từ chối món ăn này ' + matt);
+                $('#rejectedTT').modal('show');
+
+                $('#rejectedTT').on('click', function () {
+                    $.ajax({
+                        url: '/Admin/TuchoiVoucherCN',
+                        type: 'POST',
+                        data: JSON.stringify({ MaVC: matt }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "Json",
+                        success: function (response) {
+                            // Hiển thị thông báo thành công (nếu cần thiết)
+                            if (response.success == true) {
+                                swal({
+                                    title: "Từ chối voucher thành công",
+                                    text: "Mã voucher: " + response.mavc + " đã được từ chối",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#confirmTT').modal('hide');
+                                    location.reload(); //Reload lại dữ liệu
+                                    //$row.remove();
+                                });
+                            } else {
+                                swal({
+                                    title: "Từ chối voucher không thành công",
+                                    text: "Mã voucher " + response.mavc + " không thể thực hiện. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                    $('#confirmTT').modal('hide');
+                                    location.reload(); //Reload lại dữ liệu
+                                });
+                            }
+
+                        }, error: function (xhr, status, error) {
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#confirmTT').modal('hide');
+                            });
+                        }
+                    });
+                });
+            });
+
+        });
+    </script>
+}

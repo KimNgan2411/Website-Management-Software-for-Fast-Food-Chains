@@ -1,0 +1,108 @@
+﻿
+@{
+    ViewBag.Title = "Đăng nhập hoặc đăng ký";
+    Layout = "~/Views/Shared/_LayoutKH.cshtml";
+    ViewBag.setUp1 = "sub_page";
+    ViewBag.setUp2 = "Hidden";
+}
+<section class="book_section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <form class="mx-auto" method="post" action="~/LoginUser/LoginKH">
+                    @Html.AntiForgeryToken()
+                    <div class="mx-auto text-center my-4">
+                        <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="./index.html">
+                            <svg version="1.1" id="logo" class="navbar-brand-img brand-md" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 120 120" xml:space="preserve">
+                            <g>
+                            <polygon class="st0" points="78,105 15,105 24,87 87,87 	"></polygon>
+                            <polygon class="st0" points="96,69 33,69 42,51 105,51 	"></polygon>
+                            <polygon class="st0" points="78,33 15,33 24,15 87,15 	"></polygon>
+                </g>
+              </svg>
+                        </a>
+                        <h2 class="my-3">Đăng nhập</h2>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputEmail4">Nhập tên UserName hoặc Email: </label>
+                        <input type="text" class="form-control form-control-lg" name="User" id="inputEmail4" placeholder="Email..." required />
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword">Mật khẩu: </label>
+                        <input type="password" id="inputPassword" name="Pass" class="form-control form-control-lg" placeholder="Mật khẩu...." required />
+                    </div>
+                    <div class="checkbox mb-3">
+                        <label>
+                            <input type="checkbox" value="remember-me" /> Ghi nhớ đăng nhập lần này
+                        </label>
+                    </div>
+                    <p class="text-danger" style="text-align:center">@TempData["messLG"]</p>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Đăng nhập</button>
+                    <p class="mt-5 mb-3 text-muted"></p>
+
+                </form>
+            </div>
+            <!--Đăng ký-->
+            <div class="col-lg-6">
+                <form class="mx-auto">
+                    <div class="mx-auto text-center my-4">
+                        <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="./index.html">
+                            <svg version="1.1" id="logo" class="navbar-brand-img brand-md" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 120 120" xml:space="preserve">
+                            <g>
+                            <polygon class="st0" points="78,105 15,105 24,87 87,87 	"></polygon>
+                            <polygon class="st0" points="96,69 33,69 42,51 105,51 	"></polygon>
+                            <polygon class="st0" points="78,33 15,33 24,15 87,15 	"></polygon>
+                </g>
+              </svg>
+                        </a>
+                        <h2 class="my-3">Đăng ký</h2>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputEmail4">Nhập Email:</label>
+                        <input type="email" class="form-control form-control-lg" id="inputEmail5" placeholder="Email..." required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="firstname">Họ: </label>
+                            <input type="text" id="firstname" class="form-control form-control-lg" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastname">Tên: </label>
+                            <input type="text" id="lastname" class="form-control form-control-lg" required>
+                        </div>
+                    </div>
+                    <hr class="my-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputPassword5">Nhập password</label>
+                                <input type="password" class="form-control form-control-lg" id="inputPassword5" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword6">Xác nhận lại password</label>
+                                <input type="password" class="form-control form-control-lg" id="inputPassword6" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">Yêu cầu mật khẩu</p>
+                            <p class="small text-muted mb-2">
+                                Để tạo mật khẩu, bạn cần đặt theo các yêu cầu sau đây:
+                            </p>
+                            <ul class="small text-muted pl-4 mb-0">
+                                <li> Ít nhất phải có 8 ký tự </li>
+                                <li>Ít nhất có 1 ký tự đặc biết</li>
+                                <li>Ít nhất có 1 ksy tự số</li>
+                                <li>Mật khẩu xác nhận phải giống với mật khẩu trước đó</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Đăng ký tài khoản</button>
+                    <p class="mt-5 mb-3 text-muted text-center"></p>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+
+</section>

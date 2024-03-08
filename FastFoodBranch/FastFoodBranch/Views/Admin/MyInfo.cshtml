@@ -1,0 +1,500 @@
+﻿@model FastFoodBranch.Models.NhanVien
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "MyInfo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+    var dscv = db.ChucVus.ToList();
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<section style="background-color: #eee;">
+    <div class="container py-0">
+        <div class="row">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="~/Admin/TrangChu">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a href="#">Người dùng</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Thông tin cá nhân</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <div id="avatarContainer">
+                            @{
+                                if (Model.HinhAnh != null)
+                                {
+                                    <img id="avatarImage" src="@Model.HinhAnh" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                                }
+                                else
+                                {
+                                    <img id="avatarImage" src="~/Content/Avartar/user_552909.png" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                                }
+                            }
+
+                            <input type="file" id="avatarInput" style="display: none;">
+                        </div>
+
+                        <h5 class="my-3">@Model.TenNV</h5>
+                        @{
+                            if (Model.Lock == true)
+                            {
+                                <p class="text-muted mb-1 ">Trạng thái: <div class="btn btn-sm btn-success">Còn hoạt động</div></p>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-1 ">Trạng thái: <div class="btn btn-sm btn-warning">Dừng hoạt động</div></p>
+                            }
+                        }
+
+                        <p class="text-muted mb-4">@Model.ChucVu.TenCV</p>
+                        <div class="d-flex justify-content-center mb-2">
+                            <button type="button" class="btn btn-outline-primary ms-1" id="UpAvar">Cập nhật hình đại diện</button>
+                            <button type="button" class="btn btn-outline-secondary ms-1" id="CancelAvar" style="display: none;">Hủy bỏ</button>
+                            <button type="button" class="btn btn-outline-success ms-1" id="SaveAvar" style="display: none;">Lưu lại</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Họ tên nhân viên</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0" id="EditTNV">@Model.TenNV</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Số điện thoại</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0" id="EditSDT">@Model.SDT</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Địa chỉ</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0" id="EditDiaChi">@Model.DiaChi</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Email</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0" id="EditEmail">@Model.Email</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Ngày sinh</p>
+                            </div>
+                            <div class="col-sm-9">
+                                @{
+                                    if (Model.NgaySinh != null)
+                                    {
+                                        DateTime ngaysinh = (DateTime)Model.NgaySinh;
+                                        string ngaySinhFormatted = ngaysinh.ToString("yyyy-MM-dd");
+                                        <p class="text-muted mb-0" id="EditNgaySinh">@ngaySinhFormatted</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted mb-0" id="EditNgaySinh"></p>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Tài khoản</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0" id="EditTK">@Model.UserName</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Chức vụ</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0" id="EditCV">@Model.ChucVu.TenCV</p>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-3" id="chucnang">
+                                <button class="btn btn-sm btn-outline-info" id="UpdateInfo"> Cập nhật thông tin</button>
+
+                            </div>
+                            <div class="col-sm-9">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    @*<div class="col-md-6">
+                            <div class="card mb-4 mb-md-0">
+                                <div class="card-body">
+                                    <p class="mb-4">
+                                        <span class="text-primary font-italic me-1">assigment</span> Project Status
+                                    </p>
+                                    <p class="mb-1" style="font-size: .77rem;">Web Design</p>
+                                    <div class="progress rounded" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="mt-4 mb-1" style="font-size: .77rem;">Website Markup</p>
+                                    <div class="progress rounded" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 72%" aria-valuenow="72"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
+                                    <div class="progress rounded" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 89%" aria-valuenow="89"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile Template</p>
+                                    <div class="progress rounded" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 55%" aria-valuenow="55"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="mt-4 mb-1" style="font-size: .77rem;">Backend API</p>
+                                    <div class="progress rounded mb-2" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="66"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-4 mb-md-0">
+                                <div class="card-body">
+                                    <p class="mb-4">
+                                        <span class="text-primary font-italic me-1">assigment</span> Project Status
+                                    </p>
+                                    <p class="mb-1" style="font-size: .77rem;">Web Design</p>
+                                    <div class="progress rounded" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="mt-4 mb-1" style="font-size: .77rem;">Website Markup</p>
+                                    <div class="progress rounded" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 72%" aria-valuenow="72"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
+                                    <div class="progress rounded" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 89%" aria-valuenow="89"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile Template</p>
+                                    <div class="progress rounded" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 55%" aria-valuenow="55"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="mt-4 mb-1" style="font-size: .77rem;">Backend API</p>
+                                    <div class="progress rounded mb-2" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="66"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section script{
+
+    <script>
+        $(document).ready(function () {
+            // Gán sự kiện click vào nút "Cập nhật thông tin"
+            function formatDate(dateString) {
+                // Kiểm tra nếu dateString là một chuỗi hợp lệ trước khi chuyển đổi
+                if (dateString) {
+                    var date = new Date(dateString);
+                    // Kiểm tra xem date có là một ngày hợp lệ không trước khi định dạng lại
+                    if (!isNaN(date.getTime())) {
+                        // Định dạng lại ngày theo yyyy-MM-dd (định dạng mặc định của input date)
+                        var formattedDate = date.toISOString().split('T')[0];
+                        return formattedDate;
+                    }
+                }
+                // Nếu dateString không hợp lệ hoặc không tồn tại, trả về một giá trị mặc định hoặc rỗng (tuỳ vào yêu cầu của bạn)
+                return '';
+            }
+            $("#UpdateInfo").click(function () {
+                // Ẩn nút "Cập nhật thông tin"
+                $(this).hide();
+                // Lấy các giá trị hiện tại từ các phần tử HTML
+                var valtnv = $("#EditTNV").text().trim();
+                var valsdt = $("#EditSDT").text().trim();
+                var valdiachi = $("#EditDiaChi").text().trim();
+                var valemail = $("#EditEmail").text().trim();
+                var valngaysinh = $("#EditNgaySinh").text().trim();
+
+                // Tạo các trường nhập liệu (input) để chỉnh sửa thông tin
+                var inputTNV = $("<input class='form-control' type='text'>").val(valtnv);
+                var inputSDT = $("<input class='form-control' type='text'>").val(valsdt);
+                var inputDiaChi = $("<input class='form-control' type='text'>").val(valdiachi);
+                var inputEmail = $("<input class='form-control' type='text'>").val(valemail);
+                var inputNgaySinh = $("<input class='form-control' type='date'>").val(formatDate(valngaysinh));
+
+                // Thay thế các phần tử hiện tại bằng các trường nhập liệu
+                $("#EditTNV").html(inputTNV);
+                $("#EditSDT").html(inputSDT);
+                $("#EditDiaChi").html(inputDiaChi);
+                $("#EditEmail").html(inputEmail);
+                $("#EditNgaySinh").html(inputNgaySinh);
+
+
+                // Thêm nút "Lưu" và "Hủy"
+                var saveBtn = $("<button class='btn btn-sm btn-outline-primary' id = 'luutt'>Lưu</button>");
+                var cancelBtn = $("<button class='btn btn-sm btn-outline-secondary'>Hủy</button>");
+                $("#chucnang").append(saveBtn, cancelBtn);
+
+                // Gán sự kiện click vào nút "Lưu"
+                saveBtn.click(function () {
+
+                    // Kiểm tra tất cả các input có giá trị null hay không
+                    var inputs = [inputTNV, inputSDT, inputDiaChi, inputEmail, inputNgaySinh]; // Thêm các input cần kiểm tra vào mảng này
+
+                    var isValid = true;
+
+                    // Kiểm tra từng input
+                    for (var i = 0; i < inputs.length; i++) {
+                        var inputValue = inputs[i].val().trim();
+                        if (inputValue === "") {
+                            inputs[i].addClass("is-invalid");
+                            isValid = false;
+                        } else {
+                            inputs[i].removeClass("is-invalid");
+                        }
+                    }
+
+                    if (isValid) {
+                        var updatedHoNV = inputTNV.val();
+                        var updatedSDT = inputSDT.val();
+                        var updatedDiaChi = inputDiaChi.val();
+                        var updatedEmail = inputEmail.val();
+                        var updatedNgaySinh = inputNgaySinh.val();
+                        // Gửi thông tin cập nhật về server qua Ajax
+                        $.ajax({
+                            url: "/Admin/UpdateInfo",
+                            method: "POST",
+                            data: {
+                                TenNV: updatedHoNV,
+                                SDT: updatedSDT,
+                                DiaChi: updatedDiaChi,
+                                Email: updatedEmail,
+                                NgaySinh: updatedNgaySinh
+                            },
+                            success: function (response) {
+                                // Xử lý thành công
+                                if (response.success == true) {
+                                    console.log("Thông tin đã được cập nhật thành công!");
+                                    swal({
+                                        title: "Cập nhật thông tin nhân viên thành công ",
+                                        text: "Mã nhân viên " + response.manv + " đã được cập nhật",
+                                        icon: "success",
+                                        button: "OK",
+                                    }).then(function () {
+
+                                        location.reload();
+                                    });
+
+                                }
+                                else {
+                                    swal({
+                                        title: "Cập nhật thông tin nhân viên không thành công ",
+                                        text: "Mã nhân viên " + response.manv + " không được cập nhật",
+                                        icon: "error",
+                                        button: "OK",
+                                    }).then(function () {
+                                        location.reload();
+                                    });;
+                                }
+
+                                // Ẩn nút "Lưu" và "Hủy"
+                                saveBtn.remove();
+                                cancelBtn.remove();
+                                // Hiển thị lại nút "Cập nhật thông tin"
+                                $("#UpdateInfo").show();
+                            },
+                            error: function () {
+                                // Xử lý lỗi
+                                console.log("Đã xảy ra lỗi khi cập nhật!");
+                                swal({
+                                    title: "Lỗi",
+                                    text: "Đã xảy ra lỗi trong quá trình gửi dữ liệu",
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    location.reload();
+                                });
+                            }
+                        });
+                    } else {
+                        // Hiển thị biểu tượng và thông báo lỗi
+                        $(".is-invalid").siblings(".invalid-feedback").remove();
+                        $(".is-invalid").after("<div class='invalid-feedback'>Vui lòng nhập nội dung</div>");
+                    }
+                });
+
+                // Gán sự kiện click vào nút "Hủy"
+                cancelBtn.click(function () {
+                    // Hiển thị lại thông tin ban đầu
+                    $("#EditTNV").text(valtnv);
+                    $("#EditSDT").text(valsdt);
+                    $("#EditDiaChi").text(valdiachi);
+                    $("#EditEmail").text(valemail);
+                    $("#EditNgaySinh").text(valngaysinh);
+                    // Ẩn nút "Lưu" và "Hủy"
+                    saveBtn.remove();
+                    cancelBtn.remove();
+                    // Hiển thị lại nút "Cập nhật thông tin"
+                    $("#UpdateInfo").show();
+                });
+            });
+        });
+    </script>
+    @*//Script cập nhật hình đại diện*@
+    <script>
+        $(document).ready(function () {
+            var initialSrc = null;
+            // Xử lý sự kiện nhấp chuột vào nút "Cập nhật hình đại diện"
+            $("#UpAvar").click(function () {
+                //lấy thông tin nội dung img ban đầu
+                initialSrc = $("#avatarImage").attr("src");
+                // Hiển thị dialog chọn file
+                $("#avatarInput").click();
+            });
+
+            // Xử lý sự kiện khi người dùng chọn hình từ dialog
+            $("#avatarInput").change(function () {
+                var file = this.files[0];
+
+                // Kiểm tra xem file có tồn tại và là hình ảnh không
+                if (file && file.type.match(/^image\//)) {
+                    var reader = new FileReader();
+
+                    // Đọc nội dung của file hình ảnh
+                    reader.onload = function (e) {
+                        // Hiển thị hình đã chọn lên trang
+                        $("#avatarImage").attr("src", e.target.result);
+                        // Ẩn nút "Cập nhật hình đại diện" và hiển thị nút "Hủy bỏ" và "Lưu lại"
+                        $("#UpAvar").hide();
+                        $("#CancelAvar").show();
+                        $("#SaveAvar").show();
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Xử lý sự kiện nhấp chuột vào nút "Hủy bỏ"
+            $("#CancelAvar").click(function () {
+                // Đặt lại giá trị của input file
+                $("#avatarInput").val("");
+                // Hiển thị lại hình đại diện ban đầu
+                $("#avatarImage").attr("src", initialSrc);
+                // Hiển thị nút "Cập nhật hình đại diện" và ẩn nút "Hủy bỏ" và "Lưu lại"
+                $("#UpAvar").show();
+                $("#CancelAvar").hide();
+                $("#SaveAvar").hide();
+            });
+
+            // Xử lý sự kiện nhấp chuột vào nút "Lưu lại"
+            $("#SaveAvar").click(function () {
+                // Lấy thông tin hình đã chọn
+                var file = $("#avatarInput")[0].files[0];
+
+                if (file) {
+                    // Tạo đối tượng FormData để chứa hình
+                    var formData = new FormData();
+                    formData.append("avatar", file);
+
+                    // Gửi AJAX request đến server để lưu hình
+                    $.ajax({
+                        url: "/Admin/UpAnh",
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            if (response.success == true) {
+                                console.log("Hình đã được cập nhật thành công!");
+                                swal({
+                                    title: "Cập nhật thông ảnh đại diện thành công ",
+                                    text: "Ảnh đại diện đã được thay đổi thành công",
+                                    icon: "success",
+                                    button: "OK",
+                                }).then(function () {
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                console.log("Hình đã không được cập nhật thành công!");
+                                swal({
+                                    title: "Cập nhật ảnh đại diện không thành công ",
+                                    text: "Ảnh đại diện cập nhật không thành công." +"\n"+"Vui lòng kiểm tra lại.",
+                                    icon: "error",
+                                    button: "OK",
+                                }).then(function () {
+                                    location.reload();
+                                });
+                            }
+                            // Xử lý kết quả thành công
+                            alert("Hình đại diện đã được lưu thành công!");
+                            // Hiển thị lại nút "Cập nhật hình đại diện" và ẩn nút "Hủy bỏ" và "Lưu lại"
+                            $("#UpAvar").show();
+                            $("#CancelAvar").hide();
+                            $("#SaveAvar").hide();
+                        },
+                        error: function () {
+                            // Xử lý lỗi khi gửi request
+                            console.log("Đã xảy ra lỗi khi cập nhật ảnh đại diện!");
+                            swal({
+                                title: "Lỗi",
+                                text: "Đã xảy ra lỗi trong quá trình gửi dữ liệu",
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                location.reload();
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+    </script>
+
+
+
+}
+

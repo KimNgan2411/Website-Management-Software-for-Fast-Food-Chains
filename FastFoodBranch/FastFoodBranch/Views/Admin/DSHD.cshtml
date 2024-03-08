@@ -1,0 +1,793 @@
+﻿@model IEnumerable<FastFoodBranch.Models.HoaDon>
+@using FastFoodBranch.Models;
+@{
+    ViewBag.Title = "DSHD";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.dshd = "active";
+    ViewBag.dshd1 = "show";
+    ViewBag.dshd2 = "active";
+
+    QuanLyFastFoodEntities1 db = new QuanLyFastFoodEntities1();
+}
+
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+@{
+    var checkmess = (string)TempData["messageAlert"];
+    if (checkmess == "success0")
+    {
+        <script>
+            swal({
+                title: "Thêm hoá đơn thành công",
+                text: "hoá đơn @TempData["tenkh"] đã được thêm mới",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    }
+    else if (checkmess == "error0")
+    {
+        <script>
+            swal({
+                title: "Thêm hoá đơn không thành công",
+                text: "hoá đơn @TempData["tenkh"] đã bị hủy. Nội dung lỗi : @TempData["mess"]",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    }
+}
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#menu0"><h4 class="btn btn-outline-warning">Danh sách hoá đơn còn hiển thị</h4></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1"><h5 class="btn btn-outline-info">Danh sách hoá đơn bị thu hồi</h5></a>
+            </li>
+        </ul>
+    </ul>
+    @*Page Heading*@
+    <div class="tab-content">
+        <div id="menu0" class="tab-pane active">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách hoá đơn đang tồn tại trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="button-group">
+                                <a class="btn btn-sm btn-secondary" type="button" title="Sao chép" href="~/Admin/DSHD"><i class="fa fa-retweet" aria-hidden="true"></i> Làm mới</a>
+                                @*<button class="btn btn-sm btn-primary" type="button" id="btn-ImportExcel" data-target="#importModal" data-toggle="modal"><i class="fas fa-file-import"></i> Nhập Excel</button>*@
+                                <button class="btn btn-sm btn-info" id="button_excel" title="Xuất file Excel"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã HD</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày tạo</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Chi nhánh</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tổng cộng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID Voucher</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã nhân viên lập</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã khách hàng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>Mã HD</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Chi nhánh</th>
+                                    <th>Tổng cộng</th>
+                                    <th>ID Voucher</th>
+                                    <th>Mã nhân viên lập</th>
+                                    <th>Mã khách hàng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == true)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.NgayTao</td>
+                                                @{
+                                                    var cn = db.ChiNhanhs.Where(s => s.LocationID == item.LocationID).FirstOrDefault();
+                                                }
+                                                <td data-b-a-s="thin">@cn.TenCN</td>
+                                                <td data-b-a-s="thin">@item.TongCong</td>
+                                                <td data-b-a-s="thin">@item.IDVoucher</td>
+                                                <td data-b-a-s="thin">@item.MaNVLap</td>
+                                                <td data-b-a-s="thin">@item.MaKH</td>
+                                                @{
+                                                    if (item.TrangThai == true)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-success" style="width:100px">
+                                                                Đã xét duyệt
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else if (item.TrangThai == false)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-danger">
+                                                                Từ chối
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-info">
+                                                                Chờ duyệt
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    @{
+                                                        var cthd = db.ChiTietHDs.Where(s => s.ID == item.ID).FirstOrDefault();
+                                                        if (cthd is null)
+                                                        {
+
+
+                                                            <button class="btn btn-primary btn-sm edit " id="ThemCTHD" style="color:white">
+                                                                <i class="fa fa-eye"></i>
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="btn btn-info btn-sm edit " id="ChiTietHD1" style="color:white">
+                                                                <i class="fa fa-eye"></i>
+                                                            </button>
+                                                        }
+                                                    }
+                                                    <button class="btn btn-danger btn-sm edit" id="thuhoiHD">
+                                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách hoá đơn đang tạm ngừng triển khai trong hệ thống </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="button-group">
+                                <button class="btn btn-sm btn-info" id="button_excel1" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="table-responsive">
+                        <table data-cols-width="30,20,20,20,20,20,30" class="table table-hover table-bordered" id="dataTable1" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã HD</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Ngày tạo</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Tổng cộng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">ID Voucher</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã nhân viên lập</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Mã khách hàng</th>
+                                    <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Trạng thái</th>
+                                    <th data-exclude="true">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr data-exclude="true">
+                                    <th>Mã HD</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Trạng thái</th>
+                                    <th>Tổng cộng</th>
+                                    <th>ID Voucher</th>
+                                    <th>Mã nhân viên lập</th>
+                                    <th>Mã khách hàng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chức năng</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.Lock == false)
+                                        {
+                                            <tr>
+                                                <td data-b-a-s="thin">@item.ID</td>
+                                                <td data-b-a-s="thin">@item.NgayTao</td>
+                                                @{
+                                                    var cn = db.ChiNhanhs.Where(s => s.LocationID == item.LocationID).FirstOrDefault();
+                                                }
+                                                <td data-b-a-s="thin">@cn.TenCN</td>
+                                                <td data-b-a-s="thin">@item.TongCong</td>
+                                                <td data-b-a-s="thin">@item.IDVoucher</td>
+                                                <td data-b-a-s="thin">@item.MaNVLap</td>
+                                                <td data-b-a-s="thin">@item.MaKH</td>
+                                                @{
+                                                    if (item.TrangThai == true)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-success" style="width:100px">
+                                                                Đã xét duyệt
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else if (item.TrangThai == false)
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-danger">
+                                                                Từ chối
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-b-a-s="thin">
+                                                            <div class="btn btn-sm btn-info">
+                                                                Chờ duyệt
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                }
+                                                <td>
+                                                    @{
+                                                        var cthd = db.ChiTietHDs.Where(s => s.ID == item.ID).FirstOrDefault();
+                                                        if (cthd is null)
+                                                        {
+                                                            <button class="btn btn-primary btn-sm edit " id="ThemCTHD" style="color:white">
+                                                                <i class="fa fa-eye"></i>
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="btn btn-info btn-sm edit " id="ChiTietHD1" style="color:white">
+                                                                <i class="fa fa-eye"></i>
+                                                            </button>
+                                                        }
+                                                    }
+                                                    <button class="btn btn-primary btn-sm edit" id="phuchoiHD">
+                                                        <i class="fa fa-redo" aria-hidden="true"></i>
+                                                    </button>
+                                                    <button class="btn btn-danger btn-sm edit" id="thuhoiHD">
+                                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*DataTales Example*@
+</div>
+<!--Modal-->
+<!-- Modal xác nhận thu hồi hoá đơn-->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận thu hồi hoá đơn này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thu hồi hoá đơn này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal xác nhận phục hồi trạng thái hoá đơn -->
+<div class="modal fade" id="RestoreModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RestoreModalLabel">Xác nhận phục hồi hoá đơn này !</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn phục hồi hoá đơn này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmRestore">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Model xác nhận xóa hoá đơn -->
+<div class="modal fade" id="deleteModal1" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel1">Xác nhận xóa hoá đơn này</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa hoá đơn này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete1">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Hiển thị chi tiết hóa đơn -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Thêm mới nguyên liệu</h5>
+                <input hidden id="MaHoaDon" />
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="#" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row" id="nd">
+                        <div class="col-lg-12 table-responsive">
+                            <table data-cols-width="30,20,20,20,20,20,40" class="table table-hover table-bordered" id="dataTableCTHD" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Hình ảnh</th>
+                                        <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Món ăn</th>
+                                        <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Số lượng</th>
+                                        <th data-a-h="center" data-a-v="middle" data-b-a-s="thick" data-f-bold="true">Đơn giá</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-end">
+                    <button type="button" class="btn btn-success" hidden id="Duyet">Duyệt</button>
+                    <button type="button" class="btn btn-danger" hidden id="TuChoi">Từ chối</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section script{
+
+    <script src="~/Content/js/tableToExcel.js"></script>
+    <!-- Page level plugins -->
+    <script src="~/Content/Vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script>
+
+        let button01 = document.querySelector("#button_excel");
+        button01.addEventListener("click", e => {
+            let table = document.querySelector("#dataTable");
+            TableToExcel.convert(document.getElementById("dataTable"), {
+                name: "Danh sách hóa đơn của chi nhánh .xlsx",
+                sheet: {
+                    name: "Sheet 1"
+                }
+            });
+        });
+        let button02 = document.querySelector('#button_excel1');
+        button02.addEventListener("click", e => {
+            let table = document.querySelector("#dataTable1");
+            TableToExcel.convert(document.getElementById("dataTable1"), {
+                name: "Danh sách hóa đơn đang bị thu hồi.xlsx",
+                sheet: {
+                    name: "Sheet 1"
+                }
+            });
+        });
+    </script>
+    @*<script src="~/Content/js/demo/datatables-demo.js"></script>*@
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+            $('#dataTable1').DataTable({
+                columnDefs: [
+                    { width: '150px', targets: 0 },// Độ rộng cột 5
+                ],
+                "language": {
+                    "url": '@Url.Content("~/Content/Vendor/datatables/json.json")'
+                }
+            });
+        });
+
+        //Hàm kiểm tra
+        function KTnd() {
+            setTimeout(function () {
+                if (check1 === 1) {
+                    $('#btnAdd').prop('disabled', false); // Mở ô thêm mới
+                }
+                else {
+                    $('#btnAdd').prop('disabled', true); // Vô hiệu hóa ô thêm mới
+                };
+            }, 250)
+        };
+
+
+
+        //Thu hồi hoá đơn
+        $('#dataTable').on('click', '#thuhoiHD', function () {
+            var mahd = $(this).closest('tr').find('td:first-child').text().trim();
+            var $row = $(this).closest('tr');
+
+            $('#deleteModalLabel').html('Xác nhận thu hồi hoá đơn này ' + mahd);
+            $('#deleteModal').modal('show');
+
+            $('#confirmDelete').on('click', function () {
+                $.ajax({
+                    url: '/Admin/ThuHoiHD',
+                    type: 'POST',
+                    data: JSON.stringify({ ID: mahd }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "Json",
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Thu hồi hoá đơn thành công",
+                                text: "Mã hoá đơn: " + response.maHD + " đã được xóa",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                                //$row.remove();
+                            });
+                        } else {
+                            swal({
+                                title: "Thu hồi hoá đơn không thành công",
+                                text: "Mã hoá đơn" + response.maHD + "không thể thu hồi. " + "\n" + "Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                $('#deleteModal').modal('hide');
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            $('#deleteModal').modal('hide');
+                        });
+                    }
+                });
+            });
+        });
+        //Phục hồi hoá đơn
+        $('#dataTable1').on('click', '#phuchoiHD', function () {
+            var mahd = $(this).closest('tr').find('td:first-child').text().trim();
+
+            $('#RestoreModalLabel').html('Xác nhận phục hồi hoá đơn ' + mahd);
+            $('#RestoreModal').modal('show');
+
+            $('#confirmRestore').on('click', function () {
+                $.ajax({
+                    url: '/Admin/PhucHoiHD',
+                    type: 'POST',
+                    data: JSON.stringify({ ID: mahd }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Phục hồi hoá đơn thành công",
+                                text: "Hoá đơn " + response.maHD + " đã được phục hồi trạng thái .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Phục hồi hoá đơn " + response.maHD + " không thành công",
+                                text: "Mã hoá đơn " + response.maHD + "không thể phục hồi trạng thái.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+
+        //xóa nguyên liệu
+        $('#dataTable1').on('click', '#xoaHD', function () {
+            var mact = $(this).closest('tr').find('td:first-child').text().trim();
+            $('#deleteModalLabel1').html('Xác nhận xóa hoá đơn ' + mact);
+            $('#deleteModal1').modal('show');
+
+            $('#confirmDelete1').on('click', function () {
+                $.ajax({
+                    url: '/Admin/XoaCT',
+                    type: 'POST',
+                    data: JSON.stringify({ MaCT: mact }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        // Hiển thị thông báo thành công (nếu cần thiết)
+                        if (response.success == true) {
+                            swal({
+                                title: "Xóa hoá đơn thành công",
+                                text: "hoá đơn " + response.mact + " đã được xóa thành công .",
+                                icon: "success",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        } else {
+                            swal({
+                                title: "Xóa hoá đơn " + response.mact + " không thành công",
+                                text: "Mã hoá đơn " + response.mact + "không thể xóa.'+'\n'+' Nội dung lỗi: " + response.nd,
+                                icon: "error",
+                                button: "OK",
+                            }).then(function () {
+                                // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                                location.reload(); //Reload lại dữ liệu
+                            });
+                        }
+
+                    }, error: function (xhr, status, error) {
+                        swal({
+                            title: "Lỗi",
+                            text: "Đã xảy ra lỗi trong quá trình gửi yêu cầu",
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                });
+            });
+        });
+
+        //Hiển thị chi tiết hóa đơn
+        $('#dataTable').on('click', '#ThemCTHD', function () {
+            var row = $(this).closest('tr');
+            var mahd = row.find('td:eq(0)').text().trim();
+            console.log(mahd);
+            $('#myModalLabel').html("Thông tin hóa đơn: " + mahd);
+            $('#MaHoaDon').val(mahd);
+            $.ajax({
+                url: '/Admin/getChiTietHD',
+                type: 'POST',
+                data: JSON.stringify({ MaHD: mahd }),
+                contentType: 'application/json',
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        var data = response.data
+                        //console.log(data);
+                        //console.log(response.checkTT);
+
+                        var table = $("#dataTableCTHD tbody");
+
+                        // Xoá dòng cũ trong bảng (nếu có)
+                        table.empty();
+                        var discount = response.vouCher;
+
+                        var tamtinh = 0;
+                        var tongcong = 0;
+                        for (var i = 0; i < data.length; i++) {
+                            var newRow = '<tr>' +
+                                '<td data-b-a-s="thin"> <img src="' + data[i].ImageMA + '" alt="Hình ảnh" width="80" height="70"> </td>' +
+                                '<td data-b-a-s="thin">' + data[i].TenMonAn + '</td>' +
+                                '<td data-b-a-s="thin">' + data[i].SoLuong + '</td>' +
+                                '<td data-b-a-s="thin">' + formatCurrency(data[i].Gia) + '</td>' +
+                                '</tr>';
+                            tamtinh += data[i].Gia * data[i].SoLuong;
+                            table.append(newRow);
+                        }
+                        if (discount != null) {
+                            tongcong = tamtinh - (tamtinh * discount);
+                        }
+                        else {
+                            discount = 0;
+                        }
+                        var lastRow =
+                            '<tr >' +
+                            '<th colspan="3" style="text-align:end; border:1px solid #ffffff">Tạm tính:</th>' +
+                            '<td style="border:1px solid #ffffff"> ' + formatCurrency(tamtinh) + ' </td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<th colspan="3" style="text-align:end;border:1px solid #ffffff">Chiết khấu:</th>' +
+                            '<td style="border:1px solid #ffffff"> 0 </td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<th colspan="3" style="text-align:end;border:1px solid #ffffff;">Khuyến mãi:</th>' +
+                            '<td style="border:1px solid #ffffff; border-bottom: 1px solid #dee2e6"> ' + (discount * 100) + '% </td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<th colspan="3" style="text-align:end;border:1px solid #ffffff">Tổng tiền:</th>' +
+                            '<td style="border:1px solid #ffffff"> ' + formatCurrency(tongcong) + ' </td>' +
+                            '</tr>'
+                            ;
+
+                        table.append(lastRow);
+                        if (response.checkTT == null) {
+                            $('#Duyet').prop('hidden', false);
+                            $('#TuChoi').prop('hidden', false);
+                        } else {
+                            $('#Duyet').prop('hidden', true);
+                            $('#TuChoi').prop('hidden', true);
+                        }
+
+                    } else {
+                        console.log('Lấy data không thành công ');
+                        console.log('Ma lỗi: ' + response.error);
+                    }
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra trong quá trình lấy dữ liệu.');
+                }
+            })
+
+            $("#myModal").modal("show");
+        });
+        function formatCurrency(number) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+        }
+        //Xét duyệt || từ chối hóa đơn
+        $('#Duyet').on('click', function () {
+
+            var mahd = $('#MaHoaDon').val();
+            console.log('Bạn đã xét duyệt: ' + mahd);
+            var trangthai = true
+            $.ajax({
+                url: '/Admin/XetDuyetHD',
+                data: { MaHD: mahd, TT: trangthai },
+                method: 'POST',
+                success: function (response) {
+                    if (response.success == true) {
+                        swal({
+                            title: "Xét duyệt đơn hàng thành công",
+                            text: "Đơn hàng " + mahd + " đã được xét duyệt thành công .",
+                            icon: "success",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    } else {
+                        swal({
+                            title: "Xét duyệt đơn hàng không thành công",
+                            text: "Đơn hàng " + mahd + " không được xét duyệt thành công. Lý do: " + response.nd,
+                            icon: "error",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra trong quá trình xử lý dữ liệu.');
+                }
+            });
+
+        });
+        $('#TuChoi').on('click', function () {
+            var mahd = $('#MaHoaDon').val();
+            console.log('Bạn từ chối đơn hàng này: ' + mahd);
+            var trangthai = false;
+            $.ajax({
+                url: '/Admin/XetDuyetHD',
+                data: { MaHD: mahd, TT: trangthai },
+                method: 'POST',
+                success: function (response) {
+                    if (response.success == true) {
+                        swal({
+                            title: "Từ chối đơn hàng thành công",
+                            text: "Đơn hàng " + mahd + " đã từ chối thành công .",
+                            icon: "success",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    } else {
+                        swal({
+                            title: "Từ chối đơn hàng không thành công",
+                            text: "Đơn hàng " + mahd + " không được từ chối .",
+                            icon: "success",
+                            button: "OK",
+                        }).then(function () {
+                            // Thực hiện các hành động sau khi người dùng nhấn nút "OK"
+                            location.reload(); //Reload lại dữ liệu
+                        });
+                    }
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra trong quá trình xử lý dữ liệu.');
+                }
+            });
+        });
+    </script>
+}
